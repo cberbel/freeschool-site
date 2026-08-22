@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Estúdio — Escola Montessoriana</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--azul:#0d2440;--azul2:#1e40af;--dourado:#debb05;--fundo:#f4f6f9;--card:#fff;
+      --borda:#e2e8f0;--tinta:#1c2733;--tinta2:#5a6b7d;--ok:#1d6b3f;--erro:#b3261e}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--fundo);
+     color:var(--tinta);padding-bottom:80px}
+header{background:var(--azul);color:#fff;padding:14px 16px;display:flex;
+       justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header b{font-size:17px} header .d{color:var(--dourado)}
+header button{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;
+       border-radius:8px;padding:6px 10px;font-size:12px}
+main{max-width:680px;margin:0 auto;padding:14px}
+.abas{display:flex;gap:8px;margin-bottom:14px}
+.abas button{flex:1;padding:10px;border:1px solid var(--borda);background:#fff;
+     border-radius:10px;font-weight:700;color:var(--tinta2);font-size:14px}
+.abas button.on{background:var(--azul2);border-color:var(--azul2);color:#fff}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:14px;
+      padding:14px;margin-bottom:14px}
+.topo{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.qdo{font-weight:800;font-size:15px}
+.chip{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;text-transform:uppercase}
+.chip.rascunho{background:#fff4d6;color:#8a5a00}
+.chip.aprovado{background:#e0f2e9;color:var(--ok)}
+.chip.publicado{background:#e3e9ff;color:var(--azul2)}
+.chip.reprovado{background:#fde5e3;color:var(--erro)}
+.tipo{font-size:12px;color:var(--tinta2);text-transform:uppercase;letter-spacing:1px}
+.midias{display:flex;gap:8px;overflow-x:auto;margin:10px 0;scroll-snap-type:x mandatory}
+.midias img,.midias video{height:280px;border-radius:10px;scroll-snap-align:start;
+     flex-shrink:0;background:#dde3ea}
+.leg{font-size:13px;color:var(--tinta2);white-space:pre-wrap;max-height:74px;
+     overflow:hidden;position:relative;cursor:pointer}
+.leg.aberta{max-height:none}
+.acoes{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.acoes button{flex:1;min-width:100px;padding:11px 8px;border-radius:10px;border:none;
+      font-weight:800;font-size:14px}
+.b-ap{background:var(--ok);color:#fff}
+.b-re{background:#fff;border:1.5px solid var(--erro)!important;color:var(--erro)}
+.b-h{background:#fff;border:1.5px solid var(--borda)!important;color:var(--tinta2)}
+.coment{margin-top:10px;display:flex;gap:8px}
+.coment input{flex:1;padding:10px;border:1px solid var(--borda);border-radius:10px;font-size:14px}
+.coment button{background:var(--azul2);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700}
+.hist{font-size:12px;color:var(--tinta2);margin-top:8px;border-left:3px solid var(--dourado);
+      padding-left:8px;white-space:pre-wrap}
+#login{max-width:360px;margin:80px auto;background:#fff;padding:26px;border-radius:16px;
+       border:1px solid var(--borda)}
+#login h1{font-size:20px;color:var(--azul);margin-bottom:4px}
+#login p{font-size:13px;color:var(--tinta2);margin-bottom:16px}
+#login input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--borda);
+       border-radius:10px;font-size:15px}
+#login button{width:100%;padding:13px;background:var(--azul2);color:#fff;border:none;
+       border-radius:10px;font-weight:800;font-size:15px}
+#msg{color:var(--erro);font-size:13px;margin-top:8px;min-height:18px}
+.regras textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--borda);
+       border-radius:10px;font-size:14px;margin-bottom:8px}
+.regras .add{width:100%;padding:12px;background:var(--dourado);color:var(--azul);
+       border:none;border-radius:10px;font-weight:800;font-size:15px}
+.regra-item{background:#fff;border:1px solid var(--borda);border-radius:10px;
+       padding:10px 12px;margin-top:10px;font-size:13px}
+.regra-item .st{font-size:11px;font-weight:800;color:var(--tinta2)}
+.vazio{color:var(--tinta2);text-align:center;padding:30px 10px;font-size:14px}
+.aviso{background:#fff8e6;border:1px solid #f0dfae;border-radius:10px;padding:10px 12px;
+       font-size:12px;color:#7a5b00;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div id="app-login">
+  <div id="login">
+    <h1>Estúdio <span style="color:var(--dourado)">·</span> Escola Montessoriana</h1>
+    <p>Fila de publicação, aprovação e regras.</p>
+    <input id="em" type="email" placeholder="E-mail" autocomplete="username">
+    <input id="se" type="password" placeholder="Senha" autocomplete="current-password">
+    <button onclick="entrar()">Entrar</button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+<header>
+  <b>Estúdio <span class="d">·</span> Montessoriana</b>
+  <button onclick="sair()">Sair</button>
+</header>
+<main>
+  <div class="abas">
+    <button id="aba-fila" class="on" onclick="mudarAba('fila')">Fila</button>
+    <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
+    <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
+  </div>
+  <div id="conteudo"><div class="vazio">Carregando…</div></div>
+</main>
+</div>
+
+<script>
+const SB_URL = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co';
+const SB_KEY = 'sb_publishable_bg4n-MXnoYVWomRN90WTOg_HOdq3_9G';
+const db = supabase.createClient(SB_URL, SB_KEY);
+let abaAtual = 'fila';
+const urlCache = {};
+
+async function init(){
+  const {data:{session}} = await db.auth.getSession();
+  if(session){ mostrarApp(); }
+}
+async function entrar(){
+  document.getElementById('msg').textContent = '';
+  const {error} = await db.auth.signInWithPassword({
+    email: document.getElementById('em').value.trim(),
+    password: document.getElementById('se').value});
+  if(error){ document.getElementById('msg').textContent = 'Login inválido: ' + error.message; return; }
+  mostrarApp();
+}
+async function sair(){ await db.auth.signOut(); location.reload(); }
+function mostrarApp(){
+  document.getElementById('app-login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  carregar();
+}
+function mudarAba(a){
+  abaAtual = a;
+  for(const x of ['fila','hist','regras'])
+    document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
+  carregar();
+}
+
+async function urlAssinada(path){
+  if(urlCache[path]) return urlCache[path];
+  const {data} = await db.storage.from('fila-previews').createSignedUrl(path, 3600);
+  urlCache[path] = data ? data.signedUrl : '';
+  return urlCache[path];
+}
+
+function fmtQuando(iso){
+  const d = new Date(iso);
+  const dias = ['dom','seg','ter','qua','qui','sex','sáb'];
+  return `${dias[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+async function carregar(){
+  const alvo = document.getElementById('conteudo');
+  alvo.innerHTML = '<div class="vazio">Carregando…</div>';
+  if(abaAtual === 'regras') return carregarRegras();
+  const filtro = (abaAtual === 'fila') ? ['rascunho','aprovado'] : ['publicado','reprovado'];
+  const {data, error} = await db.from('pub_fila').select('*')
+        .in('status', filtro).order('quando');
+  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
+  if(!data.length){ alvo.innerHTML = '<div class="vazio">Nada por aqui. 🎉</div>'; return; }
+
+  alvo.innerHTML = (abaAtual==='fila')
+    ? '<div class="aviso">Aprovar aqui = publicar no horário marcado. A ponte com o robô roda a cada 10 min.</div>' : '';
+  for(const p of data){ alvo.appendChild(await cartao(p)); }
+}
+
+async function cartao(p){
+  const el = document.createElement('div');
+  el.className = 'card';
+  const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
+  el.innerHTML = `
+    <div class="topo">
+      <div><div class="qdo">${fmtQuando(p.quando)}</div>
+      <div class="tipo">${p.tipo}${p.permalink ? ` · <a href="${p.permalink}" target="_blank">ver post</a>`:''}</div></div>
+      <span class="chip ${p.status}">${p.status}</span>
+    </div>
+    <div class="midias" data-m></div>
+    <div class="leg" onclick="this.classList.toggle('aberta')">${(p.legenda||'').replace(/</g,'&lt;')}</div>
+    ${p.motivo ? `<div class="hist">Motivo: ${p.motivo}</div>` : ''}
+    ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
+    ${p.status==='rascunho' ? `
+    <div class="acoes">
+      <button class="b-ap" onclick="aprovar('${p.id}')">✓ Aprovar</button>
+      <button class="b-re" onclick="reprovar('${p.id}')">✗ Reprovar</button>
+      <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
+    </div>` : ''}
+    <div class="coment">
+      <input placeholder="Comentário para o Claude (educa o bot)…" data-c>
+      <button onclick="comentar('${p.id}', this)">Enviar</button>
+    </div>`;
+  const cont = el.querySelector('[data-m]');
+  for(const m of (p.midias||[])){
+    const u = await urlAssinada(m.path);
+    if(!u) continue;
+    if((m.mime||'').startsWith('video')){
+      const v = document.createElement('video');
+      v.src = u; v.controls = true; v.preload='metadata'; cont.appendChild(v);
+    } else {
+      const i = document.createElement('img');
+      i.src = u; i.loading='lazy'; cont.appendChild(i);
+    }
+  }
+  return el;
+}
+
+async function aprovar(id){
+  if(!confirm('Aprovar esta peça? Ela publica sozinha no horário marcado.')) return;
+  await db.from('pub_fila').update({status:'aprovado', atualizado_por:'estudio',
+      atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function reprovar(id){
+  const motivo = prompt('Motivo da reprovação (vira aprendizado do bot):');
+  if(motivo === null) return;
+  await db.from('pub_fila').update({status:'reprovado', motivo,
+      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function mudarHorario(id, atual){
+  const d = new Date(atual);
+  const sugestao = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const novo = prompt('Novo horário (AAAA-MM-DD HH:MM):', sugestao);
+  if(!novo) return;
+  const dt = new Date(novo.replace(' ','T'));
+  if(isNaN(dt)){ alert('Formato inválido'); return; }
+  await db.from('pub_fila').update({quando: dt.toISOString(),
+      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function comentar(id, btn){
+  const input = btn.parentElement.querySelector('[data-c]');
+  const texto = input.value.trim();
+  if(!texto) return;
+  const {data} = await db.from('pub_fila').select('comentarios').eq('id', id).single();
+  const coms = (data && data.comentarios) || [];
+  coms.push({texto, em: new Date().toISOString()});
+  await db.from('pub_fila').update({comentarios: coms}).eq('id', id);
+  input.value = '';
+  carregar();
+}
+
+async function carregarRegras(){
+  const alvo = document.getElementById('conteudo');
+  const {data, error} = await db.from('pub_regras').select('*')
+        .order('criado_em', {ascending:false});
+  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
+  alvo.innerHTML = `
+    <div class="regras">
+      <div class="aviso">O que você escrever aqui vira regra oficial: o Claude incorpora
+      no REGRAS.md e toda peça futura obedece. Ex.: "nunca usar foto sem criança",
+      "sábado o post é sempre de atividade externa".</div>
+      <textarea id="nova-regra" placeholder="Escreva a nova regra ou correção…"></textarea>
+      <button class="add" onclick="addRegra()">Adicionar regra</button>
+      <div id="lista-regras"></div>
+    </div>`;
+  const lista = document.getElementById('lista-regras');
+  for(const r of (data||[])){
+    const d = document.createElement('div');
+    d.className = 'regra-item';
+    d.innerHTML = `<div class="st">${r.status === 'incorporada' ? '✅ incorporada ao REGRAS.md' : '⏳ aguardando o Claude incorporar'} · ${(r.criado_em||'').slice(0,16).replace('T',' ')}</div>
+                   <div>${(r.texto||'').replace(/</g,'&lt;')}</div>`;
+    lista.appendChild(d);
+  }
+}
+async function addRegra(){
+  const t = document.getElementById('nova-regra').value.trim();
+  if(!t) return;
+  const {error} = await db.from('pub_regras').insert({texto: t});
+  if(error){ alert('Erro: '+error.message); return; }
+  carregarRegras();
+}
+
+init();
+</script>
+</body>
+</html>
