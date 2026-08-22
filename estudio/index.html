@@ -169,6 +169,7 @@ async function cartao(p){
     </div>
     <div class="midias" data-m></div>
     <div class="leg" onclick="this.classList.toggle('aberta')">${(p.legenda||'').replace(/</g,'&lt;')}</div>
+    ${p.parecer ? `<div class="hist" style="border-left-color:${p.parecer.includes('REPROVAR') ? '#b3261e' : p.parecer.includes('ATENÇÃO') ? '#c77700' : '#1d6b3f'}">🧐 ${p.parecer.replace(/</g,'&lt;')}</div>` : ''}
     ${p.motivo ? `<div class="hist">Motivo: ${p.motivo}</div>` : ''}
     ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
     ${p.status==='rascunho' ? `
