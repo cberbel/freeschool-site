@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tráfego Pago — Escola Montessoriana</title>
+<style>
+:root { --azul:#0d2440; --azul-claro:#23477e; --dourado:#B8860B; --tinta:#1c2733;
+        --tinta-2:#5a6b7d; --fundo:#f6f8fa; --card:#ffffff; --borda:#e3e9ef;
+        --ok:#1d6b3f; --alerta:#8a5a00; --alerta-bg:#fff4d6; }
+* { box-sizing:border-box; margin:0; }
+body { font:15px/1.5 "Segoe UI",system-ui,sans-serif; background:var(--fundo);
+       color:var(--tinta); padding:28px clamp(14px,4vw,48px); }
+h1 { font-size:22px; color:var(--azul); } .sub { color:var(--tinta-2); margin:2px 0 22px; font-size:13px; }
+.veredito { display:inline-block; font-size:13px; font-weight:700; padding:4px 12px;
+            border-radius:999px; margin-bottom:18px; }
+.veredito.ok { background:#e6f4ea; color:var(--ok); }
+.veredito.atencao { background:var(--alerta-bg); color:var(--alerta); }
+.conclusao { background:var(--card); border:1px solid var(--borda); border-left:4px solid var(--dourado);
+             border-radius:12px; padding:18px 22px; margin-bottom:26px; }
+.conclusao h2 { margin-bottom:10px; }
+.conclusao ol { padding-left:20px; } .conclusao li { margin-bottom:8px; }
+.dono { font-size:11px; font-weight:700; border-radius:4px; padding:1px 6px; margin-right:4px; }
+.dono.claudio { background:var(--azul); color:#fff; }
+.dono.auto { background:#e6f4ea; color:var(--ok); }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:26px; }
+.card { background:var(--card); border:1px solid var(--borda); border-radius:12px; padding:16px 18px; }
+.card .k { font-size:12px; color:var(--tinta-2); text-transform:uppercase; letter-spacing:.4px; }
+.card .v { font-size:30px; font-weight:700; color:var(--azul); margin-top:2px; }
+.card .n { font-size:11px; color:var(--tinta-2); margin-top:4px; }
+section { background:var(--card); border:1px solid var(--borda); border-radius:12px;
+          padding:20px 22px; margin-bottom:24px; }
+h2 { font-size:15px; color:var(--azul); margin-bottom:14px; }
+.nota { font-size:12px; color:var(--tinta-2); margin:-6px 0 14px; }
+.aviso { font-size:12px; color:var(--alerta); background:var(--alerta-bg); border-radius:6px;
+         padding:6px 10px; margin-bottom:12px; }
+.funil { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin-bottom:8px; }
+.degrau { flex:1 1 120px; background:var(--fundo); border:1px solid var(--borda); border-radius:10px;
+          padding:10px 12px; text-align:center; position:relative; }
+.degrau .dk { font-size:11px; color:var(--tinta-2); }
+.degrau .dv { font-size:24px; font-weight:700; color:var(--azul); }
+.degrau .dp { font-size:11px; color:var(--dourado); font-weight:700; }
+.tabela-wrap { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:13px; }
+th,td { padding:7px 9px; border-bottom:1px solid var(--borda); text-align:left; white-space:nowrap; }
+th { color:var(--tinta-2); font-weight:600; font-size:12px; }
+td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; }
+tr.destaque td { background:#fffdf7; }
+.selo { background:var(--dourado); color:#fff; font-size:11px; font-weight:700;
+        padding:2px 8px; border-radius:999px; }
+a { color:var(--azul-claro); }
+footer { color:var(--tinta-2); font-size:12px; }
+</style><script>
+(function () {
+  var CHAVE = 'dash_ok_v1';
+  if (localStorage.getItem(CHAVE) === '1') return;
+  document.documentElement.style.visibility = 'hidden';
+  window.addEventListener('DOMContentLoaded', function () {
+    var s = prompt('Senha do painel:');
+    if (s === 'laranjeiras540') {
+      localStorage.setItem(CHAVE, '1');
+      document.documentElement.style.visibility = '';
+    } else {
+      document.body.innerHTML = '<p style="font-family:sans-serif;padding:40px">Acesso restrito.</p>';
+      document.documentElement.style.visibility = '';
+    }
+  });
+})();
+</script>
+</head><body>
+<h1>Tráfego pago — Escola Montessoriana</h1>
+<div class="sub">Atualizado em 22/08/2026 (rotina diária das 7h30) · fonte: Supabase medicao.* + painel Google Ads · <a href="/dashboard/">Instagram orgânico</a> · <a href="/estudio/">Estúdio</a></div>
+
+<div class="veredito ok">✅ Medição de pé — funil vazando entre o clique e a conversa</div>
+
+<div class="conclusao">
+<h2>Conclusão do dia</h2>
+<ol>
+<li><strong>A medição está confiável?</strong> Sim. A view de saúde foi corrigida hoje (excluída a carga de 266 leads da base 2024-25 que disparava alerta falso): 42 leads reais em 7 dias, 57% com gclid, 66% com protocolo — dentro da faixa histórica.</li>
+<li><strong>Onde o funil vaza:</strong> no site, entre o clique e a conversa. 18–21/08: <strong>468 cliques de anúncio → 23 conversas iniciadas (4,9%)</strong>. 95% do tráfego pago abre a página e some — casa com o Clarity (98% só vê a home, metade não rola).</li>
+<li><strong>O que fazer:</strong>
+  <span class="dono claudio">Claudio</span> rebaixar <em>Contato no Whatsapp</em> a secundária no Google Ads (443 conv. de clique em botão guiando o lance vs 5 conversas reais);
+  <span class="dono claudio">Claudio</span> abrir chamado no suporte da Meta (conta de anúncios restrita — campanha [ALM] [M1] parada);
+  <span class="dono auto">automático</span> palavras de escola concorrente viram público de remarketing (34 cliques/7d), não negativa.</li>
+</ol>
+</div>
+
+<div class="cards">
+ <div class="card"><div class="k">Cliques de anúncio 7d</div><div class="v">700</div><div class="n">gclid gravado no site</div></div>
+ <div class="card"><div class="k">Leads reais 7d</div><div class="v">42</div><div class="n">sem simulação/base antiga</div></div>
+ <div class="card"><div class="k">Conversas respondidas</div><div class="v">5</div><div class="n">30 dias, degrau R$ 10</div></div>
+ <div class="card"><div class="k">Visitas agendadas</div><div class="v">2</div><div class="n">30 dias, degrau R$ 50</div></div>
+ <div class="card"><div class="k">Matrículas</div><div class="v">0</div><div class="n">degrau R$ 500</div></div>
+</div>
+
+<section>
+<h2>Funil pago — 18 a 21/08</h2>
+<div class="funil">
+ <div class="degrau"><div class="dk">Cliques de anúncio</div><div class="dv">468</div></div>
+ <div class="degrau"><div class="dk">Conversas iniciadas</div><div class="dv">23</div><div class="dp">4,9%</div></div>
+ <div class="degrau"><div class="dk">Conversas respondidas</div><div class="dv">5</div><div class="dp">22%</div></div>
+ <div class="degrau"><div class="dk">Visitas agendadas</div><div class="dv">2</div><div class="dp">40%</div></div>
+ <div class="degrau"><div class="dk">Matrículas</div><div class="dv">0</div><div class="dp">—</div></div>
+</div>
+<p class="nota">O maior degrau perdido é o primeiro: 95% dos cliques pagos não viram conversa. Percentuais seguintes sobre bases pequenas — ler como tendência, não veredito.</p>
+</section>
+
+<section>
+<h2>PMax × Pesquisa — painel, 30 dias (23/jul–21/ago)</h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th></th><th class="num">Orçamento</th><th class="num">Cliques</th><th class="num">Impressões</th><th class="num">Conversões</th><th class="num">Taxa conv.</th><th class="num">Custo/conv.</th></tr></thead>
+<tbody>
+<tr><td>[ALM] [C3] Campanha de Leads (Pesquisa)</td><td class="num">R$ 120/dia</td><td class="num">815</td><td class="num">11.776</td><td class="num">113,76</td><td class="num"><strong>13,96%</strong></td><td class="num">R$ 22,58</td></tr>
+<tr><td>[ALM] [C3] [PMAX]</td><td class="num">R$ 25/dia</td><td class="num">4.894</td><td class="num">91.762</td><td class="num">450,75</td><td class="num">2,03%</td><td class="num">R$ 4,29</td></tr>
+</tbody>
+</table>
+</div>
+<div class="aviso">O R$ 4,29 do PMax é falso barato: das 450,75 conversões, 378,76 são <em>Contato no Whatsapp</em> (clique em botão), não conversa. A Pesquisa converte 7× melhor por clique. Pelos degraus reais (5 conversas + 2 visitas na conta toda) ainda não dá para declarar vencedor.</div>
+</section>
+
+<section>
+<h2>Palavras-chave — 7 dias (só Pesquisa repassa kw)</h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th>Palavra</th><th>Corresp.</th><th class="num">Cliques</th><th class="num">Leads</th><th>Destino</th></tr></thead>
+<tbody>
+<tr><td>escola e creche</td><td>ampla</td><td class="num">18</td><td class="num">0</td><td></td></tr>
+<tr class="destaque"><td>espaço cria</td><td>frase</td><td class="num">9</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
+<tr class="destaque"><td>colégio imperial botafogo</td><td>frase</td><td class="num">8</td><td class="num">1</td><td><span class="selo">remarketing</span></td></tr>
+<tr><td>creche escola infantil</td><td>ampla</td><td class="num">8</td><td class="num">1</td><td></td></tr>
+<tr class="destaque"><td>pequena cruzada</td><td>frase</td><td class="num">7</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
+<tr><td>escola cosme velho</td><td>ampla</td><td class="num">6</td><td class="num">1</td><td></td></tr>
+<tr class="destaque"><td>escola edem</td><td>frase</td><td class="num">6</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
+<tr class="destaque"><td>centro educacional miraflores</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
+<tr><td>escola montessoriana rj</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td></td></tr>
+<tr><td>educação infantil</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p class="nota">Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing — nunca palavra negativa (decisão de 22/08).</p>
+</section>
+
+<section>
+<h2>De onde vem cada visita — 7 dias</h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th>Origem</th><th class="num">Visitas</th><th class="num">Leads</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td>google_ads</td><td class="num">700</td><td class="num">23</td><td>tráfego pago rastreado</td></tr>
+<tr><td>instagram</td><td class="num">530</td><td class="num">0</td><td>⚠️ orgânico — Meta parado (conta restrita)</td></tr>
+<tr><td>direto</td><td class="num">142</td><td class="num">1</td><td></td></tr>
+<tr><td>informativo</td><td class="num">25</td><td class="num">0</td><td></td></tr>
+<tr><td>google_organico</td><td class="num">21</td><td class="num">1</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p class="nota">Instagram é a 2ª maior fonte de tráfego do site e não produz lead — 530 visitas, 0 conversas. A campanha Meta [ALM] [M1] está parada: conta de anúncios restrita, aguardando suporte.</p>
+</section>
+
+<section>
+<h2>Saúde da medição</h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th>Item</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Veredito da view saude_medicao</td><td>✅ OK</td></tr>
+<tr><td>LPs pagas (creche.html / montessori.html)</td><td>✅ HTTP 200, conteúdo esperado</td></tr>
+<tr><td>Planilha de conversões (IMPORTDATA)</td><td>✅ automática, 15 linhas, em dia</td></tr>
+<tr><td>Import Google Ads 06:35</td><td>✅ concluindo sem erro (14 em 21/08)</td></tr>
+<tr><td>3 degraus no Google Ads</td><td>✅ criados e principais; Conversa qualificada já secundária</td></tr>
+<tr><td>Contato no Whatsapp</td><td>⚠️ ainda principal — guia o lance com clique de botão</td></tr>
+<tr><td>Campanha Meta</td><td>⚠️ parada — conta restrita, suporte acionado</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<footer>Gerado pela rotina diária rotina-ads-diaria (7h30) · fontes: Supabase medicao.* / crm.* + painel Google Ads (sessão interativa) · <a href="/dashboard/">orgânico</a> · <a href="/estudio/">estúdio</a></footer>
+</body></html>
