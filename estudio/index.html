@@ -90,6 +90,7 @@ main{max-width:680px;margin:0 auto;padding:14px}
 <main>
   <div class="abas">
     <button id="aba-fila" class="on" onclick="mudarAba('fila')">Fila</button>
+    <button id="aba-pauta" onclick="mudarAba('pauta')">Pauta</button>
     <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
     <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
   </div>
@@ -124,7 +125,7 @@ function mostrarApp(){
 }
 function mudarAba(a){
   abaAtual = a;
-  for(const x of ['fila','hist','regras'])
+  for(const x of ['fila','pauta','hist','regras'])
     document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
   carregar();
 }
@@ -146,6 +147,7 @@ async function carregar(){
   const alvo = document.getElementById('conteudo');
   alvo.innerHTML = '<div class="vazio">Carregando…</div>';
   if(abaAtual === 'regras') return carregarRegras();
+  if(abaAtual === 'pauta') return carregarPauta();
   const filtro = (abaAtual === 'fila') ? ['rascunho','aprovado'] : ['publicado','reprovado'];
   const {data, error} = await db.from('pub_fila').select('*')
         .in('status', filtro).order('quando');
@@ -229,6 +231,99 @@ async function comentar(id, btn){
   const coms = (data && data.comentarios) || [];
   coms.push({texto, em: new Date().toISOString()});
   await db.from('pub_fila').update({comentarios: coms}).eq('id', id);
+  input.value = '';
+  carregar();
+}
+
+// ---------- PAUTA (aprovação de intenção + modo de publicação) ----------
+const MODOS = {
+  manual: 'Manual — você aprova peça a peça na Fila (como hoje).',
+  pauta:  'Pauta — você aprova só a pauta da semana; a peça publica sozinha quando as DUAS revisões (mecânica + visual) dão OK.',
+  auto:   'Auto — publica sozinha com as duas revisões OK, sem pauta. Você só veta exceções.'
+};
+async function carregarPauta(){
+  const alvo = document.getElementById('conteudo');
+  const [{data:cfg}, {data, error}] = await Promise.all([
+    db.from('pub_config').select('valor').eq('chave','modo_publicacao').single(),
+    db.from('pub_pauta').select('*').order('data').order('slot')
+  ]);
+  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
+  const modo = (cfg && cfg.valor) || 'manual';
+  let html = `
+    <div class="aviso"><b>Modo de publicação:</b><br>` +
+    Object.keys(MODOS).map(m =>
+      `<label style="display:block;margin:6px 0;cursor:pointer">
+         <input type="radio" name="modo" value="${m}" ${m===modo?'checked':''}
+                onchange="mudarModo('${m}')"> <b>${m}</b> — ${MODOS[m]}</label>`).join('') +
+    `</div>
+    <div class="aviso">A pauta é a intenção da semana: aprove/edite ANTES de a peça ser
+    produzida. Peça só nasce de pauta aprovada (no modo pauta).</div>`;
+  const pend = (data||[]).filter(p=>p.status==='proposta').length;
+  if(pend > 1) html += `<button class="add" onclick="pautaAprovarTudo()">✓ Aprovar as ${pend} propostas</button>`;
+  alvo.innerHTML = html;
+  if(!(data||[]).length){ alvo.innerHTML += '<div class="vazio">Sem pauta proposta ainda.</div>'; return; }
+  for(const p of data){
+    const el = document.createElement('div');
+    el.className = 'card';
+    const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
+    el.innerHTML = `
+      <div class="topo">
+        <div><div class="qdo">${p.data} · ${p.slot==='card-1130'?'card 11h30':'reel 18h30'}</div>
+        <div class="tipo">${p.pilar||''} · ${p.formato||''}</div></div>
+        <span class="chip ${p.status==='aprovada'?'aprovado':p.status==='rejeitada'?'reprovado':'rascunho'}">${p.status}</span>
+      </div>
+      <div class="leg aberta"><b>${(p.gancho||'').replace(/</g,'&lt;')}</b><br>
+        ${(p.tema||'').replace(/</g,'&lt;')}
+        ${p.foto ? `<br>📷 ${p.foto.replace(/</g,'&lt;')}` : ''}
+        ${p.fonte ? `<br>🔬 ${p.fonte.replace(/</g,'&lt;')}` : ''}</div>
+      ${p.justificativa ? `<div class="hist">💡 ${p.justificativa.replace(/</g,'&lt;')}</div>` : ''}
+      ${p.motivo ? `<div class="hist">Motivo: ${p.motivo.replace(/</g,'&lt;')}</div>` : ''}
+      ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
+      ${p.status==='proposta' ? `
+      <div class="acoes">
+        <button class="b-ap" onclick="pautaStatus('${p.id}','aprovada')">✓ Aprovar</button>
+        <button class="b-re" onclick="pautaRejeitar('${p.id}')">✗ Rejeitar</button>
+      </div>` : ''}
+      <div class="coment">
+        <input placeholder="Comentário / ajuste do tema (educa o bot)…" data-c>
+        <button onclick="pautaComentar('${p.id}', this)">Enviar</button>
+      </div>`;
+    alvo.appendChild(el);
+  }
+}
+async function mudarModo(m){
+  if(!confirm(`Mudar o modo de publicação para "${m}"?\n\n${MODOS[m]}`)){ carregar(); return; }
+  const {error} = await db.from('pub_config').update({valor:m,
+      atualizado_em:new Date().toISOString()}).eq('chave','modo_publicacao');
+  if(error) alert('Erro: '+error.message);
+  carregar();
+}
+async function pautaStatus(id, st){
+  await db.from('pub_pauta').update({status:st,
+      atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function pautaRejeitar(id){
+  const motivo = prompt('Por que rejeitar? (vira aprendizado da próxima pauta)');
+  if(motivo === null) return;
+  await db.from('pub_pauta').update({status:'rejeitada', motivo,
+      atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function pautaAprovarTudo(){
+  if(!confirm('Aprovar TODAS as propostas pendentes?')) return;
+  await db.from('pub_pauta').update({status:'aprovada',
+      atualizado_em:new Date().toISOString()}).eq('status','proposta');
+  carregar();
+}
+async function pautaComentar(id, btn){
+  const input = btn.parentElement.querySelector('[data-c]');
+  const texto = input.value.trim();
+  if(!texto) return;
+  const {data} = await db.from('pub_pauta').select('comentarios').eq('id', id).single();
+  const coms = (data && data.comentarios) || [];
+  coms.push({texto, em: new Date().toISOString()});
+  await db.from('pub_pauta').update({comentarios: coms}).eq('id', id);
   input.value = '';
   carregar();
 }
