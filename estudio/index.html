@@ -148,14 +148,14 @@ async function carregar(){
   alvo.innerHTML = '<div class="vazio">Carregando…</div>';
   if(abaAtual === 'regras') return carregarRegras();
   if(abaAtual === 'pauta') return carregarPauta();
-  const filtro = (abaAtual === 'fila') ? ['rascunho','aprovado'] : ['publicado','reprovado'];
+  const filtro = (abaAtual === 'fila') ? ['rascunho'] : ['aprovado','publicado','reprovado'];
   const {data, error} = await db.from('pub_fila').select('*')
         .in('status', filtro).order('quando');
   if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
   if(!data.length){ alvo.innerHTML = '<div class="vazio">Nada por aqui. 🎉</div>'; return; }
 
   alvo.innerHTML = (abaAtual==='fila')
-    ? '<div class="aviso">Aprovar aqui = publicar no horário marcado. A ponte com o robô roda a cada 10 min.</div>' : '';
+    ? '<div class="aviso">Só o que espera sua decisão. Aprovou → vai para o Histórico e publica sozinho no horário. A ponte com o robô roda a cada 10 min.</div>' : '';
   for(const p of data){ alvo.appendChild(await cartao(p)); }
 }
 
@@ -178,6 +178,11 @@ async function cartao(p){
     <div class="acoes">
       <button class="b-ap" onclick="aprovar('${p.id}')">✓ Aprovar</button>
       <button class="b-re" onclick="reprovar('${p.id}')">✗ Reprovar</button>
+      <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
+    </div>` : ''}
+    ${p.status==='aprovado' && !p.permalink ? `
+    <div class="acoes">
+      <button class="b-re" onclick="cancelarAprovacao('${p.id}')">↩ Cancelar aprovação</button>
       <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
     </div>` : ''}
     <div class="coment">
@@ -203,6 +208,13 @@ async function aprovar(id){
   if(!confirm('Aprovar esta peça? Ela publica sozinha no horário marcado.')) return;
   await db.from('pub_fila').update({status:'aprovado', atualizado_por:'estudio',
       atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function cancelarAprovacao(id){
+  if(!confirm('Voltar esta peça para a Fila (rascunho)? Ela NÃO publica até você aprovar de novo.')) return;
+  await db.from('pub_fila').update({status:'rascunho',
+      motivo:'aprovação cancelada pelo Claudio — não auto-aprovar',
+      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
   carregar();
 }
 async function reprovar(id){
