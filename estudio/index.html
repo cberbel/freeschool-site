@@ -205,13 +205,11 @@ async function cartao(p){
 }
 
 async function aprovar(id){
-  if(!confirm('Aprovar esta peça? Ela publica sozinha no horário marcado.')) return;
   await db.from('pub_fila').update({status:'aprovado', atualizado_por:'estudio',
       atualizado_em:new Date().toISOString()}).eq('id', id);
   carregar();
 }
 async function cancelarAprovacao(id){
-  if(!confirm('Voltar esta peça para a Fila (rascunho)? Ela NÃO publica até você aprovar de novo.')) return;
   await db.from('pub_fila').update({status:'rascunho',
       motivo:'aprovação cancelada pelo Claudio — não auto-aprovar',
       atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
@@ -323,7 +321,6 @@ async function pautaRejeitar(id){
   carregar();
 }
 async function pautaAprovarTudo(){
-  if(!confirm('Aprovar TODAS as propostas pendentes?')) return;
   await db.from('pub_pauta').update({status:'aprovada',
       atualizado_em:new Date().toISOString()}).eq('status','proposta');
   carregar();
