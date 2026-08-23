@@ -268,11 +268,14 @@ async function carregarPauta(){
     `</div>
     <div class="aviso">A pauta é a intenção da semana: aprove/edite ANTES de a peça ser
     produzida. Peça só nasce de pauta aprovada (no modo pauta).</div>`;
-  const pend = (data||[]).filter(p=>p.status==='proposta').length;
-  if(pend > 1) html += `<button class="add" onclick="pautaAprovarTudo()">✓ Aprovar as ${pend} propostas</button>`;
+  const propostas = (data||[]).filter(p=>p.status==='proposta');
+  const nApr = (data||[]).filter(p=>p.status==='aprovada').length;
+  const nRej = (data||[]).filter(p=>p.status==='rejeitada').length;
+  if(nApr || nRej) html += `<div class="aviso">${nApr} aprovada(s) → na esteira de produção · ${nRej} rejeitada(s) → aprendizado da próxima pauta</div>`;
+  if(propostas.length > 1) html += `<button class="add" onclick="pautaAprovarTudo()">✓ Aprovar as ${propostas.length} propostas</button>`;
   alvo.innerHTML = html;
-  if(!(data||[]).length){ alvo.innerHTML += '<div class="vazio">Sem pauta proposta ainda.</div>'; return; }
-  for(const p of data){
+  if(!propostas.length){ alvo.innerHTML += '<div class="vazio">Nenhuma proposta esperando você. 🎉</div>'; return; }
+  for(const p of propostas){
     const el = document.createElement('div');
     el.className = 'card';
     const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
