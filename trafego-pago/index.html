@@ -56,6 +56,7 @@ td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; }
 tr.destaque td { background:#fffdf7; }
 .selo { background:var(--dourado); color:#fff; font-size:11px; font-weight:700;
         padding:2px 8px; border-radius:999px; }
+.selo.neg { background:var(--tinta-2); }
 a { color:var(--azul-claro); }
 footer { color:var(--tinta-2); font-size:12px; }
 </style><script>
@@ -155,7 +156,7 @@ footer { color:var(--tinta-2); font-size:12px; }
 <tbody id="tb-kw"></tbody>
 </table>
 </div>
-<p class="nota">Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing — nunca palavra negativa (decisão de 22/08).</p>
+<p class="nota">Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing — nunca palavra negativa (decisão de 22/08). Exceção decidida pelo Claudio em 23/08: <em>"pequena cruzada"</em> entrou como negativa de frase nas duas campanhas.</p>
 </section>
 
 <section>
@@ -197,6 +198,7 @@ footer { color:var(--tinta-2); font-size:12px; }
 (function(){
 var D = JSON.parse(document.getElementById('dados').textContent);
 var CONCORRENTES = ['espaço cria','pequena cruzada','escola edem','centro educacional miraflores','miraflores','colegio metaverso','escola jangada','colégio imperial botafogo','casa da criança botafogo','escola dinamis','global tree botafogo','colegio ao cubo','creche baby room'];
+var NEGATIVADAS = {'pequena cruzada':'23/08'};
 var MT = {b:'ampla', p:'frase', e:'exata'};
 var dias = D.net.map(function(r){return r[0];});
 var DMIN = dias[0], DMAX = dias[dias.length-1];
@@ -245,7 +247,10 @@ function render(de, ate){
   h='';
   kws.forEach(function(r){
     var conc = CONCORRENTES.indexOf(r.kw)>=0;
-    h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+'</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+(conc?'<span class="selo">remarketing</span>':'')+'</td></tr>';
+    var neg = NEGATIVADAS[r.kw];
+    var destino = neg ? '<span class="selo neg">negativada '+neg+'</span>'
+                      : (conc ? '<span class="selo">remarketing</span>' : '');
+    h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+'</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+destino+'</td></tr>';
   });
   $('tb-kw').innerHTML = h || '<tr><td colspan="5">Sem kw no período (dado existe desde 18/08).</td></tr>';
 
