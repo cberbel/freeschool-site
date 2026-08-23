@@ -10,11 +10,20 @@
 * { box-sizing:border-box; margin:0; }
 body { font:15px/1.5 "Segoe UI",system-ui,sans-serif; background:var(--fundo);
        color:var(--tinta); padding:28px clamp(14px,4vw,48px); }
-h1 { font-size:22px; color:var(--azul); } .sub { color:var(--tinta-2); margin:2px 0 22px; font-size:13px; }
+h1 { font-size:22px; color:var(--azul); } .sub { color:var(--tinta-2); margin:2px 0 16px; font-size:13px; }
 .veredito { display:inline-block; font-size:13px; font-weight:700; padding:4px 12px;
-            border-radius:999px; margin-bottom:18px; }
+            border-radius:999px; margin-bottom:14px; }
 .veredito.ok { background:#e6f4ea; color:var(--ok); }
 .veredito.atencao { background:var(--alerta-bg); color:var(--alerta); }
+.periodo { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:20px;
+           background:var(--card); border:1px solid var(--borda); border-radius:12px; padding:10px 14px; }
+.periodo .rot-p { font-size:12px; color:var(--tinta-2); margin-right:2px; }
+.periodo button { font:13px "Segoe UI",system-ui,sans-serif; padding:6px 14px; border-radius:999px;
+  border:1px solid var(--borda); background:var(--fundo); color:var(--tinta); cursor:pointer; }
+.periodo button.ativo { background:var(--azul); border-color:var(--azul); color:#fff; font-weight:600; }
+.periodo input[type=date] { font:13px "Segoe UI",system-ui,sans-serif; padding:5px 8px;
+  border:1px solid var(--borda); border-radius:8px; color:var(--tinta); background:var(--fundo); }
+.periodo .faixa { font-size:12px; color:var(--tinta-2); margin-left:auto; }
 .conclusao { background:var(--card); border:1px solid var(--borda); border-left:4px solid var(--dourado);
              border-radius:12px; padding:18px 22px; margin-bottom:26px; }
 .conclusao h2 { margin-bottom:10px; }
@@ -30,15 +39,15 @@ h1 { font-size:22px; color:var(--azul); } .sub { color:var(--tinta-2); margin:2p
 section { background:var(--card); border:1px solid var(--borda); border-radius:12px;
           padding:20px 22px; margin-bottom:24px; }
 h2 { font-size:15px; color:var(--azul); margin-bottom:14px; }
-.nota { font-size:12px; color:var(--tinta-2); margin:-6px 0 14px; }
+.nota { font-size:12px; color:var(--tinta-2); margin:10px 0 0; }
 .aviso { font-size:12px; color:var(--alerta); background:var(--alerta-bg); border-radius:6px;
-         padding:6px 10px; margin-bottom:12px; }
-.funil { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin-bottom:8px; }
+         padding:6px 10px; margin-top:12px; }
+.funil { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin-bottom:4px; }
 .degrau { flex:1 1 120px; background:var(--fundo); border:1px solid var(--borda); border-radius:10px;
-          padding:10px 12px; text-align:center; position:relative; }
+          padding:10px 12px; text-align:center; }
 .degrau .dk { font-size:11px; color:var(--tinta-2); }
 .degrau .dv { font-size:24px; font-weight:700; color:var(--azul); }
-.degrau .dp { font-size:11px; color:var(--dourado); font-weight:700; }
+.degrau .dp { font-size:11px; color:var(--dourado); font-weight:700; min-height:16px; }
 .tabela-wrap { overflow-x:auto; }
 table { border-collapse:collapse; width:100%; font-size:13px; }
 th,td { padding:7px 9px; border-bottom:1px solid var(--borda); text-align:left; white-space:nowrap; }
@@ -72,6 +81,15 @@ footer { color:var(--tinta-2); font-size:12px; }
 
 <div class="veredito ok">✅ Medição de pé — funil vazando entre o clique e a conversa</div>
 
+<div class="periodo">
+ <span class="rot-p">Período:</span>
+ <button data-preset="7">7 dias</button>
+ <button data-preset="14">14 dias</button>
+ <button data-preset="30">30 dias</button>
+ <input type="date" id="dt-de"> <span class="rot-p">até</span> <input type="date" id="dt-ate">
+ <span class="faixa" id="faixa-txt"></span>
+</div>
+
 <div class="conclusao">
 <h2>Conclusão do dia</h2>
 <ol>
@@ -80,28 +98,39 @@ footer { color:var(--tinta-2); font-size:12px; }
 <li><strong>O que fazer:</strong>
   <span class="dono auto">feito 22/08</span> <em>Contato no Whatsapp</em> rebaixada a secundária — o lance agora segue os degraus reais; queda na coluna "Conversões" nos próximos dias é esperada (reaprendizado), não é defeito;
   <span class="dono claudio">Claudio</span> abrir chamado no suporte da Meta (conta de anúncios restrita — campanha [ALM] [M1] parada);
-  <span class="dono auto">automático</span> palavras de escola concorrente viram público de remarketing (34 cliques/7d), não negativa.</li>
+  <span class="dono auto">automático</span> palavras de escola concorrente viram público de remarketing, não negativa.</li>
 </ol>
 </div>
 
 <div class="cards">
- <div class="card"><div class="k">Cliques de anúncio 7d</div><div class="v">700</div><div class="n">gclid gravado no site</div></div>
- <div class="card"><div class="k">Leads reais 7d</div><div class="v">42</div><div class="n">sem simulação/base antiga</div></div>
- <div class="card"><div class="k">Conversas respondidas</div><div class="v">5</div><div class="n">30 dias, degrau R$ 10</div></div>
- <div class="card"><div class="k">Visitas agendadas</div><div class="v">2</div><div class="n">30 dias, degrau R$ 50</div></div>
- <div class="card"><div class="k">Matrículas</div><div class="v">0</div><div class="n">degrau R$ 500</div></div>
+ <div class="card"><div class="k">Cliques de anúncio</div><div class="v" id="c-cliques">—</div><div class="n">gclid gravado no site</div></div>
+ <div class="card"><div class="k">Novos leads</div><div class="v" id="c-leads">—</div><div class="n">sem simulação/base antiga</div></div>
+ <div class="card"><div class="k">Conversas respondidas</div><div class="v" id="c-resp">—</div><div class="n">degrau R$ 10</div></div>
+ <div class="card"><div class="k">Visitas agendadas</div><div class="v" id="c-va">—</div><div class="n">degrau R$ 50</div></div>
+ <div class="card"><div class="k">Matrículas</div><div class="v" id="c-ma">—</div><div class="n">degrau R$ 500</div></div>
 </div>
 
 <section>
-<h2>Funil pago — 18 a 21/08</h2>
+<h2>Funil pago no período</h2>
 <div class="funil">
- <div class="degrau"><div class="dk">Cliques de anúncio</div><div class="dv">468</div></div>
- <div class="degrau"><div class="dk">Conversas iniciadas</div><div class="dv">23</div><div class="dp">4,9%</div></div>
- <div class="degrau"><div class="dk">Conversas respondidas</div><div class="dv">5</div><div class="dp">22%</div></div>
- <div class="degrau"><div class="dk">Visitas agendadas</div><div class="dv">2</div><div class="dp">40%</div></div>
- <div class="degrau"><div class="dk">Matrículas</div><div class="dv">0</div><div class="dp">—</div></div>
+ <div class="degrau"><div class="dk">Cliques de anúncio</div><div class="dv" id="f-cliques">—</div><div class="dp"></div></div>
+ <div class="degrau"><div class="dk">Novos leads</div><div class="dv" id="f-leads">—</div><div class="dp" id="fp-leads"></div></div>
+ <div class="degrau"><div class="dk">Conversas respondidas</div><div class="dv" id="f-resp">—</div><div class="dp" id="fp-resp"></div></div>
+ <div class="degrau"><div class="dk">Visitas agendadas</div><div class="dv" id="f-va">—</div><div class="dp" id="fp-va"></div></div>
+ <div class="degrau"><div class="dk">Matrículas</div><div class="dv" id="f-ma">—</div><div class="dp" id="fp-ma"></div></div>
 </div>
-<p class="nota">O maior degrau perdido é o primeiro: 95% dos cliques pagos não viram conversa. Percentuais seguintes sobre bases pequenas — ler como tendência, não veredito.</p>
+<p class="nota">Leads e degraus incluem todas as origens (o clique pago é o topo rastreável). Percentual = conversão sobre o degrau anterior. Bases pequenas: ler como tendência, não veredito.</p>
+</section>
+
+<section>
+<h2>Pesquisa × outros pagos, por dia</h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th>Dia</th><th class="num">Pesquisa</th><th class="num">Outros pagos (PMax/display)</th><th class="num">Total</th></tr></thead>
+<tbody id="tb-net"></tbody>
+</table>
+</div>
+<p class="nota">A rede (`net=g` = Pesquisa) só é identificável desde 18/08, quando o sufixo de URL entrou na campanha. Antes disso, tudo cai em "outros".</p>
 </section>
 
 <section>
@@ -115,46 +144,29 @@ footer { color:var(--tinta-2); font-size:12px; }
 </tbody>
 </table>
 </div>
-<div class="aviso">O R$ 4,29 do PMax é falso barato: das 450,75 conversões, 378,76 são <em>Contato no Whatsapp</em> (clique em botão), não conversa. A Pesquisa converte 7× melhor por clique. Pelos degraus reais (5 conversas + 2 visitas na conta toda) ainda não dá para declarar vencedor.</div>
+<div class="aviso">O R$ 4,29 do PMax é falso barato: das 450,75 conversões, 378,76 são <em>Contato no Whatsapp</em> (clique em botão), não conversa. A Pesquisa converte 7× melhor por clique. Esta tabela vem do painel e se atualiza nas sessões interativas — o custo não existe no Supabase.</div>
 </section>
 
 <section>
-<h2>Palavras-chave — 7 dias (só Pesquisa repassa kw)</h2>
+<h2>Palavras-chave no período (só Pesquisa repassa kw, desde 18/08)</h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Palavra</th><th>Corresp.</th><th class="num">Cliques</th><th class="num">Leads</th><th>Destino</th></tr></thead>
-<tbody>
-<tr><td>escola e creche</td><td>ampla</td><td class="num">18</td><td class="num">0</td><td></td></tr>
-<tr class="destaque"><td>espaço cria</td><td>frase</td><td class="num">9</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
-<tr class="destaque"><td>colégio imperial botafogo</td><td>frase</td><td class="num">8</td><td class="num">1</td><td><span class="selo">remarketing</span></td></tr>
-<tr><td>creche escola infantil</td><td>ampla</td><td class="num">8</td><td class="num">1</td><td></td></tr>
-<tr class="destaque"><td>pequena cruzada</td><td>frase</td><td class="num">7</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
-<tr><td>escola cosme velho</td><td>ampla</td><td class="num">6</td><td class="num">1</td><td></td></tr>
-<tr class="destaque"><td>escola edem</td><td>frase</td><td class="num">6</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
-<tr class="destaque"><td>centro educacional miraflores</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td><span class="selo">remarketing</span></td></tr>
-<tr><td>escola montessoriana rj</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td></td></tr>
-<tr><td>educação infantil</td><td>ampla</td><td class="num">5</td><td class="num">0</td><td></td></tr>
-</tbody>
+<tbody id="tb-kw"></tbody>
 </table>
 </div>
 <p class="nota">Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing — nunca palavra negativa (decisão de 22/08).</p>
 </section>
 
 <section>
-<h2>De onde vem cada visita — 7 dias</h2>
+<h2>De onde vem cada visita no período</h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Origem</th><th class="num">Visitas</th><th class="num">Leads</th><th>Nota</th></tr></thead>
-<tbody>
-<tr><td>google_ads</td><td class="num">700</td><td class="num">23</td><td>tráfego pago rastreado</td></tr>
-<tr><td>instagram</td><td class="num">530</td><td class="num">0</td><td>⚠️ orgânico — Meta parado (conta restrita)</td></tr>
-<tr><td>direto</td><td class="num">142</td><td class="num">1</td><td></td></tr>
-<tr><td>informativo</td><td class="num">25</td><td class="num">0</td><td></td></tr>
-<tr><td>google_organico</td><td class="num">21</td><td class="num">1</td><td></td></tr>
-</tbody>
+<tbody id="tb-orig"></tbody>
 </table>
 </div>
-<p class="nota">Instagram é a 2ª maior fonte de tráfego do site e não produz lead — 530 visitas, 0 conversas. A campanha Meta [ALM] [M1] está parada: conta de anúncios restrita, aguardando suporte.</p>
+<p class="nota" id="nota-orig">O site marca a origem de TODA visita desde 18/08 (antes só anúncio). Instagram hoje é orgânico — a campanha Meta [ALM] [M1] está parada (conta restrita, aguardando suporte).</p>
 </section>
 
 <section>
@@ -174,6 +186,114 @@ footer { color:var(--tinta-2); font-size:12px; }
 </table>
 </div>
 </section>
+
+<script id="dados" type="application/json">
+{"net":[["2026-08-08",0,207],["2026-08-09",0,142],["2026-08-10",0,173],["2026-08-11",0,171],["2026-08-12",0,188],["2026-08-13",0,199],["2026-08-14",0,138],["2026-08-15",0,110],["2026-08-16",0,77],["2026-08-17",0,66],["2026-08-18",45,82],["2026-08-19",42,77],["2026-08-20",27,80],["2026-08-21",26,89],["2026-08-22",10,80]],
+"crm":[["2026-08-12",2,0,0],["2026-08-13",8,0,0],["2026-08-14",5,1,0],["2026-08-15",7,0,0],["2026-08-16",6,0,0],["2026-08-17",9,1,0],["2026-08-18",3,0,0],["2026-08-19",6,1,0],["2026-08-20",8,1,0],["2026-08-21",6,1,0],["2026-08-22",3,0,0]],
+"orig":[["google_ads","2026-08-08",207,2],["google_ads","2026-08-09",142,1],["google_ads","2026-08-10",173,0],["google_ads","2026-08-11",171,1],["google_ads","2026-08-12",188,0],["google_ads","2026-08-13",199,3],["google_ads","2026-08-14",138,4],["google_ads","2026-08-15",110,7],["google_ads","2026-08-16",77,5],["google_ads","2026-08-17",66,5],["instagram","2026-08-18",174,0],["google_ads","2026-08-18",127,1],["direto","2026-08-18",57,0],["informativo","2026-08-18",8,0],["google_organico","2026-08-18",6,0],["outro_site","2026-08-18",1,0],["bing","2026-08-18",1,0],["instagram","2026-08-19",122,0],["google_ads","2026-08-19",119,4],["direto","2026-08-19",23,0],["google_organico","2026-08-19",8,0],["informativo","2026-08-19",3,0],["instagram","2026-08-20",148,0],["google_ads","2026-08-20",107,3],["direto","2026-08-20",30,0],["informativo","2026-08-20",7,0],["google_organico","2026-08-20",4,0],["outro_site","2026-08-20",1,0],["google_ads","2026-08-21",115,2],["instagram","2026-08-21",86,0],["direto","2026-08-21",22,1],["informativo","2026-08-21",6,0],["google_organico","2026-08-21",3,0],["google_ads","2026-08-22",90,2],["direto","2026-08-22",10,0],["facebook","2026-08-22",1,0],["informativo","2026-08-22",1,0]],
+"kw":[["escola e creche","b","2026-08-18",7,0],["centro educacional miraflores","b","2026-08-18",4,0],["espaço cria","p","2026-08-18",4,0],["escola de infantil","b","2026-08-18",3,0],["escola cosme velho","b","2026-08-18",3,0],["escola ensino infantil","b","2026-08-18",2,0],["creche escola infantil","b","2026-08-18",2,0],["escola montessoriana rj","b","2026-08-18",2,0],["escola edem","p","2026-08-18",2,0],["pequena cruzada","p","2026-08-18",2,0],["creche infantil","b","2026-08-18",2,0],["educacao infantil","b","2026-08-18",2,0],["escola de ensino infantil particular","b","2026-08-18",1,0],["creche catete","b","2026-08-18",1,0],["creche flamengo","e","2026-08-18",1,0],["creche near me","b","2026-08-18",1,0],["ensino para crianças","b","2026-08-18",1,0],["bilingual school","b","2026-08-18",1,0],["escola dinamis","p","2026-08-18",1,0],["escola infantil laranjeiras","b","2026-08-18",1,0],["escola montessoriana","b","2026-08-18",1,0],["escola montessoriana rio de janeiro","b","2026-08-18",1,0],["escola e creche","b","2026-08-19",10,0],["pequena cruzada","p","2026-08-19",4,0],["colégio imperial botafogo","p","2026-08-19",3,1],["colegio metaverso","p","2026-08-19",3,0],["creche escola infantil","b","2026-08-19",3,0],["escola cosme velho","b","2026-08-19",2,1],["educação infantil","b","2026-08-19",2,0],["escola educação infantil","b","2026-08-19",2,0],["creche montessori","b","2026-08-19",1,0],["miraflores","b","2026-08-19",1,0],["casa da criança botafogo","p","2026-08-19",1,0],["escola de educação infantil particular","b","2026-08-19",1,0],["creche infantil","b","2026-08-19",1,0],["escola edem","p","2026-08-19",1,0],["creche flamengo","e","2026-08-19",1,1],["escola maternal","b","2026-08-19",1,0],["escola montessori","b","2026-08-19",1,0],["escola montessoriana","b","2026-08-19",1,0],["espaço cria","p","2026-08-19",1,0],["creche laranjeiras","b","2026-08-19",1,0],["creche laranjeiras","e","2026-08-19",1,0],["escola montessoriana rj","b","2026-08-20",3,0],["escola edem","p","2026-08-20",3,0],["espaço cria","p","2026-08-20",2,0],["global tree botafogo","p","2026-08-20",2,0],["creche escola infantil","b","2026-08-20",2,0],["escolinhas infantil","b","2026-08-20",2,0],["escolas de educação infantil","b","2026-08-20",2,0],["escola e creche","b","2026-08-20",1,0],["escola jangada","p","2026-08-20",1,0],["escolas montessorianas rj","b","2026-08-20",1,0],["pequena cruzada","p","2026-08-20",1,0],["centro educacional miraflores","b","2026-08-20",1,0],["colegio ao cubo","p","2026-08-20",1,0],["colegio ensino fundamental","b","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-20",1,0],["colegio metaverso","p","2026-08-20",1,0],["creche infantil","b","2026-08-20",1,0],["escola cosme velho","b","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-21",4,0],["educação infantil","b","2026-08-21",3,0],["casa da criança botafogo","p","2026-08-21",2,0],["creche catete","b","2026-08-21",2,0],["escola jangada","p","2026-08-21",2,0],["espaço cria","p","2026-08-21",2,0],["colegio ao cubo","p","2026-08-21",1,0],["ensino para crianças","b","2026-08-21",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-21",1,0],["escola dinamis","p","2026-08-21",1,0],["escola infantil laranjeiras","b","2026-08-21",1,0],["escolinhas infantil","b","2026-08-21",1,0],["escola montessori","b","2026-08-21",1,0],["escolas de educação infantil","b","2026-08-21",1,0],["creche botafogo","p","2026-08-21",1,0],["escolas montessorianas rj","b","2026-08-21",1,0],["creche escola infantil","b","2026-08-21",1,1],["escola e creche","b","2026-08-22",2,0],["educação infantil","b","2026-08-22",1,0],["escola edem","p","2026-08-22",1,0],["escola educação infantil","b","2026-08-22",1,0],["escola infantil laranjeiras","b","2026-08-22",1,0],["escolas de educação infantil","b","2026-08-22",1,0],["espaço cria","p","2026-08-22",1,0],["creche catete","b","2026-08-22",1,0],["montessori","b","2026-08-22",1,0]]}
+</script>
+<script>
+(function(){
+var D = JSON.parse(document.getElementById('dados').textContent);
+var CONCORRENTES = ['espaço cria','pequena cruzada','escola edem','centro educacional miraflores','miraflores','colegio metaverso','escola jangada','colégio imperial botafogo','casa da criança botafogo','escola dinamis','global tree botafogo','colegio ao cubo','creche baby room'];
+var MT = {b:'ampla', p:'frase', e:'exata'};
+var dias = D.net.map(function(r){return r[0];});
+var DMIN = dias[0], DMAX = dias[dias.length-1];
+var $ = function(id){return document.getElementById(id);};
+function fmt(n){return n.toLocaleString('pt-BR');}
+function fmtBR(d){var p=d.split('-');return p[2]+'/'+p[1];}
+function pct(a,b){return b>0 ? (100*a/b).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%' : '—';}
+function dentro(d,de,ate){return d>=de && d<=ate;}
+
+function render(de, ate){
+  var net = D.net.filter(function(r){return dentro(r[0],de,ate);});
+  var crm = D.crm.filter(function(r){return dentro(r[0],de,ate);});
+  var cliques=0, pesq=0, outros=0;
+  net.forEach(function(r){pesq+=r[1]; outros+=r[2];});
+  cliques = pesq+outros;
+  var leads=0, resp=0, va=0, ma=0;
+  crm.forEach(function(r){leads+=r[1]; va+=r[2]; ma+=r[3];});
+  // conversas respondidas por dia vêm da série resultado_diario embutida no crm? não — respostas por dia:
+  var RESP = {"2026-08-14":3,"2026-08-15":1,"2026-08-16":0,"2026-08-17":3,"2026-08-18":0,"2026-08-19":3,"2026-08-20":1,"2026-08-21":1,"2026-08-22":0,"2026-08-13":0,"2026-08-12":0};
+  resp = 0; Object.keys(RESP).forEach(function(d){ if(dentro(d,de,ate)) resp+=RESP[d]; });
+
+  $('c-cliques').textContent = fmt(cliques);
+  $('c-leads').textContent = fmt(leads);
+  $('c-resp').textContent = fmt(resp);
+  $('c-va').textContent = fmt(va);
+  $('c-ma').textContent = fmt(ma);
+
+  $('f-cliques').textContent = fmt(cliques);
+  $('f-leads').textContent = fmt(leads); $('fp-leads').textContent = pct(leads,cliques);
+  $('f-resp').textContent = fmt(resp);   $('fp-resp').textContent = pct(resp,leads);
+  $('f-va').textContent = fmt(va);       $('fp-va').textContent = pct(va,resp);
+  $('f-ma').textContent = fmt(ma);       $('fp-ma').textContent = ma>0?pct(ma,va):'—';
+
+  var h='';
+  net.slice().reverse().forEach(function(r){
+    h+='<tr><td>'+fmtBR(r[0])+'</td><td class="num">'+(r[0]>='2026-08-18'?fmt(r[1]):'—')+'</td><td class="num">'+fmt(r[2])+'</td><td class="num">'+fmt(r[1]+r[2])+'</td></tr>';
+  });
+  $('tb-net').innerHTML = h || '<tr><td colspan="4">Sem dado no período.</td></tr>';
+
+  var kwAgg = {};
+  D.kw.forEach(function(r){ if(!dentro(r[2],de,ate)) return;
+    var k=r[0]+'|'+r[1]; if(!kwAgg[k]) kwAgg[k]={kw:r[0],mt:r[1],c:0,l:0};
+    kwAgg[k].c+=r[3]; kwAgg[k].l+=r[4]; });
+  var kws = Object.keys(kwAgg).map(function(k){return kwAgg[k];})
+    .sort(function(a,b){return b.c-a.c;}).slice(0,15);
+  h='';
+  kws.forEach(function(r){
+    var conc = CONCORRENTES.indexOf(r.kw)>=0;
+    h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+'</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+(conc?'<span class="selo">remarketing</span>':'')+'</td></tr>';
+  });
+  $('tb-kw').innerHTML = h || '<tr><td colspan="5">Sem kw no período (dado existe desde 18/08).</td></tr>';
+
+  var oAgg = {};
+  D.orig.forEach(function(r){ if(!dentro(r[1],de,ate)) return;
+    if(!oAgg[r[0]]) oAgg[r[0]]={v:0,l:0}; oAgg[r[0]].v+=r[2]; oAgg[r[0]].l+=r[3]; });
+  var os = Object.keys(oAgg).map(function(o){return {o:o,v:oAgg[o].v,l:oAgg[o].l};})
+    .sort(function(a,b){return b.v-a.v;});
+  h='';
+  os.forEach(function(r){
+    var nota = r.o==='instagram' ? '⚠️ orgânico — Meta parado (conta restrita)' : (r.o==='google_ads' ? 'tráfego pago rastreado' : '');
+    h+='<tr><td>'+r.o+'</td><td class="num">'+fmt(r.v)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+nota+'</td></tr>';
+  });
+  $('tb-orig').innerHTML = h || '<tr><td colspan="4">Sem dado no período.</td></tr>';
+
+  $('faixa-txt').textContent = fmtBR(de)+' – '+fmtBR(ate)+'/2026 · dados desde '+fmtBR(DMIN);
+}
+
+function setPreset(n, salvar){
+  var ate = DMAX;
+  var d = new Date(DMAX+'T12:00:00'); d.setDate(d.getDate()-(n-1));
+  var de = d.toISOString().slice(0,10); if(de<DMIN) de=DMIN;
+  $('dt-de').value=de; $('dt-ate').value=ate;
+  document.querySelectorAll('.periodo button').forEach(function(b){
+    b.classList.toggle('ativo', b.getAttribute('data-preset')==String(n)); });
+  if(salvar!==false) localStorage.setItem('tp_periodo', String(n));
+  render(de, ate);
+}
+function setCustom(){
+  var de=$('dt-de').value, ate=$('dt-ate').value;
+  if(!de||!ate||de>ate) return;
+  document.querySelectorAll('.periodo button').forEach(function(b){b.classList.remove('ativo');});
+  localStorage.setItem('tp_periodo','custom'); localStorage.setItem('tp_de',de); localStorage.setItem('tp_ate',ate);
+  render(de, ate);
+}
+document.querySelectorAll('.periodo button').forEach(function(b){
+  b.addEventListener('click', function(){ setPreset(parseInt(b.getAttribute('data-preset'),10)); });
+});
+$('dt-de').min=DMIN; $('dt-de').max=DMAX; $('dt-ate').min=DMIN; $('dt-ate').max=DMAX;
+$('dt-de').addEventListener('change', setCustom);
+$('dt-ate').addEventListener('change', setCustom);
+var salvo = localStorage.getItem('tp_periodo');
+if(salvo==='custom' && localStorage.getItem('tp_de')){
+  $('dt-de').value=localStorage.getItem('tp_de'); $('dt-ate').value=localStorage.getItem('tp_ate');
+  render($('dt-de').value, $('dt-ate').value);
+} else { setPreset(parseInt(salvo,10)||7, false); }
+})();
+</script>
 
 <footer>Gerado pela rotina diária rotina-ads-diaria (7h30) · fontes: Supabase medicao.* / crm.* + painel Google Ads (sessão interativa) · <a href="/dashboard/">orgânico</a> · <a href="/estudio/">estúdio</a></footer>
 </body></html>
