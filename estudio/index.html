@@ -282,6 +282,7 @@ async function carregarPauta(){
         <div class="tipo">${p.pilar||''} · ${p.formato||''}</div></div>
         <span class="chip ${p.status==='aprovada'?'aprovado':p.status==='rejeitada'?'reprovado':'rascunho'}">${p.status}</span>
       </div>
+      <div class="midias" data-m></div>
       <div class="leg aberta"><b>${(p.gancho||'').replace(/</g,'&lt;')}</b><br>
         ${(p.tema||'').replace(/</g,'&lt;')}
         ${p.foto ? `<br>📷 ${p.foto.replace(/</g,'&lt;')}` : ''}
@@ -299,6 +300,11 @@ async function carregarPauta(){
         <button onclick="pautaComentar('${p.id}', this)">Enviar</button>
       </div>`;
     alvo.appendChild(el);
+    if(p.foto_bucket){
+      const u = await urlAssinada(p.foto_bucket);
+      if(u){ const i = document.createElement('img'); i.src = u; i.loading = 'lazy';
+             el.querySelector('[data-m]').appendChild(i); }
+    }
   }
 }
 async function mudarModo(m){
