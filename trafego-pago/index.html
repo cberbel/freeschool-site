@@ -59,6 +59,12 @@ tr.destaque td { background:#fffdf7; }
 .selo.neg { background:var(--tinta-2); }
 a { color:var(--azul-claro); }
 footer { color:var(--tinta-2); font-size:12px; }
+.escopo { font-size:11px; font-weight:600; border-radius:999px; padding:2px 9px; margin-left:8px;
+          vertical-align:middle; white-space:nowrap; }
+.escopo.segue { background:#eef4ff; color:var(--azul-claro); }
+.escopo.fixo { background:var(--alerta-bg); color:var(--alerta); }
+h2 .escopo { text-transform:none; letter-spacing:0; }
+.conclusao .vazio { color:var(--tinta-2); font-style:italic; }
 </style><script>
 (function () {
   var CHAVE = 'dash_ok_v1';
@@ -78,9 +84,7 @@ footer { color:var(--tinta-2); font-size:12px; }
 </script>
 </head><body>
 <h1>Tráfego pago — Escola Montessoriana</h1>
-<div class="sub">Atualizado em 25/08/2026 · rotina das 7h30, execução concluída às 21h (dia praticamente fechado) · fonte: Supabase medicao.* + painel Google Ads · <a href="/dashboard/">Instagram orgânico</a> · <a href="/estudio/">Estúdio</a></div>
-
-<div class="veredito ok">✅ Medição de pé · visita nova hoje (José Pires, 12h41) · vazamento segue entre o clique e a conversa (6,1%)</div>
+<div class="sub">Rotina de 25/08/2026 (7h30, concluída às 21h) · fonte: Supabase medicao.* + painel Google Ads · <a href="/dashboard/">Instagram orgânico</a> · <a href="/estudio/">Estúdio</a></div>
 
 <div class="periodo">
  <span class="rot-p">Período:</span>
@@ -90,20 +94,11 @@ footer { color:var(--tinta-2); font-size:12px; }
  <input type="date" id="dt-de"> <span class="rot-p">até</span> <input type="date" id="dt-ate">
  <span class="faixa" id="faixa-txt"></span>
 </div>
+<p class="nota" style="margin:-12px 0 16px">Tudo abaixo é calculado sobre o período escolhido aqui em cima. Os dois blocos marcados <span class="escopo fixo">não segue o período</span> são leituras de data fixa e dizem qual.</p>
 
-<div class="conclusao">
-<h2>Conclusão do dia</h2>
-<p style="background:#fffdf7;border:1px solid var(--borda);border-left:3px solid var(--dourado);border-radius:8px;padding:10px 14px;margin-bottom:12px;">
-<strong>Visita agendada hoje:</strong> José Pires — origem <code>google_ads_mensagem</code>, status <em>quente</em>, agendada 25/08 às 12h41. Sem gclid, então <strong>não sobe para o Google</strong> (o degrau de R$ 50 só vai com clique rastreado). É a 5ª visita em 7 dias — e <strong>3 dessas 5 não têm gclid</strong>, ou seja, o elo mais valioso da cadeia é o que o Google menos enxerga. Nenhuma visita ficou pela metade.</p>
-<ol>
-<li><strong>A medição está confiável?</strong> Sim, veredito <code>OK</code> sem ressalva. <strong>44 leads reais em 7 dias, 59% com gclid e 68% com protocolo</strong> — acima do limiar de alerta (40%), e os dois percentuais subiram em relação a ontem (54% e 64%). A planilha de conversões está idêntica à view (<strong>21 linhas</strong>), com linha nova hoje às 15h37.</li>
-<li><strong>Onde o funil vaza:</strong> mesmo elo de ontem — entre o clique e a conversa. 19–25/08: <strong>717 cliques pagos → 44 leads (6,1%)</strong>. Daí para baixo a cadeia segura: 44 leads → 11 conversas respondidas (25,0%) → 5 visitas agendadas (45,5%) → 0 matrículas. Melhorou de 5,4% para 6,1% em uma leitura, mas segue sendo de longe a maior queda da cadeia — o gargalo é a página, não o bot.</li>
-<li><strong>O que fazer:</strong>
-  <span class="dono claudio">Claudio</span> <em>"pequena cruzada"</em> consta como negativada em 23/08, mas <strong>recebeu 3 cliques em 25/08</strong> (e 2 no próprio 23/08) — pela correspondência de frase, a negativa não pegou. Conferir no painel se ela foi mesmo salva nas duas campanhas;
-  <span class="dono claudio">Claudio</span> Instagram segue sendo a maior fonte de tráfego sem conversa: <strong>983 visitas e 0 leads</strong> em 19–25/08, contra 717 cliques do Google Ads com 44 leads. O Meta está parado desde 22/08 (conta restrita + cartão da <em>Free school</em> expirado) — quarta leitura seguida com o mesmo diagnóstico;
-  <span class="dono auto">automático</span> o susto de ontem com os <em>outros pagos</em> era dia parcial: 24/08 fechou em <strong>18 cliques</strong> (não 9, como a leitura das 18h indicava) e 25/08 voltou a <strong>87</strong>. O reaprendizado do rebaixamento de <em>Contato no Whatsapp</em> segue o curso previsto — nada a fazer.</li>
-</ol>
-</div>
+<div class="veredito ok" id="veredito">—</div>
+
+<div class="conclusao" id="conclusao"></div>
 
 <div class="cards">
  <div class="card"><div class="k">Cliques de anúncio</div><div class="v" id="c-cliques">—</div><div class="n">gclid gravado no site</div></div>
@@ -114,7 +109,7 @@ footer { color:var(--tinta-2); font-size:12px; }
 </div>
 
 <section>
-<h2>Funil pago no período</h2>
+<h2>Funil pago <span class="escopo segue" id="lb-funil"></span></h2>
 <div class="funil">
  <div class="degrau"><div class="dk">Cliques de anúncio</div><div class="dv" id="f-cliques">—</div><div class="dp"></div></div>
  <div class="degrau"><div class="dk">Novos leads</div><div class="dv" id="f-leads">—</div><div class="dp" id="fp-leads"></div></div>
@@ -126,18 +121,29 @@ footer { color:var(--tinta-2); font-size:12px; }
 </section>
 
 <section>
-<h2>Pesquisa × outros pagos, por dia</h2>
+<h2>Visitas agendadas <span class="escopo segue" id="lb-vis"></span></h2>
+<div class="tabela-wrap">
+<table>
+<thead><tr><th>Quem</th><th>Origem</th><th>Quando</th><th>Sobe para o Google?</th></tr></thead>
+<tbody id="tb-vis"></tbody>
+</table>
+</div>
+<p class="nota">O degrau de R$ 50 só é enviado quando a visita tem gclid. Sem gclid, a visita aconteceu mas o Google não fica sabendo — e o lance automático não aprende com ela.</p>
+</section>
+
+<section>
+<h2>Pesquisa × outros pagos, por dia <span class="escopo segue" id="lb-net"></span></h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Dia</th><th class="num">Pesquisa</th><th class="num">Outros pagos (PMax/display)</th><th class="num">Total</th></tr></thead>
 <tbody id="tb-net"></tbody>
 </table>
 </div>
-<p class="nota">A rede (`net=g` = Pesquisa) só é identificável desde 18/08, quando o sufixo de URL entrou na campanha. Antes disso, tudo cai em "outros".</p>
+<p class="nota"><code>net=g</code> é Pesquisa; o resto é "sufixo não chegou" — inclui PMax e display, e não é sinônimo de PMax. A rede só é identificável desde 18/08, quando o sufixo de URL entrou na campanha; antes disso tudo cai em "outros".</p>
 </section>
 
 <section>
-<h2>PMax × Pesquisa — painel, 30 dias (23/jul–21/ago)</h2>
+<h2>PMax × Pesquisa — painel do Google Ads <span class="escopo fixo">não segue o período · 23/jul–21/ago</span></h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th></th><th class="num">Orçamento</th><th class="num">Cliques</th><th class="num">Impressões</th><th class="num">Conversões</th><th class="num">Taxa conv.</th><th class="num">Custo/conv.</th></tr></thead>
@@ -147,44 +153,44 @@ footer { color:var(--tinta-2); font-size:12px; }
 </tbody>
 </table>
 </div>
-<div class="aviso">O R$ 4,29 do PMax é falso barato: das 450,75 conversões, 378,76 são <em>Contato no Whatsapp</em> (clique em botão), não conversa. A Pesquisa converte 7× melhor por clique. Esta tabela vem do painel e se atualiza nas sessões interativas — o custo não existe no Supabase.</div>
+<div class="aviso">Custo não existe no Supabase — esta tabela é uma leitura de painel de 21/08 e só muda em sessão interativa. O R$ 4,29 do PMax é falso barato: das 450,75 conversões, 378,76 são <em>Contato no Whatsapp</em> (clique em botão), não conversa. A Pesquisa converte 7× melhor por clique.</div>
 </section>
 
 <section>
-<h2>Palavras-chave no período (só Pesquisa repassa kw, desde 18/08)</h2>
+<h2>Palavras-chave <span class="escopo segue" id="lb-kw"></span></h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Palavra</th><th>Corresp.</th><th class="num">Cliques</th><th class="num">Leads</th><th>Destino</th></tr></thead>
 <tbody id="tb-kw"></tbody>
 </table>
 </div>
-<p class="nota">Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing — nunca palavra negativa (decisão de 22/08). Exceção decidida pelo Claudio em 23/08: <em>"pequena cruzada"</em> entrou como negativa de frase nas duas campanhas — <strong>mas o termo voltou a receber cliques em 25/08 (3)</strong>, sinal de que a negativa pode não ter sido salva.</p>
+<p class="nota">Só a Pesquisa repassa <code>kw</code>, e só desde 18/08 — PMax e display não aparecem aqui. Nome de escola concorrente é topo de funil frio: quem pesquisa está escolhendo escola na região. Vira público de remarketing, nunca palavra negativa (decisão de 22/08). Exceção do Claudio em 23/08: <em>"pequena cruzada"</em> entrou como negativa de frase nas duas campanhas.</p>
 </section>
 
 <section>
-<h2>De onde vem cada visita no período</h2>
+<h2>De onde vem cada visita <span class="escopo segue" id="lb-orig"></span></h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Origem</th><th class="num">Visitas</th><th class="num">Leads</th><th>Nota</th></tr></thead>
 <tbody id="tb-orig"></tbody>
 </table>
 </div>
-<p class="nota" id="nota-orig">O site marca a origem de TODA visita desde 18/08 (antes só anúncio). Instagram hoje é orgânico — a campanha Meta [ALM] [M1] está parada (conta restrita, aguardando suporte).</p>
+<p class="nota">O site marca a origem de TODA visita desde 18/08 (antes só anúncio). <code>instagram</code> aqui é referrer — junta link da bio, story e post orgânico, e hoje é tudo orgânico: a campanha Meta está parada (conta restrita).</p>
 </section>
 
 <section>
-<h2>Saúde da medição</h2>
+<h2>Saúde da medição <span class="escopo fixo">não segue o período · estado em 25/08</span></h2>
 <div class="tabela-wrap">
 <table>
 <thead><tr><th>Item</th><th>Estado</th></tr></thead>
 <tbody>
 <tr><td>Veredito da view saude_medicao</td><td>✅ OK</td></tr>
 <tr><td>LPs pagas (creche / montessori / educacao-infantil)</td><td>✅ as 3 no ar (HTTP 200), texto esperado, hero sem wa.me</td></tr>
-<tr><td>Desafio do Vercel no domínio</td><td>✅ não reapareceu — o <code>curl</code> da rotina passou direto nas 3 LPs hoje</td></tr>
+<tr><td>Desafio do Vercel no domínio</td><td>✅ não reapareceu — o <code>curl</code> da rotina passou direto nas 3 LPs</td></tr>
 <tr><td>Planilha de conversões (IMPORTDATA)</td><td>✅ automática, 21 linhas, igual à view</td></tr>
 <tr><td>Conversões na fila</td><td>18 conversas respondidas + 3 visitas — última em 25/08 15h37</td></tr>
 <tr><td>3 degraus no Google Ads</td><td>✅ criados e principais; Conversa qualificada já secundária</td></tr>
-<tr><td>Contato no Whatsapp</td><td>✅ secundária desde 22/08 — entrega de PMax normalizada (87 cliques em 25/08)</td></tr>
+<tr><td>Contato no Whatsapp</td><td>✅ secundária desde 22/08 — entrega de PMax normalizada</td></tr>
 <tr><td>Campanha Meta</td><td>⚠️ parada — conta restrita, suporte acionado</td></tr>
 </tbody>
 </table>
@@ -193,70 +199,203 @@ footer { color:var(--tinta-2); font-size:12px; }
 
 <script id="dados" type="application/json">
 {"net":[["2026-08-08",0,207],["2026-08-09",0,142],["2026-08-10",0,173],["2026-08-11",0,171],["2026-08-12",0,188],["2026-08-13",0,199],["2026-08-14",0,138],["2026-08-15",0,110],["2026-08-16",0,77],["2026-08-17",0,66],["2026-08-18",45,82],["2026-08-19",42,77],["2026-08-20",27,80],["2026-08-21",26,89],["2026-08-22",10,85],["2026-08-23",12,89],["2026-08-24",37,18],["2026-08-25",38,87]],
-"crm":[["2026-08-12",2,0,0],["2026-08-13",8,0,0],["2026-08-14",5,1,0],["2026-08-15",7,0,0],["2026-08-16",6,0,0],["2026-08-17",9,1,0],["2026-08-18",3,0,0],["2026-08-19",6,1,0],["2026-08-20",8,1,0],["2026-08-21",6,1,0],["2026-08-22",3,0,0],["2026-08-23",6,0,0],["2026-08-24",6,1,0],["2026-08-25",9,1,0]],
+"crm":[["2026-08-08",0,0,0,0,0,0],["2026-08-09",0,0,0,0,0,0],["2026-08-10",0,0,0,0,0,0],["2026-08-11",0,0,0,0,0,0],["2026-08-12",2,0,0,1,1,2],["2026-08-13",8,0,0,5,5,6],["2026-08-14",5,1,0,5,5,5],["2026-08-15",7,0,0,6,6,7],["2026-08-16",6,0,0,6,6,6],["2026-08-17",9,1,0,5,5,8],["2026-08-18",3,0,0,0,0,2],["2026-08-19",6,1,0,4,4,6],["2026-08-20",8,1,0,4,4,6],["2026-08-21",6,1,0,2,3,6],["2026-08-22",3,0,0,2,2,3],["2026-08-23",6,0,0,4,5,6],["2026-08-24",6,1,0,4,4,6],["2026-08-25",9,1,0,6,6,8]],
+"resp":[["2026-08-08",0],["2026-08-09",0],["2026-08-10",0],["2026-08-11",0],["2026-08-12",0],["2026-08-13",0],["2026-08-14",3],["2026-08-15",1],["2026-08-16",0],["2026-08-17",3],["2026-08-18",0],["2026-08-19",3],["2026-08-20",1],["2026-08-21",1],["2026-08-22",0],["2026-08-23",0],["2026-08-24",4],["2026-08-25",2]],
+"visitas":[["Maria Andrade","google_ads","2026-08-14","11h55",true],["Giuliana Siciliano","whatsapp","2026-08-17","17h23",false],["Ana","google_ads","2026-08-19","12h09",true],["Thassi","google_ads","2026-08-20","09h04",true],["Elza","whatsapp","2026-08-21","14h26",false],["Ana","whatsapp","2026-08-24","16h28",false],["José Pires","google_ads_mensagem","2026-08-25","12h41",false]],
 "orig":[["google_ads","2026-08-08",207,2],["google_ads","2026-08-09",142,1],["google_ads","2026-08-10",173,0],["google_ads","2026-08-11",171,1],["google_ads","2026-08-12",188,0],["google_ads","2026-08-13",199,3],["google_ads","2026-08-14",138,4],["google_ads","2026-08-15",110,7],["google_ads","2026-08-16",77,5],["google_ads","2026-08-17",66,5],["instagram","2026-08-18",174,0],["google_ads","2026-08-18",127,1],["direto","2026-08-18",57,0],["informativo","2026-08-18",8,0],["google_organico","2026-08-18",6,0],["bing","2026-08-18",1,0],["outro_site","2026-08-18",1,0],["instagram","2026-08-19",122,0],["google_ads","2026-08-19",119,4],["direto","2026-08-19",23,0],["google_organico","2026-08-19",8,0],["informativo","2026-08-19",3,0],["instagram","2026-08-20",148,0],["google_ads","2026-08-20",107,3],["direto","2026-08-20",30,0],["informativo","2026-08-20",7,0],["google_organico","2026-08-20",4,0],["outro_site","2026-08-20",1,0],["google_ads","2026-08-21",115,2],["instagram","2026-08-21",86,0],["direto","2026-08-21",22,1],["informativo","2026-08-21",6,0],["google_organico","2026-08-21",3,0],["instagram","2026-08-22",109,0],["google_ads","2026-08-22",95,2],["direto","2026-08-22",15,0],["facebook","2026-08-22",1,0],["google_organico","2026-08-22",1,0],["informativo","2026-08-22",1,0],["instagram","2026-08-23",288,0],["google_ads","2026-08-23",101,4],["direto","2026-08-23",9,1],["informativo","2026-08-23",2,0],["google_organico","2026-08-23",2,0],["instagram","2026-08-24",162,0],["google_ads","2026-08-24",55,4],["direto","2026-08-24",6,0],["google_organico","2026-08-24",4,0],["informativo","2026-08-24",3,0],["google_ads","2026-08-25",125,6],["instagram","2026-08-25",68,0],["direto","2026-08-25",14,0],["google_organico","2026-08-25",9,0],["informativo","2026-08-25",1,0]],
-"kw":[["escola e creche","b","2026-08-18",7,0],["espaço cria","p","2026-08-18",4,0],["centro educacional miraflores","b","2026-08-18",4,0],["escola cosme velho","b","2026-08-18",3,0],["escola de infantil","b","2026-08-18",3,0],["creche escola infantil","b","2026-08-18",2,0],["creche infantil","b","2026-08-18",2,0],["escola ensino infantil","b","2026-08-18",2,0],["pequena cruzada","p","2026-08-18",2,0],["escola montessoriana rj","b","2026-08-18",2,0],["educacao infantil","b","2026-08-18",2,0],["escola edem","p","2026-08-18",2,0],["creche catete","b","2026-08-18",1,0],["bilingual school","b","2026-08-18",1,0],["ensino para crianças","b","2026-08-18",1,0],["escola de ensino infantil particular","b","2026-08-18",1,0],["escola dinamis","p","2026-08-18",1,0],["creche near me","b","2026-08-18",1,0],["creche flamengo","e","2026-08-18",1,0],["escola infantil laranjeiras","b","2026-08-18",1,0],["escola montessoriana rio de janeiro","b","2026-08-18",1,0],["escola montessoriana","b","2026-08-18",1,0],["escola e creche","b","2026-08-19",10,0],["pequena cruzada","p","2026-08-19",4,0],["creche escola infantil","b","2026-08-19",3,0],["colégio imperial botafogo","p","2026-08-19",3,1],["colegio metaverso","p","2026-08-19",3,0],["escola cosme velho","b","2026-08-19",2,1],["escola educação infantil","b","2026-08-19",2,0],["educação infantil","b","2026-08-19",2,0],["escola maternal","b","2026-08-19",1,0],["escola edem","p","2026-08-19",1,0],["creche flamengo","e","2026-08-19",1,1],["creche infantil","b","2026-08-19",1,0],["creche laranjeiras","b","2026-08-19",1,0],["creche laranjeiras","e","2026-08-19",1,0],["espaço cria","p","2026-08-19",1,0],["creche montessori","b","2026-08-19",1,0],["miraflores","b","2026-08-19",1,0],["escola de educação infantil particular","b","2026-08-19",1,0],["casa da criança botafogo","p","2026-08-19",1,0],["escola montessori","b","2026-08-19",1,0],["escola montessoriana","b","2026-08-19",1,0],["escola edem","p","2026-08-20",3,0],["escola montessoriana rj","b","2026-08-20",3,0],["escolas de educação infantil","b","2026-08-20",2,0],["escolinhas infantil","b","2026-08-20",2,0],["global tree botafogo","p","2026-08-20",2,0],["espaço cria","p","2026-08-20",2,0],["creche escola infantil","b","2026-08-20",2,0],["colegio metaverso","p","2026-08-20",1,0],["escola cosme velho","b","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-20",1,0],["centro educacional miraflores","b","2026-08-20",1,0],["escolas montessorianas rj","b","2026-08-20",1,0],["creche infantil","b","2026-08-20",1,0],["escola e creche","b","2026-08-20",1,0],["colegio ensino fundamental","b","2026-08-20",1,0],["colegio ao cubo","p","2026-08-20",1,0],["pequena cruzada","p","2026-08-20",1,0],["escola jangada","p","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-21",4,0],["educação infantil","b","2026-08-21",3,0],["creche catete","b","2026-08-21",2,0],["casa da criança botafogo","p","2026-08-21",2,0],["escola jangada","p","2026-08-21",2,0],["espaço cria","p","2026-08-21",2,0],["creche botafogo","p","2026-08-21",1,0],["escolas montessorianas rj","b","2026-08-21",1,0],["creche escola infantil","b","2026-08-21",1,1],["escolinhas infantil","b","2026-08-21",1,0],["escolas de educação infantil","b","2026-08-21",1,0],["ensino para crianças","b","2026-08-21",1,0],["colegio ao cubo","p","2026-08-21",1,0],["escola dinamis","p","2026-08-21",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-21",1,0],["escola montessori","b","2026-08-21",1,0],["escola infantil laranjeiras","b","2026-08-21",1,0],["escola e creche","b","2026-08-22",2,0],["creche catete","b","2026-08-22",1,0],["escola infantil laranjeiras","b","2026-08-22",1,0],["escola edem","p","2026-08-22",1,0],["escolas de educação infantil","b","2026-08-22",1,0],["espaço cria","p","2026-08-22",1,0],["escola educação infantil","b","2026-08-22",1,0],["montessori","b","2026-08-22",1,0],["educação infantil","b","2026-08-22",1,0],["escola montessori","b","2026-08-23",2,0],["pequena cruzada","p","2026-08-23",2,0],["escola montessoriana","b","2026-08-23",2,1],["escola montessoriana rj","b","2026-08-23",2,0],["escola dinamis","p","2026-08-23",1,0],["colégio imperial botafogo","p","2026-08-23",1,0],["colegio ao cubo","p","2026-08-23",1,0],["creche flamengo","e","2026-08-23",1,1],["escolas de educação infantil","b","2026-08-24",3,0],["escolas de educação infantil","p","2026-08-24",3,2],["escola de educação infantil","p","2026-08-24",3,0],["colegio ao cubo","p","2026-08-24",3,1],["escola e creche","b","2026-08-24",2,0],["colegio ensino fundamental","b","2026-08-24",2,0],["escola de educação infantil montessori","b","2026-08-24",2,0],["espaço cria","p","2026-08-24",2,0],["colegio metaverso","p","2026-08-24",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-24",1,0],["educação infantil","b","2026-08-24",1,0],["escola de ensino infantil particular","b","2026-08-24",1,0],["escola de infantil","b","2026-08-24",1,0],["creche infantil","b","2026-08-24",1,1],["creche escola infantil","b","2026-08-24",1,0],["escola educação infantil","b","2026-08-24",1,0],["creche catete","b","2026-08-24",1,0],["escola jangada","p","2026-08-24",1,0],["creche botafogo","p","2026-08-24",1,0],["creche botafogo","e","2026-08-24",1,0],["escola montessoriana","b","2026-08-24",1,0],["colegio olm","p","2026-08-24",1,0],["colegio fundamental","b","2026-08-24",1,0],["montessori","b","2026-08-24",1,0],["casa da criança botafogo","p","2026-08-24",1,0],["pequena cruzada","p","2026-08-25",3,0],["escola edem","p","2026-08-25",3,1],["colegio metaverso","p","2026-08-25",3,0],["escola jangada","p","2026-08-25",2,0],["escola infantil laranjeiras","b","2026-08-25",2,0],["creche escola infantil","b","2026-08-25",2,0],["espaço cria","p","2026-08-25",2,0],["escola de educação infantil montessori","b","2026-08-25",2,0],["escola montessori","b","2026-08-25",2,0],["creche infantil","b","2026-08-25",1,0],["creche laranjeiras","p","2026-08-25",1,0],["escola dinamis","p","2026-08-25",1,0],["berçario infantil","b","2026-08-25",1,0],["educação infantil creche","b","2026-08-25",1,0],["escola montessoriana rj","b","2026-08-25",1,0],["favinho e mel","p","2026-08-25",1,0],["centro educacional miraflores","b","2026-08-25",1,0],["isai laranjeiras","p","2026-08-25",1,0],["casa da criança botafogo","p","2026-08-25",1,1],["escolas de educação infantil","p","2026-08-25",1,0],["escola de educação infantil","p","2026-08-25",1,1],["bilingual school","b","2026-08-25",1,0],["creche escola botafogo","p","2026-08-25",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-25",1,0],["escolinhas infantil","b","2026-08-25",1,0],["escola e creche","b","2026-08-25",1,0]]}
+"kw":[["escola e creche","b","2026-08-18",7,0],["espaço cria","p","2026-08-18",4,0],["centro educacional miraflores","b","2026-08-18",4,0],["escola cosme velho","b","2026-08-18",3,0],["escola de infantil","b","2026-08-18",3,0],["creche escola infantil","b","2026-08-18",2,0],["creche infantil","b","2026-08-18",2,0],["escola ensino infantil","b","2026-08-18",2,0],["pequena cruzada","p","2026-08-18",2,0],["escola montessoriana rj","b","2026-08-18",2,0],["educacao infantil","b","2026-08-18",2,0],["escola edem","p","2026-08-18",2,0],["creche catete","b","2026-08-18",1,0],["bilingual school","b","2026-08-18",1,0],["ensino para crianças","b","2026-08-18",1,0],["escola de ensino infantil particular","b","2026-08-18",1,0],["escola dinamis","p","2026-08-18",1,0],["creche near me","b","2026-08-18",1,0],["creche flamengo","e","2026-08-18",1,0],["escola infantil laranjeiras","b","2026-08-18",1,0],["escola montessoriana rio de janeiro","b","2026-08-18",1,0],["escola montessoriana","b","2026-08-18",1,0],["escola e creche","b","2026-08-19",10,0],["pequena cruzada","p","2026-08-19",4,0],["creche escola infantil","b","2026-08-19",3,0],["colégio imperial botafogo","p","2026-08-19",3,1],["colegio metaverso","p","2026-08-19",3,0],["escola cosme velho","b","2026-08-19",2,1],["escola educação infantil","b","2026-08-19",2,0],["educação infantil","b","2026-08-19",2,0],["escola maternal","b","2026-08-19",1,0],["escola edem","p","2026-08-19",1,0],["creche flamengo","e","2026-08-19",1,1],["creche infantil","b","2026-08-19",1,0],["creche laranjeiras","b","2026-08-19",1,0],["creche laranjeiras","e","2026-08-19",1,0],["espaço cria","p","2026-08-19",1,0],["creche montessori","b","2026-08-19",1,0],["miraflores","b","2026-08-19",1,0],["escola de educação infantil particular","b","2026-08-19",1,0],["casa da criança botafogo","p","2026-08-19",1,0],["escola montessori","b","2026-08-19",1,0],["escola montessoriana","b","2026-08-19",1,0],["escola edem","p","2026-08-20",3,0],["escola montessoriana rj","b","2026-08-20",3,0],["escolas de educação infantil","b","2026-08-20",2,0],["escolinhas infantil","b","2026-08-20",2,0],["global tree botafogo","p","2026-08-20",2,0],["espaço cria","p","2026-08-20",2,0],["creche escola infantil","b","2026-08-20",2,0],["colegio metaverso","p","2026-08-20",1,0],["escola cosme velho","b","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-20",1,0],["centro educacional miraflores","b","2026-08-20",1,0],["escolas montessorianas rj","b","2026-08-20",1,0],["creche infantil","b","2026-08-20",1,0],["escola e creche","b","2026-08-20",1,0],["colegio ensino fundamental","b","2026-08-20",1,0],["colegio ao cubo","p","2026-08-20",1,0],["pequena cruzada","p","2026-08-20",1,0],["escola jangada","p","2026-08-20",1,0],["colégio imperial botafogo","p","2026-08-21",4,0],["educação infantil","b","2026-08-21",3,0],["creche catete","b","2026-08-21",2,0],["casa da criança botafogo","p","2026-08-21",2,0],["escola jangada","p","2026-08-21",2,0],["espaço cria","p","2026-08-21",2,0],["creche botafogo","p","2026-08-21",1,0],["escolas montessorianas rj","b","2026-08-21",1,0],["creche escola infantil","b","2026-08-21",1,1],["escolinhas infantil","b","2026-08-21",1,0],["escolas de educação infantil","b","2026-08-21",1,0],["ensino para crianças","b","2026-08-21",1,0],["colegio ao cubo","p","2026-08-21",1,0],["escola dinamis","p","2026-08-21",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-21",1,0],["escola montessori","b","2026-08-21",1,0],["escola infantil laranjeiras","b","2026-08-21",1,0],["escola e creche","b","2026-08-22",2,0],["creche catete","b","2026-08-22",1,0],["escola infantil laranjeiras","b","2026-08-22",1,0],["escola edem","p","2026-08-22",1,0],["escolas de educação infantil","b","2026-08-22",1,0],["espaço cria","p","2026-08-22",1,0],["escola educação infantil","b","2026-08-22",1,0],["montessori","b","2026-08-22",1,0],["educação infantil","b","2026-08-22",1,0],["escola montessori","b","2026-08-23",2,0],["pequena cruzada","p","2026-08-23",2,0],["escola montessoriana","b","2026-08-23",2,1],["escola montessoriana rj","b","2026-08-23",2,0],["escola dinamis","p","2026-08-23",1,0],["colégio imperial botafogo","p","2026-08-23",1,0],["colegio ao cubo","p","2026-08-23",1,0],["creche flamengo","e","2026-08-23",1,1],["escolas de educação infantil","b","2026-08-24",3,0],["escolas de educação infantil","p","2026-08-24",3,2],["escola de educação infantil","p","2026-08-24",3,0],["colegio ao cubo","p","2026-08-24",3,1],["escola e creche","b","2026-08-24",2,0],["colegio ensino fundamental","b","2026-08-24",2,0],["escola de educação infantil montessori","b","2026-08-24",2,0],["espaço cria","p","2026-08-24",2,0],["colegio metaverso","p","2026-08-24",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-24",1,0],["educação infantil","b","2026-08-24",1,0],["escola de ensino infantil particular","b","2026-08-24",1,0],["escola de infantil","b","2026-08-24",1,0],["creche infantil","b","2026-08-24",1,1],["creche escola infantil","b","2026-08-24",1,0],["escola educação infantil","b","2026-08-24",1,0],["creche catete","b","2026-08-24",1,0],["escola jangada","p","2026-08-24",1,0],["creche botafogo","p","2026-08-24",1,0],["creche botafogo","e","2026-08-24",1,0],["escola montessoriana","b","2026-08-24",1,0],["colegio olm","p","2026-08-24",1,0],["colegio fundamental","b","2026-08-24",1,0],["montessori","b","2026-08-24",1,0],["casa da criança botafogo","p","2026-08-24",1,0],["pequena cruzada","p","2026-08-25",3,0],["escola edem","p","2026-08-25",3,1],["colegio metaverso","p","2026-08-25",3,0],["escola jangada","p","2026-08-25",2,0],["escola infantil laranjeiras","b","2026-08-25",2,0],["creche escola infantil","b","2026-08-25",2,0],["espaço cria","p","2026-08-25",2,0],["escola de educação infantil montessori","b","2026-08-25",2,0],["escola montessori","b","2026-08-25",2,0],["creche infantil","b","2026-08-25",1,0],["creche laranjeiras","p","2026-08-25",1,0],["escola dinamis","p","2026-08-25",1,0],["berçario infantil","b","2026-08-25",1,0],["educação infantil creche","b","2026-08-25",1,0],["escola montessoriana rj","b","2026-08-25",1,0],["favinho e mel","p","2026-08-25",1,0],["centro educacional miraflores","b","2026-08-25",1,0],["isai laranjeiras","p","2026-08-25",1,0],["casa da criança botafogo","p","2026-08-25",1,1],["escolas de educação infantil","p","2026-08-25",1,0],["escola de educação infantil","p","2026-08-25",1,1],["bilingual school","b","2026-08-25",1,0],["creche escola botafogo","p","2026-08-25",1,0],["escola de educação infantil e ensino fundamental","p","2026-08-25",1,0],["escolinhas infantil","b","2026-08-25",1,0],["escola e creche","b","2026-08-25",1,0]],
+"meta":{"data":"2026-08-25","veredito":"OK","planilha_linhas":21,"planilha_ok":true,"conv_resp_fila":18,"visitas_fila":3,"ultima_conv":"25/08 15h37","lps_ok":true,"meta_parado":true,"negativada_em":"2026-08-23","painel_de":"23/jul","painel_ate":"21/ago"}}
 </script>
 <script>
 (function(){
 var D = JSON.parse(document.getElementById('dados').textContent);
+var M = D.meta;
 var CONCORRENTES = ['espaço cria','pequena cruzada','escola edem','centro educacional miraflores','miraflores','colegio metaverso','escola jangada','colégio imperial botafogo','casa da criança botafogo','escola dinamis','global tree botafogo','colegio ao cubo','creche baby room','favinho e mel','isai laranjeiras','colegio olm'];
-var NEGATIVADAS = {'pequena cruzada':'23/08'};
+var NEGATIVADAS = {'pequena cruzada': M.negativada_em};
 var MT = {b:'ampla', p:'frase', e:'exata'};
 var dias = D.net.map(function(r){return r[0];});
 var DMIN = dias[0], DMAX = dias[dias.length-1];
 var $ = function(id){return document.getElementById(id);};
 function fmt(n){return n.toLocaleString('pt-BR');}
 function fmtBR(d){var p=d.split('-');return p[2]+'/'+p[1];}
-function pct(a,b){return b>0 ? (100*a/b).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%' : '—';}
+function n1(x){return x.toLocaleString('pt-BR',{maximumFractionDigits:1});}
+function pct(a,b){return b>0 ? n1(100*a/b)+'%' : '—';}
 function dentro(d,de,ate){return d>=de && d<=ate;}
+function soma(arr,i,de,ate,di){di=di||0;var t=0;arr.forEach(function(r){if(dentro(r[di],de,ate))t+=r[i];});return t;}
 
 function render(de, ate){
-  var net = D.net.filter(function(r){return dentro(r[0],de,ate);});
-  var crm = D.crm.filter(function(r){return dentro(r[0],de,ate);});
-  var cliques=0, pesq=0, outros=0;
-  net.forEach(function(r){pesq+=r[1]; outros+=r[2];});
-  cliques = pesq+outros;
-  var leads=0, resp=0, va=0, ma=0;
-  crm.forEach(function(r){leads+=r[1]; va+=r[2]; ma+=r[3];});
-  // conversas respondidas por dia vêm da série resultado_diario embutida no crm? não — respostas por dia:
-  var RESP = {"2026-08-12":0,"2026-08-13":0,"2026-08-14":3,"2026-08-15":1,"2026-08-16":0,"2026-08-17":3,"2026-08-18":0,"2026-08-19":3,"2026-08-20":1,"2026-08-21":1,"2026-08-22":0,"2026-08-23":0,"2026-08-24":4,"2026-08-25":2};
-  resp = 0; Object.keys(RESP).forEach(function(d){ if(dentro(d,de,ate)) resp+=RESP[d]; });
+  var faixa = fmtBR(de)+'–'+fmtBR(ate);
+  var umDia = (de === ate);
 
-  $('c-cliques').textContent = fmt(cliques);
-  $('c-leads').textContent = fmt(leads);
-  $('c-resp').textContent = fmt(resp);
-  $('c-va').textContent = fmt(va);
-  $('c-ma').textContent = fmt(ma);
+  var pesq = soma(D.net,1,de,ate), outros = soma(D.net,2,de,ate);
+  var cliques = pesq + outros;
+  var leads = soma(D.crm,1,de,ate);
+  var va    = soma(D.crm,2,de,ate);
+  var ma    = soma(D.crm,3,de,ate);
+  var lg    = soma(D.crm,4,de,ate);
+  var lr    = soma(D.crm,5,de,ate);
+  var lel   = soma(D.crm,6,de,ate);
+  var resp  = soma(D.resp,1,de,ate);
 
-  $('f-cliques').textContent = fmt(cliques);
-  $('f-leads').textContent = fmt(leads); $('fp-leads').textContent = pct(leads,cliques);
-  $('f-resp').textContent = fmt(resp);   $('fp-resp').textContent = pct(resp,leads);
-  $('f-va').textContent = fmt(va);       $('fp-va').textContent = pct(va,resp);
-  $('f-ma').textContent = fmt(ma);       $('fp-ma').textContent = ma>0?pct(ma,va):'—';
+  // ---------- cards e funil ----------
+  $('c-cliques').textContent = fmt(cliques); $('f-cliques').textContent = fmt(cliques);
+  $('c-leads').textContent = fmt(leads);     $('f-leads').textContent = fmt(leads);
+  $('c-resp').textContent = fmt(resp);       $('f-resp').textContent = fmt(resp);
+  $('c-va').textContent = fmt(va);           $('f-va').textContent = fmt(va);
+  $('c-ma').textContent = fmt(ma);           $('f-ma').textContent = fmt(ma);
+  $('fp-leads').textContent = pct(leads,cliques);
+  $('fp-resp').textContent  = pct(resp,leads);
+  $('fp-va').textContent    = pct(va,resp);
+  $('fp-ma').textContent    = va>0 ? pct(ma,va) : '—';
 
-  var h='';
-  net.slice().reverse().forEach(function(r){
-    h+='<tr><td>'+fmtBR(r[0])+'</td><td class="num">'+(r[0]>='2026-08-18'?fmt(r[1]):'—')+'</td><td class="num">'+fmt(r[2])+'</td><td class="num">'+fmt(r[1]+r[2])+'</td></tr>';
+  // ---------- maior queda da cadeia ----------
+  var totMa = 0; D.crm.forEach(function(r){totMa+=r[3];});
+  var passos = [
+    {rot:'clique → conversa',            a:cliques, b:leads, min:20},
+    {rot:'lead → conversa respondida',   a:leads,   b:resp,  min:5},
+    {rot:'conversa respondida → visita', a:resp,    b:va,    min:5},
+    {rot:'visita → matrícula',           a:va,      b:ma,    min:5, pularSeZero:true}
+  ];
+  var cand = passos.filter(function(p){
+    if (p.pularSeZero && totMa === 0) return false;
+    return p.a >= p.min;
+  });
+  var pior = null;
+  cand.forEach(function(p){ var t=p.b/p.a; if(pior===null || t<pior.t){pior={p:p,t:t};} });
+
+  // ---------- visitas do período ----------
+  var vis = D.visitas.filter(function(v){return dentro(v[2],de,ate);});
+  var visSem = vis.filter(function(v){return !v[4];}).length;
+  var h = '';
+  vis.slice().reverse().forEach(function(v){
+    h += '<tr'+(v[4]?'':' class="destaque"')+'><td>'+v[0]+'</td><td><code>'+v[1]+'</code></td><td>'+fmtBR(v[2])+' '+v[3]+'</td><td>'+
+         (v[4] ? '✅ sim (tem gclid)' : '⚠️ não — sem gclid') + '</td></tr>';
+  });
+  $('tb-vis').innerHTML = h || '<tr><td colspan="4">Nenhuma visita agendada no período.</td></tr>';
+
+  // ---------- instagram e google no período ----------
+  var igV=0, igL=0, gaV=0, gaL=0;
+  D.orig.forEach(function(r){
+    if(!dentro(r[1],de,ate)) return;
+    if(r[0]==='instagram'){ igV+=r[2]; igL+=r[3]; }
+    if(r[0]==='google_ads'){ gaV+=r[2]; gaL+=r[3]; }
+  });
+  var pcTot=0, pcDepois=0;
+  D.kw.forEach(function(r){
+    if(r[0]!=='pequena cruzada' || !dentro(r[2],de,ate)) return;
+    pcTot += r[3];
+    if(r[2] > M.negativada_em) pcDepois += r[3];
+  });
+
+  // ---------- veredito ----------
+  var vTxt = (M.veredito === 'OK' ? '✅ Medição de pé em '+fmtBR(M.data) : '⚠️ '+M.veredito);
+  vTxt += ' · ' + (vis.length ? vis.length+' visita'+(vis.length>1?'s':'')+' em '+faixa+
+                   (visSem ? ' ('+visSem+' sem gclid)' : '')
+                 : 'nenhuma visita em '+faixa);
+  vTxt += ' · ' + (pior ? 'maior queda: '+pior.p.rot+' ('+pct(pior.p.b,pior.p.a)+')'
+                        : 'amostra insuficiente no período');
+  $('veredito').textContent = vTxt;
+  $('veredito').className = 'veredito ' + (M.veredito === 'OK' ? 'ok' : 'atencao');
+
+  // ---------- conclusão ----------
+  var c = '<h2>Conclusão — ' + faixa + '/2026</h2>';
+
+  if (vis.length) {
+    var ult = vis[vis.length-1];
+    c += '<p style="background:#fffdf7;border:1px solid var(--borda);border-left:3px solid var(--dourado);border-radius:8px;padding:10px 14px;margin-bottom:12px;">'+
+         '<strong>Visita'+(vis.length>1?'s':'')+' no período:</strong> '+vis.length+
+         ', a última de <strong>'+ult[0]+'</strong> (<code>'+ult[1]+'</code>, '+fmtBR(ult[2])+' às '+ult[3]+').'+
+         (visSem ? ' <strong>'+visSem+' de '+vis.length+' não têm gclid</strong>, então o degrau de R$ 50 não sobe para o Google — o elo mais valioso da cadeia é o que ele menos enxerga.'
+                 : ' Todas com gclid, então todas sobem para o Google.')+
+         '</p>';
+  } else {
+    c += '<p class="vazio" style="margin-bottom:12px">Nenhuma visita agendada no período.</p>';
+  }
+
+  c += '<ol>';
+
+  // 1. medição
+  c += '<li><strong>A medição está confiável?</strong> ';
+  if (leads === 0) {
+    c += 'Sem leads no período — nada a aferir.';
+  } else {
+    var pg = Math.round(100*lg/leads), pr = lel>0 ? Math.round(100*lr/lel) : null;
+    c += (M.veredito === 'OK' ? 'Sim, veredito <code>OK</code> em '+fmtBR(M.data)+'. ' : 'Não — <code>'+M.veredito+'</code>. ');
+    c += '<strong>'+leads+' leads reais no período, '+pg+'% com gclid'+
+         (pr===null?'':' e '+pr+'% com protocolo')+'</strong>'+
+         ((pr!==null && pr<40) ? ' — <strong>abaixo do limiar de 40%</strong>, o carimbo pode ter quebrado.'
+                               : ' — acima do limiar de alerta (40%).');
+    c += ' A planilha de conversões está '+(M.planilha_ok?'idêntica à view':'defasada em relação à view')+
+         ' (<strong>'+M.planilha_linhas+' linhas</strong>), última em '+M.ultima_conv+'.';
+  }
+  c += '</li>';
+
+  // 2. vazamento
+  c += '<li><strong>Onde o funil vaza:</strong> ';
+  if (!pior) {
+    c += 'amostra insuficiente no período ('+fmt(cliques)+' cliques, '+leads+' leads) — sem veredito.';
+  } else {
+    c += 'o pior elo é <strong>'+pior.p.rot+'</strong>: '+fmt(pior.p.a)+' → '+fmt(pior.p.b)+
+         ' (<strong>'+pct(pior.p.b,pior.p.a)+'</strong>). Cadeia completa no período: '+
+         fmt(cliques)+' cliques pagos → '+fmt(leads)+' leads ('+pct(leads,cliques)+') → '+
+         fmt(resp)+' conversas respondidas ('+pct(resp,leads)+') → '+
+         fmt(va)+' visitas ('+pct(va,resp)+') → '+fmt(ma)+' matrículas.';
+    if (totMa === 0) c += ' O degrau de matrícula ainda não produziu nenhum caso, então fica fora da comparação.';
+  }
+  c += '</li>';
+
+  // 3. o que fazer
+  var acoes = [];
+  if (pcDepois > 0) {
+    acoes.push(['claudio','<em>"pequena cruzada"</em> consta como negativada em '+fmtBR(M.negativada_em)+
+      ', mas somou <strong>'+pcDepois+' cliques depois disso</strong> dentro do período. Como esses cliques trazem <code>kw</code>, vieram da Pesquisa — a negativa de frase aparentemente não foi salva. Conferir no painel.']);
+  }
+  if (igV > 0 && igL === 0) {
+    acoes.push(['claudio','Instagram é a maior fonte de tráfego sem conversa: <strong>'+fmt(igV)+' visitas e 0 leads</strong> no período, contra '+fmt(gaV)+' visitas de <code>google_ads</code> com '+fmt(gaL)+' leads.'+
+      (M.meta_parado?' O Meta está parado desde 22/08 (conta restrita + cartão da <em>Free school</em> expirado), então isso é 100% orgânico.':'')]);
+  }
+  if (visSem > 0) {
+    acoes.push(['claudio','<strong>'+visSem+' visita'+(visSem>1?'s':'')+' do período sem gclid</strong> não chega'+(visSem>1?'m':'')+' ao Google. Enquanto o volume for este, o Lances Inteligentes aprende com menos da metade das visitas reais.']);
+  }
+  acoes.push(['auto','Rede no período: <strong>'+fmt(pesq)+' cliques de Pesquisa</strong> e '+fmt(outros)+' sem <code>net</code> — este segundo balde é "sufixo não chegou" (PMax + display), não um número de PMax. Só medir; a revisão das LPs por leads/clique está marcada para ~05/09.']);
+
+  c += '<li><strong>O que fazer:</strong> ';
+  if (!acoes.length) { c += '<span class="vazio">nada a fazer no período.</span>'; }
+  else {
+    c += acoes.map(function(a){
+      return '<span class="dono '+(a[0]==='claudio'?'claudio':'auto')+'">'+(a[0]==='claudio'?'Claudio':'automático')+'</span> '+a[1];
+    }).join(' ');
+  }
+  c += '</li></ol>';
+  $('conclusao').innerHTML = c;
+
+  // ---------- tabela por dia: rede ----------
+  h = '';
+  D.net.filter(function(r){return dentro(r[0],de,ate);}).reverse().forEach(function(r){
+    h += '<tr><td>'+fmtBR(r[0])+'</td><td class="num">'+(r[0]>='2026-08-18'?fmt(r[1]):'—')+
+         '</td><td class="num">'+fmt(r[2])+'</td><td class="num">'+fmt(r[1]+r[2])+'</td></tr>';
   });
   $('tb-net').innerHTML = h || '<tr><td colspan="4">Sem dado no período.</td></tr>';
 
+  // ---------- palavras-chave ----------
   var kwAgg = {};
   D.kw.forEach(function(r){ if(!dentro(r[2],de,ate)) return;
     var k=r[0]+'|'+r[1]; if(!kwAgg[k]) kwAgg[k]={kw:r[0],mt:r[1],c:0,l:0};
     kwAgg[k].c+=r[3]; kwAgg[k].l+=r[4]; });
   var kws = Object.keys(kwAgg).map(function(k){return kwAgg[k];})
-    .sort(function(a,b){return b.c-a.c;}).slice(0,15);
+    .sort(function(a,b){return b.c-a.c || b.l-a.l;}).slice(0,15);
   h='';
   kws.forEach(function(r){
     var conc = CONCORRENTES.indexOf(r.kw)>=0;
     var neg = NEGATIVADAS[r.kw];
-    var destino = neg ? '<span class="selo neg">negativada '+neg+'</span>'
+    var destino = neg ? '<span class="selo neg">negativada '+fmtBR(neg)+'</span>'
                       : (conc ? '<span class="selo">remarketing</span>' : '');
-    h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+'</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+destino+'</td></tr>';
+    h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+
+       '</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+destino+'</td></tr>';
   });
-  $('tb-kw').innerHTML = h || '<tr><td colspan="5">Sem kw no período (dado existe desde 18/08).</td></tr>';
+  $('tb-kw').innerHTML = h || '<tr><td colspan="5">Sem kw no período (o dado existe desde 18/08).</td></tr>';
 
+  // ---------- origens ----------
   var oAgg = {};
   D.orig.forEach(function(r){ if(!dentro(r[1],de,ate)) return;
     if(!oAgg[r[0]]) oAgg[r[0]]={v:0,l:0}; oAgg[r[0]].v+=r[2]; oAgg[r[0]].l+=r[3]; });
@@ -264,12 +403,16 @@ function render(de, ate){
     .sort(function(a,b){return b.v-a.v;});
   h='';
   os.forEach(function(r){
-    var nota = r.o==='instagram' ? '⚠️ orgânico — Meta parado (conta restrita)' : (r.o==='google_ads' ? 'tráfego pago rastreado' : '');
+    var nota = r.o==='instagram' ? '⚠️ referrer orgânico — Meta parado (conta restrita)'
+             : (r.o==='google_ads' ? 'tráfego pago rastreado' : '');
     h+='<tr><td>'+r.o+'</td><td class="num">'+fmt(r.v)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+nota+'</td></tr>';
   });
   $('tb-orig').innerHTML = h || '<tr><td colspan="4">Sem dado no período.</td></tr>';
 
-  $('faixa-txt').textContent = fmtBR(de)+' – '+fmtBR(ate)+'/2026 · dados desde '+fmtBR(DMIN);
+  // ---------- rótulos de escopo ----------
+  var rot = umDia ? fmtBR(de) : faixa;
+  ['lb-funil','lb-vis','lb-net','lb-kw','lb-orig'].forEach(function(id){ $(id).textContent = rot; });
+  $('faixa-txt').textContent = faixa+'/2026 · dados desde '+fmtBR(DMIN);
 }
 
 function setPreset(n, salvar){
@@ -297,8 +440,10 @@ $('dt-de').addEventListener('change', setCustom);
 $('dt-ate').addEventListener('change', setCustom);
 var salvo = localStorage.getItem('tp_periodo');
 if(salvo==='custom' && localStorage.getItem('tp_de')){
-  $('dt-de').value=localStorage.getItem('tp_de'); $('dt-ate').value=localStorage.getItem('tp_ate');
-  render($('dt-de').value, $('dt-ate').value);
+  var sde=localStorage.getItem('tp_de'), sate=localStorage.getItem('tp_ate');
+  if(sde<DMIN) sde=DMIN; if(sate>DMAX) sate=DMAX;
+  $('dt-de').value=sde; $('dt-ate').value=sate;
+  render(sde, sate);
 } else { setPreset(parseInt(salvo,10)||7, false); }
 })();
 </script>
