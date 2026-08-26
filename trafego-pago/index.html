@@ -128,7 +128,7 @@ h2 .escopo { text-transform:none; letter-spacing:0; }
 <tbody id="tb-vis"></tbody>
 </table>
 </div>
-<p class="nota">O degrau de R$ 50 só é enviado quando a visita tem gclid. Sem gclid, a visita aconteceu mas o Google não fica sabendo — e o lance automático não aprende com ela.</p>
+<p class="nota">O degrau de R$ 50 só é enviado quando a visita tem gclid, e o gclid é lido pelo <em>site</em> na URL do anúncio. Visita de origem orgânica nunca teve gclid — não é perda. Perda é a linha destacada: veio de anúncio e mesmo assim ficou sem chave para subir.</p>
 </section>
 
 <section>
@@ -264,12 +264,26 @@ function render(de, ate){
   cand.forEach(function(p){ var t=p.b/p.a; if(pior===null || t<pior.t){pior={p:p,t:t};} });
 
   // ---------- visitas do período ----------
+  var PAGAS = ['google_ads','google_ads_mensagem'];
   var vis = D.visitas.filter(function(v){return dentro(v[2],de,ate);});
-  var visSem = vis.filter(function(v){return !v[4];}).length;
+  function classe(v){
+    if (v[4]) return 'sobe';                              // tem gclid
+    if (PAGAS.indexOf(v[1]) >= 0) return 'perdida';       // paga, mas sem gclid
+    return 'organica';                                    // nunca teria gclid
+  }
+  var visPerdidas = vis.filter(function(v){return classe(v)==='perdida';}).length;
+  var visSobem    = vis.filter(function(v){return classe(v)==='sobe';}).length;
+  var visOrg      = vis.filter(function(v){return classe(v)==='organica';}).length;
+  var ROT = {
+    sobe:     '✅ sim — clique rastreado',
+    perdida:  '⚠️ não — clique pago sem gclid, atribuição perdida',
+    organica: '— não se aplica (origem orgânica, nunca teve gclid)'
+  };
   var h = '';
   vis.slice().reverse().forEach(function(v){
-    h += '<tr'+(v[4]?'':' class="destaque"')+'><td>'+v[0]+'</td><td><code>'+v[1]+'</code></td><td>'+fmtBR(v[2])+' '+v[3]+'</td><td>'+
-         (v[4] ? '✅ sim (tem gclid)' : '⚠️ não — sem gclid') + '</td></tr>';
+    var cl = classe(v);
+    h += '<tr'+(cl==='perdida'?' class="destaque"':'')+'><td>'+v[0]+'</td><td><code>'+v[1]+
+         '</code></td><td>'+fmtBR(v[2])+' '+v[3]+'</td><td>'+ROT[cl]+'</td></tr>';
   });
   $('tb-vis').innerHTML = h || '<tr><td colspan="4">Nenhuma visita agendada no período.</td></tr>';
 
@@ -290,7 +304,7 @@ function render(de, ate){
   // ---------- veredito ----------
   var vTxt = (M.veredito === 'OK' ? '✅ Medição de pé em '+fmtBR(M.data) : '⚠️ '+M.veredito);
   vTxt += ' · ' + (vis.length ? vis.length+' visita'+(vis.length>1?'s':'')+' em '+faixa+
-                   (visSem ? ' ('+visSem+' sem gclid)' : '')
+                   (visPerdidas ? ' ('+visPerdidas+' paga'+(visPerdidas>1?'s':'')+' sem gclid)' : '')
                  : 'nenhuma visita em '+faixa);
   vTxt += ' · ' + (pior ? 'maior queda: '+pior.p.rot+' ('+pct(pior.p.b,pior.p.a)+')'
                         : 'amostra insuficiente no período');
@@ -305,8 +319,9 @@ function render(de, ate){
     c += '<p style="background:#fffdf7;border:1px solid var(--borda);border-left:3px solid var(--dourado);border-radius:8px;padding:10px 14px;margin-bottom:12px;">'+
          '<strong>Visita'+(vis.length>1?'s':'')+' no período:</strong> '+vis.length+
          ', a última de <strong>'+ult[0]+'</strong> (<code>'+ult[1]+'</code>, '+fmtBR(ult[2])+' às '+ult[3]+').'+
-         (visSem ? ' <strong>'+visSem+' de '+vis.length+' não têm gclid</strong>, então o degrau de R$ 50 não sobe para o Google — o elo mais valioso da cadeia é o que ele menos enxerga.'
-                 : ' Todas com gclid, então todas sobem para o Google.')+
+         ' <strong>'+visSobem+' sobe'+(visSobem===1?'':'m')+' para o Google</strong>'+
+         (visOrg ? ', '+visOrg+' '+(visOrg>1?'são orgânicas':'é orgânica')+' (nunca teria'+(visOrg>1?'m':'')+' gclid, não é perda)' : '')+
+         (visPerdidas ? ' e <strong>'+visPerdidas+' veio de anúncio mas ficou sem gclid</strong> — essa sim é atribuição perdida: a visita aconteceu e o Google não fica sabendo.' : '.')+
          '</p>';
   } else {
     c += '<p class="vazio" style="margin-bottom:12px">Nenhuma visita agendada no período.</p>';
@@ -354,8 +369,8 @@ function render(de, ate){
     acoes.push(['claudio','Instagram é a maior fonte de tráfego sem conversa: <strong>'+fmt(igV)+' visitas e 0 leads</strong> no período, contra '+fmt(gaV)+' visitas de <code>google_ads</code> com '+fmt(gaL)+' leads atribuídos por protocolo (o funil acima conta leads de TODAS as origens, por isso o número é maior).'+
       (M.meta_parado?' O Meta está parado desde 22/08 (conta restrita + cartão da <em>Free school</em> expirado), então isso é 100% orgânico.':'')]);
   }
-  if (visSem > 0) {
-    acoes.push(['claudio','<strong>'+visSem+' visita'+(visSem>1?'s':'')+' do período sem gclid</strong> não chega'+(visSem>1?'m':'')+' ao Google. Enquanto o volume for este, o Lances Inteligentes aprende com menos da metade das visitas reais.']);
+  if (visPerdidas > 0) {
+    acoes.push(['claudio','<strong>'+visPerdidas+' visita'+(visPerdidas>1?'s':'')+' de anúncio sem gclid</strong> no período. Isso é o recurso de mensagem do anúncio (<code>google_ads_mensagem</code>): o clique vai do anúncio direto para o WhatsApp, o site nunca carrega e o gclid nunca é lido — sem ele o upload de conversão não tem chave. Vale conferir no painel se dá para contar essa conversão nativamente.']);
   }
   acoes.push(['auto','Rede no período: <strong>'+fmt(pesq)+' cliques de Pesquisa</strong> e '+fmt(outros)+' sem <code>net</code> — este segundo balde é "sufixo não chegou" (PMax + display), não um número de PMax. Só medir; a revisão das LPs por leads/clique está marcada para ~05/09.']);
 
