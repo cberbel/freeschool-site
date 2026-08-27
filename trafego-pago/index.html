@@ -97,7 +97,7 @@ h2 .escopo { text-transform:none; letter-spacing:0; }
  <input type="date" id="dt-de"> <span class="rot-p">até</span> <input type="date" id="dt-ate">
  <span class="faixa" id="faixa-txt"></span>
 </div>
-<p class="nota" style="margin:-12px 0 16px">Tudo abaixo é calculado sobre o período escolhido aqui em cima. Os dois blocos marcados <span class="escopo fixo">não segue o período</span> são leituras de data fixa e dizem qual.</p>
+<p class="nota" style="margin:-12px 0 16px">Tudo abaixo é calculado sobre o período escolhido aqui em cima. O único bloco marcado <span class="escopo fixo">não segue o período</span> é a tabela de saúde, que é um retrato do dia da rotina e diz a data.</p>
 
 <div class="veredito ok" id="veredito">—</div>
 
@@ -112,7 +112,7 @@ h2 .escopo { text-transform:none; letter-spacing:0; }
  <div class="degrau"><div class="dk">Visitas agendadas</div><div class="dv" id="f-va">—</div><div class="dp" id="fp-va"></div></div>
  <div class="degrau"><div class="dk">Matrículas</div><div class="dv" id="f-ma">—</div><div class="dp" id="fp-ma"></div></div>
 </div>
-<p class="nota"><strong>Só Google, do topo ao fim.</strong> Todo degrau conta apenas quem chegou por clique de anúncio do Google e trouxe <code>gclid</code> — é exatamente o que sobe para a conta do Ads como conversão. Lead de WhatsApp, Instagram ou busca orgânica <em>não</em> entra aqui; esses aparecem em "De onde vem cada visita". Percentual = conversão sobre o degrau anterior. Bases pequenas: ler como tendência, não veredito.</p>
+<p class="nota"><strong>Só Google, do topo ao fim.</strong> Todo degrau conta apenas quem chegou por clique de anúncio do Google e trouxe <code>gclid</code> — é exatamente o que sobe para a conta do Ads como conversão. <strong>Conversão aqui é <em>conversa respondida</em>, nunca conversa iniciada:</strong> só conta quando a família escreveu depois de o bot responder. Quem apertou o botão e sumiu fica no degrau de lead e não vira conversão em lugar nenhum deste painel. Lead de WhatsApp, Instagram ou busca orgânica <em>não</em> entra aqui; esses aparecem em "De onde vem cada visita". Percentual = conversão sobre o degrau anterior. Bases pequenas: ler como tendência, não veredito.</p>
 </section>
 
 <section>
@@ -149,31 +149,6 @@ h2 .escopo { text-transform:none; letter-spacing:0; }
 <p class="nota"><code>net=g</code> é Pesquisa; o resto é "sufixo não chegou" — inclui PMax e display, e não é sinônimo de PMax. A rede só é identificável desde 18/08, quando o sufixo de URL entrou na campanha; antes disso tudo cai em "outros".</p>
 </section>
 
-<section>
-<h2>PMax × Pesquisa — painel do Google Ads <span class="escopo fixo">não segue o período · 23/jul–21/ago</span></h2>
-<div class="tabela-wrap">
-<table>
-<thead><tr><th></th><th class="num">Orçamento</th><th class="num">Cliques</th><th class="num">Impressões</th><th class="num">Conversões</th><th class="num">Taxa conv.</th><th class="num">Custo/conv.</th></tr></thead>
-<tbody>
-<tr><td>[ALM] [C3] Campanha de Leads (Pesquisa)</td><td class="num">R$ 120/dia</td><td class="num">815</td><td class="num">11.776</td><td class="num">113,76</td><td class="num"><strong>13,96%</strong></td><td class="num">R$ 22,58</td></tr>
-<tr><td>[ALM] [C3] [PMAX]</td><td class="num">R$ 25/dia</td><td class="num">4.894</td><td class="num">91.762</td><td class="num">450,75</td><td class="num">2,03%</td><td class="num">R$ 4,29</td></tr>
-</tbody>
-</table>
-</div>
-<h3 style="font-size:14px;margin:18px 0 8px">Do que são feitas as 450,75 conversões do PMax <span class="escopo fixo">leitura de painel · não conferida</span></h3>
-<div class="tabela-wrap">
-<table>
-<thead><tr><th>Ação de conversão</th><th class="num">Conversões</th><th>O que ela conta de verdade</th></tr></thead>
-<tbody>
-<tr class="destaque"><td>Contato no Whatsapp</td><td class="num">378,76</td><td>Dispara no <strong>clique do botão de WhatsApp</strong>, por uma tag em 7 páginas (e, até 28/07, também no envio do formulário). A pessoa pode nunca ter mandado mensagem.</td></tr>
-<tr class="destaque"><td>Whatsapp</td><td class="num">66,99</td><td><strong>Duplicata da de cima</strong>: em 28/07 foi verificado que as duas disparam nas <em>mesmas 7 páginas</em>, no mesmo clique, com a mesma contagem de tags — somadas davam exatamente as 1.259 do grupo "Contatos". Foi rebaixada a secundária naquele dia.</td></tr>
-<tr><td>Resto (degraus reais de conversa / visita)</td><td class="num">5,00</td><td>O que sobra na subtração — <strong>1,1% do total</strong>. É a única parte que corresponde a alguém conversando de verdade.</td></tr>
-</tbody>
-</table>
-</div>
-<div class="aviso"><strong>"Conversões" aqui não são conversas — e também não são visitas ao site.</strong> O evento por trás é o <em>clique no botão de WhatsApp</em> dentro do site: 445,75 das 450,75 (98,9%). Por isso o R$ 4,29 do PMax é falso barato — é o preço de um clique em botão, enquanto o R$ 22,58 da Pesquisa carrega proporcionalmente muito mais conversa. Comparar as duas campanhas por essa coluna não significa nada; só <em>Conversa respondida</em> + <em>Visita agendada</em> comparam.</div>
-<div class="aviso"><strong>Por que os números têm casa decimal, e de onde eles vêm.</strong> Não é contagem de cliques: um clique é inteiro. O que a coluna "Conversões" do Google Ads mostra é <em>crédito de conversão atribuído</em> — o Google reparte uma mesma conversão entre as campanhas e anúncios que participaram do caminho, e ainda soma <em>conversões modeladas</em> (estimativas para o que ele não consegue observar, por consentimento de cookie ou troca de aparelho). Daí 378,<strong>76</strong>. Ou seja: o número é do Google, calculado por ele, e não bate com uma contagem de eventos no nosso banco — nós não temos custo nem conversão do Ads no Supabase.<br><br><strong>Procedência desta tabela:</strong> leitura do painel do Google Ads feita em <strong>21/08/2026</strong> e anotada no protocolo da rotina. <strong>Não foi conferida por mim</strong> e não dá para conferir daqui — a rotina agendada não abre o painel. Ela também é <strong>anterior ao rebaixamento de "Contato no Whatsapp" a secundária (22/08)</strong>, então a coluna Conversões das campanhas já deve estar bem menor hoje.<br><br><strong>Inconsistência em aberto:</strong> "Whatsapp" virou secundária em 28/07, e ação secundária não entra na coluna Conversões. Mesmo assim aparece com 66,99 numa janela que vai de 23/jul a 21/ago — o mais provável é que sejam os dias 23 a 28/jul, quando ainda era principal. Isso precisa ser confirmado no painel numa sessão interativa; até lá, tratar os 66,99 como <em>não explicados</em>.</div>
-</section>
 
 <section>
 <h2>Palavras-chave <span class="escopo segue" id="lb-kw"></span></h2>
