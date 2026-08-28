@@ -378,7 +378,7 @@ function render(de, ate){
   var acoes = [];
   if (pcDepois > 0) {
     acoes.push(['claudio','<em>"pequena cruzada"</em> consta como negativada em '+fmtBR(M.negativada_em)+
-      ', mas somou <strong>'+pcDepois+' cliques depois disso</strong> dentro do período. Como esses cliques trazem <code>kw</code>, vieram da Pesquisa — a negativa de frase aparentemente não foi salva. Conferir no painel.']);
+      ', mas somou <strong>'+pcDepois+' cliques depois disso</strong> dentro do período. Conferido no painel em 28/08: a negativa de frase existe e está <strong>só na campanha PMax</strong>. Na Pesquisa, <em>"pequena cruzada"</em> é palavra-chave <strong>ativa</strong> (frase) no grupo <em>[ALM] Grupo de anúncios com nome dos concorrentes como palavras-chave</em> — é de lá que vem o gasto. Decisão de manter ou pausar é do Claudio.']);
   }
   if (igV > 0 && igL === 0) {
     acoes.push(['claudio','Instagram é a maior fonte de tráfego sem conversa: <strong>'+fmt(igV)+' visitas e 0 leads</strong> no período, contra '+fmt(gaV)+' visitas de <code>google_ads</code> com '+fmt(gaL)+' leads atribuídos por protocolo (o funil acima conta leads de TODAS as origens, por isso o número é maior).'+
@@ -422,7 +422,7 @@ function render(de, ate){
   kws.forEach(function(r){
     var conc = CONCORRENTES.indexOf(r.kw)>=0;
     var neg = NEGATIVADAS[r.kw];
-    var destino = neg ? '<span class="selo neg">negativada '+fmtBR(neg)+'</span>'
+    var destino = neg ? '<span class="selo neg">negativada só na PMax · ativa na Pesquisa</span>'
                       : (conc ? '<span class="selo">remarketing</span>' : '');
     h+='<tr'+(conc?' class="destaque"':'')+'><td>'+r.kw+'</td><td>'+(MT[r.mt]||r.mt)+
        '</td><td class="num">'+fmt(r.c)+'</td><td class="num">'+fmt(r.l)+'</td><td>'+destino+'</td></tr>';
