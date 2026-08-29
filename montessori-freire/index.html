@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montessori × Freire — quem eles citam | Free School</title>
+  <meta name="description" content="Um levantamento das citações de Maria Montessori e Paulo Freire: quem cada um chama para dentro do próprio texto, contado obra por obra." />
+  <meta name="theme-color" content="#ffffff" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Montessori × Freire — quem eles citam" />
+  <meta property="og:description" content="Quem cada um chama para dentro do próprio texto, contado obra por obra." />
+  <meta property="og:url" content="https://www.freeschool.com.br/montessori-freire/" />
+  <meta property="og:image" content="https://www.freeschool.com.br/assets/logo-freeschool.png" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="citacoes.css" />
+</head>
+<body>
+
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a class="logo" href="/" aria-label="Free School — início">
+        <span class="logo-stack" aria-hidden="true">
+          <span class="sq sq-r"></span>
+          <span class="sq sq-y"></span>
+          <span class="sq sq-b"></span>
+        </span>
+        <span class="logo-word"><b>free</b><i>school</i></span>
+      </a>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="/">Início</a>
+        <a href="#obras">Obras</a>
+        <a href="#metodo">Método</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== ABERTURA ===================== -->
+  <section class="mf-hero">
+    <div class="wrap">
+      <p class="eyebrow">Pesquisa aberta · em construção</p>
+      <h1>Quem Montessori cita.<br />Quem Freire cita.</h1>
+      <p class="lead">
+        Duas pedagogias que dispensam a escola como ela é, separadas por meio século e um oceano.
+        Antes de compará-las pelo que dizem, este projeto compara pelo que elas <em>leem</em>:
+        a lista de todas as pessoas que cada um chama para dentro do próprio texto.
+        Primeiro a enumeração. A comparação vem depois — e sai dela.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== ESTADO DO CORPUS ===================== -->
+  <section class="section mf-estado">
+    <div class="wrap">
+      <h2 class="section-title">Onde o levantamento está agora</h2>
+      <p class="section-lead">
+        Uma contagem só vale se der para dizer o que foi lido. Este é o placar honesto dos dois lados —
+        e eles não estão empatados.
+      </p>
+      <div class="mf-cards">
+        <article class="mf-card mf-card--ok">
+          <header>
+            <span class="mf-dot mf-dot--ok"></span>
+            <h3>Maria Montessori</h3>
+          </header>
+          <p class="mf-card-status">Corpus lido e contado</p>
+          <ul class="mf-stats" id="stats-montessori"></ul>
+          <p class="mf-card-note">
+            As obras dela do período 1909–1917 estão em domínio público. Os textos foram baixados
+            integralmente e passados por um extrator; as contagens abaixo vêm da página, não da memória.
+          </p>
+        </article>
+        <article class="mf-card mf-card--wait">
+          <header>
+            <span class="mf-dot mf-dot--wait"></span>
+            <h3>Paulo Freire</h3>
+          </header>
+          <p class="mf-card-status">Corpus ainda não lido</p>
+          <ul class="mf-stats" id="stats-freire"></ul>
+          <p class="mf-card-note">
+            Nenhum livro de Freire está em domínio público, e nenhum texto dele foi lido aqui.
+            O que existe hoje é uma lista de trabalho, montada a partir da literatura sobre ele.
+            É hipótese, não medida — e está marcada como tal em toda a página.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NAVEGAÇÃO ===================== -->
+  <div class="mf-tabs-wrap">
+    <div class="wrap">
+      <nav class="mf-tabs" role="tablist" aria-label="Seções do levantamento">
+        <button role="tab" aria-selected="true"  data-painel="obras">As obras</button>
+        <button role="tab" aria-selected="false" data-painel="montessori">Citados por Montessori</button>
+        <button role="tab" aria-selected="false" data-painel="freire">Citados por Freire</button>
+        <button role="tab" aria-selected="false" data-painel="comparacao">A comparação</button>
+        <button role="tab" aria-selected="false" data-painel="metodo">Método</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ===================== PAINEL: OBRAS ===================== -->
+  <section class="section mf-painel" id="obras" data-painel="obras">
+    <div class="wrap">
+      <h2 class="section-title">A obra de cada um, inteira</h2>
+      <p class="section-lead">
+        O ponto de partida da comparação: tudo que cada um publicou. As linhas marcadas
+        <span class="mf-inline-tag">no corpus</span> são as que já foram lidas por este projeto.
+      </p>
+      <div class="mf-obras-grid">
+        <div class="mf-obras-col" id="obras-montessori"></div>
+        <div class="mf-obras-col" id="obras-freire"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAINEL: MONTESSORI ===================== -->
+  <section class="section section-cream mf-painel" id="montessori" data-painel="montessori" hidden>
+    <div class="wrap">
+      <h2 class="section-title">Quem Montessori cita</h2>
+      <p class="section-lead" id="montessori-resumo"></p>
+
+      <div class="mf-filtros">
+        <label class="mf-busca">
+          <span class="sr">Buscar pessoa</span>
+          <input type="search" id="f-busca" placeholder="Buscar por nome, campo ou nota…" autocomplete="off" />
+        </label>
+        <label>
+          <span class="sr">Filtrar por campo</span>
+          <select id="f-campo"><option value="">Todos os campos</option></select>
+        </label>
+        <label>
+          <span class="sr">Filtrar por obra</span>
+          <select id="f-obra"><option value="">Todas as obras</option></select>
+        </label>
+        <label class="mf-check">
+          <input type="checkbox" id="f-formal" />
+          <span>só com referência formal</span>
+        </label>
+        <label>
+          <span class="sr">Ordenar</span>
+          <select id="f-ordem">
+            <option value="total">Mais citados primeiro</option>
+            <option value="nome">Ordem alfabética</option>
+            <option value="campo">Por campo</option>
+          </select>
+        </label>
+      </div>
+
+      <p class="mf-contagem" id="montessori-contagem" role="status"></p>
+      <div class="mf-lista" id="lista-montessori"></div>
+
+      <details class="mf-detalhe">
+        <summary>O que ficou de fora, e por quê</summary>
+        <div id="montessori-excluidos"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===================== PAINEL: FREIRE ===================== -->
+  <section class="section section-cream mf-painel" id="freire" data-painel="freire" hidden>
+    <div class="wrap">
+      <h2 class="section-title">Quem Freire cita</h2>
+      <div class="mf-aviso" id="freire-aviso"></div>
+      <p class="mf-contagem" id="freire-contagem"></p>
+      <div class="mf-lista" id="lista-freire"></div>
+    </div>
+  </section>
+
+  <!-- ===================== PAINEL: COMPARAÇÃO ===================== -->
+  <section class="section mf-painel" id="comparacao" data-painel="comparacao" hidden>
+    <div class="wrap">
+      <h2 class="section-title">A comparação</h2>
+      <p class="section-lead">
+        Com um lado medido e o outro ainda em hipótese, nenhum número aqui é conclusão.
+        O que já dá para ver é a <em>forma</em> das duas listas — e ela é bem diferente.
+      </p>
+
+      <div class="mf-comp-destaque" id="comp-interseccao"></div>
+
+      <h3 class="mf-h3">De onde vem quem cada um chama</h3>
+      <p class="mf-nota-metodo">
+        Cada pessoa citada recebeu um campo de origem. Como as duas listas têm tamanhos muito
+        diferentes, a barra mostra a <strong>participação de cada campo na própria lista</strong> —
+        e as duas usam a mesma escala. Conta pessoas distintas, não menções.
+      </p>
+      <div class="mf-campos" id="comp-campos"></div>
+
+      <h3 class="mf-h3">O que a forma das listas sugere</h3>
+      <div class="mf-leituras" id="comp-leituras"></div>
+    </div>
+  </section>
+
+  <!-- ===================== PAINEL: MÉTODO ===================== -->
+  <section class="section section-cream mf-painel" id="metodo" data-painel="metodo" hidden>
+    <div class="wrap">
+      <h2 class="section-title">Como isso foi feito</h2>
+      <p class="section-lead">
+        Todo número desta página pode ser refeito do zero. O código está no repositório,
+        em <code>montessori-freire/pipeline/</code>.
+      </p>
+
+      <ol class="mf-passos">
+        <li>
+          <h3>1. O corpus</h3>
+          <p>
+            Cinco obras de Montessori em domínio público, baixadas do Project Gutenberg
+            pelo espelho do GITenberg. São as edições em inglês de 1912 a 1917 — as traduções
+            que ela mesma acompanhou. Total: <strong id="m-palavras">—</strong> palavras.
+          </p>
+        </li>
+        <li>
+          <h3>2. A extração</h3>
+          <p>
+            Um script varre o texto atrás de sequências capitalizadas e descarta as que a própria obra
+            usa em minúscula com frequência — assim uma palavra comum em começo de frase não vira nome
+            próprio. Sobraram <strong id="m-tokens">—</strong> candidatos.
+          </p>
+        </li>
+        <li>
+          <h3>3. A segunda passada</h3>
+          <p>
+            As referências formais dela vêm em caixa alta com o título em itálico
+            (<em>MORSELLI, «Cesare Lombroso and Scientific Philosophy»</em>). A primeira passada
+            só reconhecia Maiúscula+minúsculas e perdia exatamente a camada mais forte de evidência.
+            Uma segunda passada recupera o aparato de referência.
+          </p>
+        </li>
+        <li>
+          <h3>4. A curadoria</h3>
+          <p>
+            O extrator não decide quem é pessoa. Cada candidato foi revisado à mão e classificado.
+            A página separa duas coisas que costumam ser confundidas: a <strong>citação</strong> é um fato
+            — o nome está na página, tantas vezes, nesta obra; a <strong>identificação</strong> é um juízo,
+            e vem com grau de certeza. Quando só o sobrenome é legível, a citação continua valendo e a
+            identificação fica em aberto.
+          </p>
+        </li>
+        <li>
+          <h3>5. O que ainda falta</h3>
+          <p>
+            <strong id="m-pendentes">—</strong> candidatos ainda não revisados, dos quais
+            <strong id="m-pendentes3">—</strong> com três ou mais ocorrências. A maioria é ruído —
+            topônimos, rubricas do livro, termos técnicos de craniometria — mas há pessoas ali dentro.
+            O número tende a subir, não a descer.
+          </p>
+        </li>
+      </ol>
+
+      <div class="mf-limites">
+        <h3>Limites que a página não esconde</h3>
+        <ul>
+          <li><strong>Os dois lados não são comparáveis ainda.</strong> Montessori foi medida no texto integral; Freire, não. Comparar as contagens agora seria comparar um método com uma lembrança.</li>
+          <li><strong>Falta a Montessori tardia.</strong> As cinco obras lidas vão até 1917. «Il segreto dell'infanzia» (1936), «Educazione e pace» (1949) e «La mente del bambino» (1952) ainda têm direitos e mudam bastante o tom — e provavelmente as referências.</li>
+          <li><strong>Menção não é adesão.</strong> Ela cita Lombroso muitas vezes, e boa parte delas para discordar. A contagem mede presença, não concordância.</li>
+          <li><strong>Tradução mexe em nome próprio.</strong> Lendo as edições inglesas, um nome pode aparecer grafado de outro jeito e escapar. Nas edições italianas a contagem pode mudar.</li>
+        </ul>
+      </div>
+
+      <div class="mf-fontes">
+        <h3>Fontes</h3>
+        <ul>
+          <li>Textos de Montessori: Project Gutenberg (nº 39863, 46643, 29635, 24727, 42869), pelo espelho <a href="https://github.com/GITenberg" rel="noopener">GITenberg</a>.</li>
+          <li>Bibliografia de Montessori: <a href="https://archives.montessori-ami.org/publications/books-and-writings" rel="noopener">AMI Montessori Archives</a> e a <a href="https://plato.stanford.edu/entries/montessori-maria/" rel="noopener">Stanford Encyclopedia of Philosophy</a>.</li>
+          <li>Bibliografia de Freire: <a href="https://www.pucsp.br/paulofreire/sobre-obras.php" rel="noopener">Cátedra Paulo Freire (PUC-SP)</a> e o <a href="https://educacaointegral.org.br/reportagens/guia-definitivo-da-bibliografia-de-paulo-freire/" rel="noopener">guia bibliográfico do Centro de Referências em Educação Integral</a>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <a class="logo logo--light" href="/" aria-label="Free School">
+        <span class="logo-stack" aria-hidden="true">
+          <span class="sq sq-r"></span>
+          <span class="sq sq-y"></span>
+          <span class="sq sq-b"></span>
+        </span>
+        <span class="logo-word"><b>free</b><i>school</i></span>
+      </a>
+      <p class="footer-note">Educação auto-dirigida · Rio de Janeiro, Brasil</p>
+      <p class="footer-copy">© <span id="year">2026</span> Free School.</p>
+    </div>
+  </footer>
+
+  <script src="citacoes.js"></script>
+</body>
+</html>

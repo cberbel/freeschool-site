@@ -1,0 +1,341 @@
+{
+ "montessori": {
+  "autor": "Maria Montessori",
+  "vida": "1870-1952",
+  "nota_bibliografica": "Datas da primeira edição no idioma original. Vários livros dela nascem de ciclos de conferências e são reescritos em edições posteriores — 'La scoperta del bambino' (1950), por exemplo, é a reelaboração do 'Metodo' de 1909.",
+  "obras": [
+   {
+    "ano": 1896,
+    "título": "Sulla genesi delle psicosi in rapporto ai fenomeni fisici",
+    "tipo": "tese",
+    "corpus": false
+   },
+   {
+    "ano": 1909,
+    "título": "Il Método della Pedagogia Scientifica applicato all'educazione infantile nelle Case dei Bambini",
+    "tipo": "livro",
+    "corpus": true,
+    "corpus_id": "método-1912",
+    "edicao_lida": "The Montessori Method, trad. Anne E. George, 1912"
+   },
+   {
+    "ano": 1910,
+    "título": "Antropologia Pedagógica",
+    "tipo": "livro",
+    "corpus": true,
+    "corpus_id": "antropologia-1913",
+    "edicao_lida": "Pedagogical Anthropology, trad. Frederic Taber Cooper, 1913"
+   },
+   {
+    "ano": 1914,
+    "título": "Dr. Montessori's Own Handbook",
+    "tipo": "livro",
+    "corpus": true,
+    "corpus_id": "handbook-1914",
+    "edicao_lida": "edicao original em inglês, 1914"
+   },
+   {
+    "ano": 1916,
+    "título": "L'autoeducazione nelle scuole elementari",
+    "tipo": "livro",
+    "corpus": true,
+    "corpus_id": "autoeducacao-1917",
+    "edicao_lida": "The Advanced Montessori Method I: Spontaneous Activity in Education, trad. Florence Simmonds, 1917"
+   },
+   {
+    "ano": 1916,
+    "título": "L'autoeducazione: il materiale (parte II)",
+    "tipo": "livro",
+    "corpus": true,
+    "corpus_id": "material-1917",
+    "edicao_lida": "The Advanced Montessori Method II: The Montessori Elementary Material, trad. Arthur Livingston, 1917"
+   },
+   {
+    "ano": 1921,
+    "título": "Manuale di pedagogia scientifica",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1922,
+    "título": "I bambini viventi nella Chiesa",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1923,
+    "título": "Das Kind in der Familie (Il bambino in famiglia)",
+    "tipo": "conferências",
+    "corpus": false
+   },
+   {
+    "ano": 1929,
+    "título": "La vita in Cristo",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1931,
+    "título": "La Santa Messa spiegata ai bambini",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1932,
+    "título": "Pace e educazione",
+    "tipo": "conferência",
+    "corpus": false
+   },
+   {
+    "ano": 1934,
+    "título": "Psico Geometria",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1934,
+    "título": "Psico Aritmetica",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1936,
+    "título": "Il segreto dell'infanzia",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1936,
+    "título": "Les etapes de l'education",
+    "tipo": "conferências",
+    "corpus": false
+   },
+   {
+    "ano": 1948,
+    "título": "Dall'infanzia all'adolescenza",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1948,
+    "título": "Come educare il potenziale umano",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1949,
+    "título": "Educazione e pace",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1949,
+    "título": "Formazione dell'uomo",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1949,
+    "título": "The Absorbent Mind (Madras)",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1950,
+    "título": "La scoperta del bambino",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1952,
+    "título": "La mente del bambino: mente assorbente",
+    "tipo": "livro",
+    "corpus": false
+   }
+  ]
+ },
+ "freire": {
+  "autor": "Paulo Freire",
+  "vida": "1921-1997",
+  "nota_bibliografica": "Datas da primeira edição brasileira, salvo indicação. 'Pedagogia do oprimido' foi escrita em 1968 no exílio; circulou primeiro em espanhol e inglês (1970) e só chegou ao Brasil em 1974/1975. A partir dos anos 1980 boa parte da obra são livros dialogados, escritos a dois.",
+  "obras": [
+   {
+    "ano": 1959,
+    "título": "Educação e atualidade brasileira",
+    "tipo": "tese",
+    "corpus": false
+   },
+   {
+    "ano": 1967,
+    "título": "Educação como prática da liberdade",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1968,
+    "título": "Pedagogia do oprimido",
+    "tipo": "livro",
+    "corpus": false,
+    "nota": "escrita em 1968; 1a ed. em espanhol e inglês em 1970; no Brasil, 1974/1975"
+   },
+   {
+    "ano": 1969,
+    "título": "Extension o comúnicacion? (Extensão ou comúnicação?, 1971)",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1976,
+    "título": "Ação cultural para a liberdade e outros escritos",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1977,
+    "título": "Cartas a Guiné-Bissau: registros de uma experiência em processo",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1978,
+    "título": "Os cristãos e a libertação dos oprimidos",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1979,
+    "título": "Educação e mudança",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1980,
+    "título": "Conscientização: teoria e prática da libertação",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1981,
+    "título": "A importância do ato de ler: em tres artigos que se completam",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1982,
+    "título": "Sobre educação (Diálogos), vol. 1",
+    "tipo": "diálogo",
+    "coautor": "Sérgio Guimarães",
+    "corpus": false
+   },
+   {
+    "ano": 1984,
+    "título": "Sobre educação (Diálogos), vol. 2",
+    "tipo": "diálogo",
+    "coautor": "Sérgio Guimarães",
+    "corpus": false
+   },
+   {
+    "ano": 1985,
+    "título": "Por uma pedagogia da pergunta",
+    "tipo": "diálogo",
+    "coautor": "Antonio Faundez",
+    "corpus": false
+   },
+   {
+    "ano": 1985,
+    "título": "Essa escola chamada vida",
+    "tipo": "diálogo",
+    "coautor": "Frei Betto",
+    "corpus": false
+   },
+   {
+    "ano": 1986,
+    "título": "Medo e ousadia: o cotidiano do professor",
+    "tipo": "diálogo",
+    "coautor": "Ira Shor",
+    "corpus": false
+   },
+   {
+    "ano": 1987,
+    "título": "Aprendendo com a própria história",
+    "tipo": "diálogo",
+    "coautor": "Sérgio Guimarães",
+    "corpus": false
+   },
+   {
+    "ano": 1989,
+    "título": "Que fazer: teoria e prática em educação popular",
+    "tipo": "diálogo",
+    "coautor": "Adriano Nogueira",
+    "corpus": false
+   },
+   {
+    "ano": 1990,
+    "título": "Alfabetização: leitura do mundo, leitura da palavra",
+    "tipo": "diálogo",
+    "coautor": "Donaldo Macedo",
+    "corpus": false
+   },
+   {
+    "ano": 1991,
+    "título": "A educação na cidade",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1992,
+    "título": "Pedagogia da esperança: um reencontro com a Pedagogia do oprimido",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1993,
+    "título": "Professora sim, tia não: cartas a quem ousa ensinar",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1993,
+    "título": "Política e educação",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1994,
+    "título": "Cartas a Cristina",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1995,
+    "título": "À sombra desta mangueira",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 1996,
+    "título": "Pedagogia da autonomia: saberes necessários a prática educativa",
+    "tipo": "livro",
+    "corpus": false
+   },
+   {
+    "ano": 2000,
+    "título": "Pedagogia da indignação: cartas pedagogicas e outros escritos",
+    "tipo": "póstumo",
+    "corpus": false
+   },
+   {
+    "ano": 2001,
+    "título": "Pedagogia dos sonhos possíveis",
+    "tipo": "póstumo",
+    "corpus": false
+   },
+   {
+    "ano": 2006,
+    "título": "Pedagogia da tolerância",
+    "tipo": "póstumo",
+    "corpus": false
+   }
+  ]
+ }
+}
