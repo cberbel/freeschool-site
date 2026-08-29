@@ -212,6 +212,11 @@ iniciações espontâneas · respostas · perguntas · expansões do adulto.
 
 E talvez a mais interessante: **latência de resposta** entre a fala do adulto e a resposta infantil.
 
+> Todas as métricas de interação acima dependem de **atribuição correta de falante**, que numa
+> sala de 20 crianças é o elo fraco do pipeline inteiro. Ver Parte III §5 — inclusive por que
+> LENA não serve de referência aqui, e como o mapa espacial do sistema de visão pode ancorar a
+> atribuição.
+
 ## 8. Linguagem + vídeo juntos
 
 Aqui começa o projeto realmente diferenciado. Com o banco sabendo simultaneamente:
@@ -704,34 +709,102 @@ Vale a discussão com as famílias, não a decisão de bastidor.
 
 ## 5. Áudio: a Parte I é otimista demais
 
-Duas dificuldades somadas, e a proposta trata só da primeira.
+Três dificuldades somadas, e a proposta trata só da primeira.
 
 **Diarização** em sala com ~20 crianças de vozes acusticamente parecidas, fala sobreposta e
 reverberação está no limite de falha do estado da arte. A Parte I reconhece isso.
 
 **ASR infantil** é o problema que a Parte I não menciona. Reconhecimento de fala de criança
-pequena é muito pior do que de adulto — as taxas de erro costumam ser altas o bastante para que
-métricas lexicais fiquem sem sentido, e em PT-BR há menos dado de treino ainda. **MLU calculado
-sobre transcrição com 50% de erro não é uma medida de linguagem — é ruído com casas decimais.**
+pequena é muito pior do que de adulto, e em PT-BR há menos dado de treino ainda. **MLU calculado
+sobre transcrição com metade das palavras erradas não é uma medida de linguagem — é ruído com
+casas decimais.**
 
-Isso não invalida o pipeline; muda o que se pode afirmar com ele:
+**A forma da sala** é a terceira, e é a que reenquadra as outras duas. Praticamente toda a
+literatura de ambiente linguístico infantil foi construída sobre gravação *centrada em uma
+criança*, em casa, com poucos falantes por perto. Uma sala Montessori com 20 crianças é um
+problema estruturalmente diferente: não é o mesmo problema com mais ruído, é outro problema.
+
+### Por que LENA não serve de referência aqui
+
+Vale registrar explicitamente, porque LENA é a sugestão óbvia e vai reaparecer:
+
+- os modelos são **proprietários, fechados e treinados sobre inglês norte-americano** de um
+  corpus antigo, sem atualização substancial por muitos anos — não dá para inspecionar,
+  corrigir nem readaptar para PT-BR
+- a validação **degrada fora do inglês** e fora do contexto doméstico
+- entre as três métricas, contagem de palavras do adulto é a menos ruim; **vocalizações da
+  criança e turnos conversacionais validam pior**
+- o pressuposto de projeto é **uma criança-alvo com poucos falantes ao redor**. Com 20 crianças
+  na mesma sala, fala de criança vizinha é atribuída à criança-alvo, e é exatamente esse o erro
+  dominante aqui
+
+Ou seja: a métrica que mais interessaria (turnos) é a que quebra primeiro, e quebra pelo motivo
+que esta sala tem de sobra. **Não adotar, nem como baseline de comparação.**
+
+Isso obriga a uma correção na direção mais conservadora: **contagem de turnos não é uma medida
+robusta neste ambiente**, ao contrário do que a tabela anterior deste documento sugeria. Ela
+depende de atribuição correta de falante, que é justamente o elo fraco.
+
+### O que usar no lugar
+
+**Modelos abertos, porque podem ser ajustados com o áudio desta sala** — que é a propriedade
+decisiva, mais até do que a acurácia de partida:
+
+- **VTC** (*Voice Type Classifier*) — classificação de tipo de falante (criança-alvo / outra
+  criança / adulto), treinado sobre corpora de várias línguas
+- **ALICE** — estimador aberto de contagem de unidades linguísticas do adulto
+- **VCM** — classificador de vocalizações infantis (canônica, não-canônica, choro, riso)
+- ecossistema **ChildProject** para gerenciar gravações longas centradas na criança
+
+**Diarização atual** — pyannote 3.x, NeMo Sortformer, abordagens neurais ponta-a-ponta, que
+tratam sobreposição muito melhor do que o clustering da geração em que LENA foi construída.
+
+**ASR** — Whisper ou modelos auto-supervisionados (WavLM/wav2vec2) **ajustados com fala infantil**,
+não em zero-shot. Para PT-BR, verificar corpora nacionais (ex.: CORAA) e a seção em português do
+CHILDES como base de ajuste.
+
+### A correção que de fato resolve: instrumentar a sala, não trocar o modelo
+
+Nenhum modelo resolve atribuição de falante num campo distante com 20 crianças. As duas saídas
+são de captação, não de software:
+
+**1. Microfone individual em amostra rotativa.** Em vez de tentar separar 20 vozes de um array
+ambiente, 2–3 crianças por dia usam um gravador de contato próximo, rodando entre a turma. Alta
+relação sinal-ruído para quem está usando, e o problema de atribuição praticamente desaparece
+para essa criança. Troca cobertura contínua por dado confiável — e para desenho longitudinal
+intra-sujeito, amostragem periódica basta.
+
+**2. Array de microfones + o mapa espacial que o projeto já tem.** Este é o ponto que diferencia
+este projeto e que não estava na Parte I:
+
+> O sistema de visão **já sabe onde cada criança está em coordenadas da sala**, quadro a quadro.
+
+Isso é um *a priori* espacial que nenhum sistema de áudio infantil teve à disposição. Combinando
+localização de fonte sonora por array com as posições conhecidas dos falantes, a pergunta deixa
+de ser "quantas pessoas falaram e quem são" (diarização cega, mal condicionada) e vira "qual das
+posições conhecidas emitiu este som" — que é um problema muito melhor posto. Some-se a isso o
+sinal visual de movimento de boca e orientação corporal, e a atribuição fica ancorada em duas
+modalidades independentes.
+
+É uma inversão relevante de ordem: **áudio deve vir depois do tracking espacial estar bom,
+porque o tracking é o que torna o áudio tratável.** A ordem da Parte I já coloca linguagem depois
+de espaço, mas por dependência técnica; o motivo real é este.
+
+### O que se pode afirmar, revisado
 
 | Medida | Viável? |
 |---|---|
-| duração de fala, número de turnos, contagem de vocalizações, latência de resposta | sim — dependem de detecção acústica, não de reconhecer palavras |
-| quem falou com quem, iniciação × resposta | sim, com diarização decente |
+| duração de fala, volume de vocalização, latência de resposta | sim, com microfone individual; no campo distante, só com atribuição validada |
+| turnos conversacionais, quem falou com quem, iniciação × resposta | **condicionado** — depende de atribuição de falante, o elo fraco; só com mic individual ou fusão áudio-espacial validada |
 | MLU, diversidade lexical, complexidade sintática, classes gramaticais | **não**, até que a WER seja medida no áudio real desta sala |
 
-**Referência que falta na Parte I: LENA** (*Language ENvironment Analysis*) — gravador vestível
-mais software, usado em centenas de estudos de ambiente linguístico infantil, que entrega
-exatamente a tríade contagem de palavras do adulto / vocalizações da criança / turnos
-conversacionais, **sem transcrever**. É o ponto de comparação estabelecido nesta área. Caro por
-dispositivo, e muito mais barato do que construir o equivalente. Vale conferir o estado da
-validação em PT-BR antes de adotar.
+### Regra
 
-**Recomendação:** começar pelas medidas de quantidade e interação, que são robustas; tratar as
-medidas lexicais/sintáticas como uma segunda fase condicionada a medir a WER no áudio real —
-com uma amostra transcrita à mão como referência.
+**Não herdar número de acurácia publicado por ninguém.** Toda cifra de validação desta
+literatura foi obtida em outra língua, outro ambiente e outra densidade de falantes. Anotar à
+mão algumas horas do áudio *desta* sala e medir localmente diarização, atribuição e WER. Só o
+que sobreviver a essa medida entra no dicionário de variáveis; o resto fica marcado como
+bloqueado, como está no anexo.
 
 ## 6. Jurídico e ético: a frente que pode matar o projeto
 
@@ -838,9 +911,9 @@ Se houvesse uma única recomendação a levar deste documento:
 > **Priorizar continuidade e consistência de poucas medidas bem validadas, em vez de amplitude de
 > muitas medidas frágeis.**
 
-Três anos ininterruptos de duração de work episode + sono + contagem de turnos conversacionais,
-com definição estável e validação humana, valem cientificamente mais do que 100 variáveis ruidosas
-por 6 meses. E — isso é o mais fácil de esquecer — uma série longitudinal **quebra se a definição
+Três anos ininterruptos de duração de work episode + sono + uma medida de linguagem que tenha
+sobrevivido à validação local, com definição estável, valem cientificamente mais do que 100
+variáveis ruidosas por 6 meses. E — isso é o mais fácil de esquecer — uma série longitudinal **quebra se a definição
 da variável mudar no meio**. Toda mudança de definição zera o histórico comparável.
 
 Isso é um argumento forte para congelar cedo um núcleo pequeno de variáveis, versioná-las como se
@@ -857,7 +930,7 @@ Esta é a ordem de dependência *do valor científico*, e as duas não coincidem
 | **Mês 1–3** | captura | câmeras instaladas · calibração · pipeline de gravação e armazenamento com retenção definida · humanos codificam 1 semana · concordância entre codificadores |
 | **Mês 3–6** | identidade e espaço | tracking · identidade (com etiquetas, se aceitas) · mapa espacial · **UI de revisão de tracks** · trajetória automática validada contra codificação humana |
 | **Mês 6–12** | atividade | dataset de materiais Montessori · detecção de material · work episodes automáticos · **primeiro cruzamento sono × concentração** |
-| **Ano 2** | motor e linguagem | pose e mãos · áudio começando por quantidade/turnos · fusão multimodal |
+| **Ano 2** | motor e linguagem | pose e mãos · áudio: captação primeiro (mic individual em amostra rotativa + array), atribuição ancorada no mapa espacial, validação local antes de qualquer métrica · fusão multimodal |
 | **Ano 3+** | — | constructos complexos, se e quando os protocolos sustentarem |
 
 As duas coisas que custam quase nada e destravam todo o resto — **o diário de sono** e **o
@@ -885,9 +958,10 @@ implementada: definição operacional, unidade, fonte, regra de valor ausente e 
 | `pincer_stability` | 1 | mãos | distância polegar-indicador durante preensão | humano × IA |
 | `time_to_fit` | 2 | mãos + objeto | do primeiro contato ao encaixe correto | humano × IA |
 | `hand_dominance` | 2 | mãos | razão de manipulações direita/esquerda | humano × IA |
-| `speech_duration` | 1 | áudio | tempo de fala atribuído à criança | humano × IA (WER-independente) |
-| `conversational_turns` | 2 | áudio | trocas alternadas dentro de janela T | humano × IA |
-| `response_latency` | 2 | áudio | do fim da fala do adulto ao início da resposta | humano × IA |
+| `speech_duration` | 1 | áudio | tempo de fala atribuído à criança | humano × IA; **exige atribuição validada** |
+| `conversational_turns` | 2 | áudio | trocas alternadas dentro de janela T | **condicionada** à atribuição de falante medida nesta sala (ver Parte III §5) |
+| `response_latency` | 2 | áudio | do fim da fala do adulto ao início da resposta | humano × IA; mais robusta com mic individual |
+| `speaker_attribution_accuracy` | 1 | áudio | acurácia de atribuição medida contra anotação manual **desta** sala | pré-requisito das três linhas acima |
 | `mlu` | 2 | áudio | *bloqueada até WER medida no áudio real* | — |
 | `total_sleep_24h` | 1 | sono | soneca + noite, dia de sono definido na Parte II §6 | actigrafia × diário |
 | `sleep_regularity_index` | 2 | sono | regularidade dia a dia, janela de 7 dias | actigrafia |
