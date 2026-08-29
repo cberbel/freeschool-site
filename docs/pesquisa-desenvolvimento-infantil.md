@@ -18,6 +18,50 @@ A Parte I está preservada em conteúdo. As Partes II e III alteram algumas deci
 (ordem de construção, escopo do MVP, tratamento de áudio) — os pontos de divergência estão
 explicitados na Parte III, não escondidos.
 
+## Regras do projeto
+
+Decisões tomadas, não propostas em aberto. O restante do documento se subordina a elas — onde
+uma análise anterior contrariava alguma, a análise foi revista, não a regra.
+
+### R1 — Observar amplo, reportar estreito
+
+Um conjunto **grande** de variáveis é observado e armazenado por trás da cena desde o início.
+O que é **reportado** começa pequeno e cresce conforme cada indicador passa por validação.
+
+São dois conjuntos distintos e a confusão entre eles é o erro a evitar — não a amplitude da
+observação. Reduzir o que se observa hoje é jogar fora dado que não volta; reduzir o que se
+reporta hoje custa nada e se reverte a qualquer momento.
+
+### R2 — Emocional e criatividade entram desde o início
+
+Não são temas adiados para o ano 3. **Criatividade é objetivo fundamental do projeto** — é o
+constructo mais alinhado à tese pedagógica da escola, e adiá-lo esvaziaria a razão de existir da
+medição. Emocional entra junto, pelo mesmo motivo e porque é o principal mediador entre sono e
+todo o resto.
+
+O que se observa e guarda é o **substrato** (nível 1 e 2): prosódia, unidades de ação facial,
+episódios de distress e tempo de recuperação, uso não-canônico de material, sequências de
+estratégia, raridade de ação. O que **não** se produz é rótulo automático de nível 3 —
+`criatividade = 8,3`, `a criança está triste`. Ver Parte III §11 para a operacionalização.
+
+### R3 — Armazenar a gravação bruta: 11 h/dia, 5×/semana, nos primeiros 2 anos
+
+Sem descarte por janela curta. A retenção é reavaliada ao fim do período, com conhecimento que
+hoje não existe. Ver Parte III §10 para volume, custo e o desenho jurídico que isso exige.
+
+### R4 — Captura é irreversível; extração é repetível
+
+Corolário técnico de R1 e R3, e o critério que decide o que tem pressa:
+
+- **Captura** — câmeras, áudio, sensores de sono, etiquetas, log de contexto, consentimento.
+  Não capturou, perdeu para sempre. **Tem pressa. Vai tudo para a fase 1.**
+- **Extração** — pose, mãos, objetos, episódios, métricas. Pode ser refeita sobre o arquivo
+  quantas vezes o método melhorar. **Não tem pressa. Fazer bem depois > fazer mal agora.**
+
+Toda tabela derivada carrega `pipeline_version`, `model_version` e `definition_version`, e o
+histórico é **reprocessado por inteiro** a cada mudança de método — é o que mantém a série
+longitudinal comparável enquanto os modelos evoluem.
+
 ---
 
 # Parte I — Arquitetura e stack
@@ -246,6 +290,10 @@ A IA identifica `estratégia A → estratégia B → estratégia C`; pesquisador
 isso representa flexibilidade, fluência ou originalidade. **IA para descobrir e codificar
 episódios, não para arbitrar criatividade.**
 
+> **R2 eleva criatividade a objetivo fundamental**, não a tema adiado. A Parte III §11
+> operacionaliza as dimensões de Torrance sobre este sistema — incluindo originalidade como
+> raridade estatística no corpus da própria sala, e difusão social de invenção entre crianças.
+
 ## 10. Arquitetura de dados
 
 ```
@@ -356,8 +404,16 @@ Não tentar construir tudo simultaneamente. Para cada criança:
 4. **Linguagem** — quem falou · quando · o quê · para quem
 5. **Mãos** — mão esquerda · mão direita · objeto · tipo de manipulação
 6. **Sono** — ver Parte II *(acrescentado; e, na prática, o primeiro a entrar em operação)*
+7. **Substrato emocional** — prosódia · AUs · episódios de distress · tempo de recuperação ·
+   persistência após falha *(acrescentado por R2)*
+8. **Substrato de criatividade** — uso não-canônico · combinação de materiais · sequência de
+   estratégias · raridade de ação *(acrescentado por R2)*
 
 Com esses sinais deriva-se uma quantidade enorme de indicadores posteriormente.
+
+> **Atenção à leitura desta lista sob R1.** "Começar com poucos outputs" vale para o que é
+> **reportado**, não para o que é **observado e guardado** — este último é o mais amplo que a
+> captação permitir, desde o dia 1. Confundir as duas coisas descarta dado que não volta.
 
 ## 16. Privacidade por desenho
 
@@ -366,7 +422,11 @@ Por serem crianças, desenhar privacidade na arquitetura desde o início:
 - vídeo bruto criptografado e com acesso muito restrito
 - IDs pseudonimizados
 - dataset analítico predominantemente composto por coordenadas/eventos/transcrições
-- **evitar reconhecimento facial e inferência automática de "emoções"**
+- **evitar reconhecimento facial**
+- **não produzir rótulo automático de emoção** (`face → "triste"`) — o que se guarda é o
+  substrato físico: unidades de ação facial, prosódia, episódios de distress e tempo de
+  recuperação. Ver R2 e Parte III §11: a restrição é sobre o **rótulo de nível 3**, não sobre a
+  observação
 
 Assim, para a maior parte das análises, o pesquisador nem precisa abrir o vídeo original.
 
@@ -503,6 +563,17 @@ sem soneca na mesma criança.
 comportamental — visível como queda temporária na duração dos episódios de trabalho, seguida de
 recuperação.
 
+**H6 — regulação emocional** *(entra por R2)*. Noite mais curta ou mais fragmentada → mais
+episódios de distress, **tempo de recuperação mais longo** e menor persistência após falha no dia
+seguinte. A ligação sono → reatividade emocional é das mais replicadas da literatura de sono
+infantil, e o tempo de recuperação é justamente a variável emocional mais defensável deste
+sistema (Parte III §11). Provavelmente a hipótese com maior chance de sinal limpo do conjunto.
+
+**H7 — criatividade** *(entra por R2)*. Sono adequado → mais uso não-canônico de material e mais
+sequências de estratégia distintas. Hipótese mais especulativa que as anteriores, e só testável
+depois que o corpus permitir calcular raridade — mas o substrato precisa estar sendo gravado
+desde já, ou o teste nunca fica disponível.
+
 ## 3. Como instrumentar a soneca sem ser invasivo
 
 **Vídeo de criança dormindo é o dado mais sensível do projeto inteiro.** Opções em ordem crescente
@@ -633,8 +704,9 @@ Vale registrar, porque são decisões que a maioria dos projetos parecidos erra:
 - **Crop em alta resolução depois de detecção em baixa.** Correto.
 - **Separar vídeo bruto de dado científico derivado.** Correto, e é o que torna a maior parte das
   análises possível sem ninguém reabrir vídeo de criança.
-- **Cautela com criatividade e recusa de inferência automática de emoções.** Correto, e por razões
-  éticas além das técnicas.
+- **Recusa de rótulo automático de emoção.** Correto quanto ao rótulo — mas a Parte I generaliza
+  demais e acaba excluindo também a *observação* do substrato. R2 corrige: observa-se amplo,
+  não se rotula. Ver §11.
 
 O resto desta parte é sobre o que falta.
 
@@ -875,68 +947,273 @@ próprio controle, ao longo de anos. Esse tipo de dado quase não existe na lite
 
 Vale ser explícito sobre esse enquadramento desde o começo, inclusive com as famílias.
 
-## 10. O custo esquecido: armazenamento
+## 10. Armazenamento: guardar 2 anos de bruto (R3)
 
-Estimativa de ordem de grandeza — 6 câmeras, 4K, H.265, ~15 Mbps cada, 10 h/dia:
+**Correção de uma análise anterior deste documento.** Eu havia recomendado reter bruto por
+30–90 dias e depois manter só o derivado, com o argumento de que guardar tudo não seria viável
+"nem financeira nem juridicamente". A parte financeira estava errada por má calibragem de escala:
+seis câmeras em uma sala não é videomonitoramento urbano. Refeita a conta, a decisão de R3 é a
+correta, e por uma razão que vai além de custo.
 
-```
-15 Mbps × 6 = 90 Mbps ≈ 11,25 MB/s
-× 36.000 s/dia          ≈  405 GB/dia
-× 20 dias letivos/mês   ≈  8,1 TB/mês
-× 200 dias/ano          ≈   81 TB/ano
-```
+### A razão de fundo: bruto é a única coisa irreversível
 
-Em resolução muito mais alta, multiplique por vários. Ou seja: **guardar vídeo bruto para sempre
-não é uma opção** — nem financeira, nem jurídica (a LGPD pede necessidade e prazo definido).
+Um estudo longitudinal exige **consistência de método ao longo dos anos**. Mas os métodos vão
+melhorar — modelo de pose melhor, definição de "interrupção" corrigida, detector de material
+retreinado. Só existem duas formas de conciliar as duas coisas:
 
-Política de retenção a definir antes da primeira gravação, algo como: bruto por 30–90 dias →
-depois só dado derivado + clipes curtos anotados que fundamentam validação. Isso é
-simultaneamente economia e conformidade, e é bem mais fácil de decidir agora do que quando já
-existirem 40 TB e alguém tiver medo de apagar.
+1. congelar o método por anos e ficar com medida pior a cada ano que passa; ou
+2. **guardar o bruto e reprocessar o histórico inteiro** a cada mudança de método.
 
-## 11. Criatividade: cortar do roadmap
+A opção 2 é a única que preserva simultaneamente qualidade e comparabilidade. E ela exige o
+arquivo. Sem ele, cada melhoria de modelo cria uma descontinuidade na série exatamente onde o
+método mudou — e não há como saber se a variação observada em 2028 é da criança ou do detector.
 
-Concordo com a cautela da Parte I e iria além: **remover criatividade dos dois primeiros anos** e
-não prometê-la a ninguém. O mesmo para qualquer coisa perto de emoção, engajamento afetivo ou
-bem-estar inferido automaticamente.
+Descartar bruto em 90 dias significa que **tudo o que não foi extraído naquela janela está
+perdido para sempre**, inclusive o que só se descobrirá ser importante em 2029.
 
-Não por ser impossível, mas porque a chance de produzir um número que parece medir algo e não mede
-é altíssima — e um número desses, uma vez que entra num relatório para família, é praticamente
-impossível de retirar depois.
+### O volume
+
+6 câmeras · H.265 · 11 h/dia · 5 dias/semana:
+
+| | GB/dia | TB/ano (200 dias letivos) | TB/ano (260 dias) | 2 anos |
+|---|---|---|---|---|
+| original 4K @ 12 Mbps/câm | 356 | 71 | 93 | **143–185 TB** |
+| original 4K @ 15 Mbps/câm | 446 | 89 | 116 | 178–232 TB |
+| proxy 1080p @ 3 Mbps/câm | 89 | 18 | 23 | 36–46 TB |
+
+Ordem de grandeza para dimensionar, não orçamento: com redundância e uma segunda cópia, algo na
+casa de **300–500 TB brutos** de capacidade instalada para o período. Em disco rígido de
+capacidade, isso é dezenas de milhares de reais — **comparável a uma workstation, não a um
+projeto à parte**. Pedir cotação real antes de fechar.
+
+### Onde guardar
+
+**Disco local, não arquivamento frio em nuvem.** O ponto inteiro do arquivo é **relê-lo muitas
+vezes** (reprocessamento). Classes tipo Glacier Deep Archive são baratas para guardar e caras e
+lentas para ler — exatamente o inverso do padrão de uso aqui. Nuvem fria serve como **segunda
+cópia offsite**, criptografada, nunca como arquivo de trabalho.
+
+### Proxy permanente + original com prazo
+
+Desenho que dá as duas coisas:
+
+| Camada | Retenção | Função |
+|---|---|---|
+| **proxy 1080p** | permanente (ou muito longa) | **entrada real da detecção global** — a Parte I §12 já roda detecção em resolução reduzida. O proxy não é backup, é o insumo de produção. ~18–23 TB/ano é irrisório. |
+| **original full-res** | 2 anos, reavaliado em R3 | crops de mão/dedo em alta resolução, reprocessamento futuro, anotação humana |
+
+Se em algum momento for preciso apagar originais, ainda resta um arquivo reprocessável.
+
+### O que muda de fato: o desenho jurídico, não o custo
+
+Com R3, o binding constraint deixa de ser dinheiro e passa a ser LGPD. Guardar 2 anos é
+perfeitamente legítimo — desde que **declarado, justificado e consentido nesses termos**:
+
+- prazo de retenção e finalidade explícitos no RIPD e no termo de consentimento
+- **"reprocessamento do material bruto ao longo do projeto" precisa constar como finalidade
+  declarada.** Sem isso, guarda-se vídeo que não se pode reanalisar — o pior dos dois mundos
+- criptografia em repouso, controle e log de acesso, cópia offsite
+- **revogação de consentimento precisa de resposta decidida antes da primeira gravação.** Não é
+  possível apagar uma criança de um quadro que contém sete. A regra prática — saída retira a
+  criança de todas as análises e apaga o derivado dela, com o bruto sob base e prazo documentados
+  — precisa estar escrita e aprovada antes, não improvisada quando a primeira família pedir.
+
+### Não usar gravação por detecção de movimento
+
+Sala vazia também é dado, e janela faltante quebra série temporal. Gravar a janela de
+funcionamento inteira, continuamente.
+
+## 11. Emocional e criatividade: como fazer sem produzir lixo (R2)
+
+**Reversão.** Eu havia recomendado cortar criatividade dos dois primeiros anos e evitar qualquer
+coisa perto de emoção. R2 decidiu o contrário, e a decisão está certa: criatividade é o constructo
+mais alinhado à tese da escola, e emocional é o principal mediador entre sono e todo o resto —
+cortar os dois deixaria o projeto medindo bem justamente o que menos importa para ele.
+
+O que a minha objeção original de fato acertava é mais estreito do que eu escrevi, e continua
+valendo dentro de R1: **o problema nunca foi observar — foi reportar um número de nível 3 como se
+fosse medida.** Observar amplo e reportar estreito resolve isso sem custo nenhum para o escopo.
+
+### Emocional
+
+O que é cientificamente indefensável é uma coisa só: **classificar emoção a partir de face**.
+Configuração facial não mapeia de forma confiável em categoria emocional entre contextos e
+culturas (revisão de Barrett et al., 2019) — e em criança pequena, menos ainda. `face → "triste"`
+está fora.
+
+Tudo o mais está dentro, e é bastante:
+
+**Nível 1 — observáveis físicos, nenhum juízo emocional:**
+
+| Sinal | Fonte |
+|---|---|
+| prosódia: F0 médio e variância, intensidade, taxa de fala, qualidade de voz | áudio |
+| choro / vocalização de distress (evento acústico, não rótulo) | áudio (VCM) |
+| riso | áudio |
+| **unidades de ação facial (FACS/AUs)** — intensidade de AU é medida física, não emoção | vídeo |
+| energia de movimento, agitação, jerk | pose |
+| postura: encolhida × ereta, autotoque, mão-ao-rosto | pose |
+| aversão de olhar, orientação de cabeça | pose |
+| aproximação × afastamento de pessoas | trajetória |
+
+A distinção que sustenta tudo: **AU12 (elevador do canto do lábio) é observável; "feliz" é
+interpretação.** Guarda-se o primeiro.
+
+**Nível 2 — episódios comportamentais, onde está o valor real:**
+
+- **episódio de distress** — início, duração, desfecho
+- **tempo de recuperação** — do início do distress ao retorno ao comportamento de base ou ao
+  trabalho. É provavelmente a variável emocional mais útil e mais defensável do projeto, e é o
+  núcleo da literatura de autorregulação
+- **corregulação** — adulto se aproxima de criança em distress → tempo até resolução
+- **episódio de conflito** — duas crianças, objeto disputado, duração, tipo de resolução
+  (autorresolvido / mediado por par / mediado por adulto)
+- **frustração no trabalho** — erro → nova tentativa × abandono
+- **persistência após falha** — tentativas após o primeiro erro antes de abandonar
+
+Os dois últimos saem **direto dos dados de work episode que já estão sendo coletados, sem face
+nenhuma** — driblam por inteiro a controvérsia da computação afetiva e capturam o que de fato
+importa no desenvolvimento.
+
+**Nível 3** — autorregulação, reatividade, capacidade de recuperação. Só por combinação de
+nível 1–2 com **instrumento externo validado** e humano no circuito. Candidatos: **SDQ**
+(curto, gratuito, com versão PT-BR), **CBCL/TRF**, **ERC**. Aplicados por onda, servem de critério
+externo contra o qual as métricas automáticas são calibradas.
+
+### Criatividade
+
+Mesmo movimento, e aqui há teoria estabelecida em que ancorar. As dimensões clássicas de Torrance
+são operacionalizáveis como contagens sobre comportamento observado:
+
+| Dimensão | Operacionalização neste sistema |
+|---|---|
+| **fluência** | número de ações/soluções distintas num episódio aberto |
+| **flexibilidade** | número de **categorias** distintas de abordagem (esquema de categorias definido por humano) |
+| **originalidade** | **raridade estatística da ação no próprio corpus da sala** |
+| **elaboração** | retorno a um trabalho anterior e modificação dele |
+
+**Originalidade é o achado deste desenho.** Com um banco longitudinal de tudo que toda criança já
+fez com todo material, originalidade vira `P(esta ação | este material, esta sala, este período)`
+— uma **frequência nos próprios dados**, não a opinião de um modelo. Nenhum julgamento subjetivo
+entra no cálculo. Isso só é possível porque R1 mandou observar amplo desde o começo: a raridade
+de uma ação em 2028 depende de ter registrado o que era comum em 2026.
+
+**Eventos específicos de Montessori, todos automatizáveis:**
+
+- **uso não-canônico do material** — o sistema conhece a sequência canônica de cada material
+  (é o próprio dado de treino dos detectores). Desvio é detectável **como desvio**, sem julgar.
+  Se é erro, exploração ou invenção, é a pergunta da codificação humana — mas a detecção é
+  automática, e é um evento de nível 2 excelente
+- **combinação de materiais** de áreas diferentes usados juntos — trivial de detectar depois que
+  a detecção de objetos funciona, e carregada de sentido em termos montessorianos
+- **sequência de estratégias** A → B → C sobre o mesmo problema
+- **exploração antes da solução** — razão entre manipulação exploratória e ação dirigida a objetivo
+- **retorno e modificação** de trabalho anterior
+
+**E a variável que provavelmente é a mais publicável do projeto inteiro:**
+
+> **Difusão social de uma invenção.** Criança X faz algo não-canônico pela primeira vez. Criança Y
+> faz depois? Quanto tempo levou? Houve contato ou proximidade entre elas nesse intervalo?
+
+Isso é **formação de cultura numa sala de aula**, medida. Exige exatamente o que este projeto tem
+e quase ninguém mais: identidade persistente, ação categorizada, proximidade espacial e série
+longitudinal, tudo junto. É o tipo de pergunta que nenhuma bateria de testes de criatividade
+alcança, porque exige observar a sala inteira ao longo de anos.
+
+**Validação:** codificadores humanos avaliam uma amostra de episódios nas dimensões de Torrance,
+com concordância medida; nomeações de educadores como critério externo; e, para os mais velhos,
+uma prova de tipo TTCT aplicada por onda.
+
+### O guardrail que sobrevive — e que é o próprio R1
+
+Amplo na observação, estreito no relatório:
+
+| | |
+|---|---|
+| **observado e guardado** | AUs, prosódia, distress, recuperação, raridade de ação, uso não-canônico, difusão — o conjunto largo, desde o dia 1 |
+| **reportado a família ou educador** | só o que passou por validação contra critério externo, com incerteza declarada |
+
+Um número de nível 3 que entra num relatório para família é praticamente impossível de retirar
+depois. Isso não é argumento para não medir — é argumento para **medir muito e publicar pouco**,
+que é exatamente R1.
 
 ## 12. A força real do projeto
 
 Se houvesse uma única recomendação a levar deste documento:
 
-> **Priorizar continuidade e consistência de poucas medidas bem validadas, em vez de amplitude de
-> muitas medidas frágeis.**
+> **Observar amplo e guardar tudo; congelar a definição do que é reportado e reprocessar o
+> histórico a cada melhoria de método.**
 
-Três anos ininterruptos de duração de work episode + sono + uma medida de linguagem que tenha
-sobrevivido à validação local, com definição estável, valem cientificamente mais do que 100
-variáveis ruidosas por 6 meses. E — isso é o mais fácil de esquecer — uma série longitudinal **quebra se a definição
-da variável mudar no meio**. Toda mudança de definição zera o histórico comparável.
+O ponto delicado, e o mais fácil de esquecer: uma série longitudinal **quebra se a definição da
+variável mudar no meio** — toda mudança de definição zera o histórico comparável. Isso é um
+argumento forte contra soltar métricas cedo e ir mexendo nelas.
 
-Isso é um argumento forte para congelar cedo um núcleo pequeno de variáveis, versioná-las como se
-versiona código, e só então expandir por fora.
+Mas **não** é argumento para observar pouco, e é aí que a versão anterior desta seção errava.
+As duas coisas se conciliam por R3 + R4: como o bruto está guardado, mudar uma definição não zera
+nada — **reprocessa-se o arquivo inteiro com a definição nova**, e a série volta a ser comparável
+de ponta a ponta. Custa GPU, não custa história.
+
+Então o núcleo pequeno e estável é dos **indicadores publicados**, não do que é observado:
+
+| | |
+|---|---|
+| observado, guardado, versionado | o mais amplo que a captação permitir, desde o dia 1 (R1) |
+| definição congelada e reprocessada | o subconjunto que vira indicador longitudinal |
+| publicado / reportado | menor ainda: só o que passou por validação externa |
+
+Três anos ininterruptos de duração de work episode + sono + tempo de recuperação emocional, com
+definição estável e reprocessamento consistente, valem mais do que 100 indicadores instáveis por
+6 meses. O que muda em relação à versão anterior é que os outros 97 continuam sendo **observados
+e guardados** — só não são promovidos a indicador antes da hora.
+
+E a vantagem estrutural que quase nenhum estudo da área tem: séries temporais densas, diárias,
+in situ, com cada criança como seu próprio controle, ao longo de anos. O padrão da área é medida
+esparsa, em laboratório, fora de contexto.
 
 ## 13. Ordem de execução recomendada
 
-**Divergência** em relação à §17 da Parte I: aquela ordem é a ordem de dependência *técnica*.
-Esta é a ordem de dependência *do valor científico*, e as duas não coincidem.
+**Divergência** em relação à §17 da Parte I: aquela é a ordem de dependência *técnica*. Esta
+segue R4 — **tudo que é captura vai para a fase 1**, porque não volta; extração vem quando o
+método estiver pronto, porque pode ser refeita sobre o arquivo.
 
 | Fase | Frente | Entregas |
 |---|---|---|
-| **Mês 0** *(sem GPU)* | fundação | trilha jurídica/ética iniciada · consentimentos desenhados · **diário de sono começa a rodar** · dicionário de variáveis v1 · protocolo de codificação humana |
-| **Mês 1–3** | captura | câmeras instaladas · calibração · pipeline de gravação e armazenamento com retenção definida · humanos codificam 1 semana · concordância entre codificadores |
-| **Mês 3–6** | identidade e espaço | tracking · identidade (com etiquetas, se aceitas) · mapa espacial · **UI de revisão de tracks** · trajetória automática validada contra codificação humana |
-| **Mês 6–12** | atividade | dataset de materiais Montessori · detecção de material · work episodes automáticos · **primeiro cruzamento sono × concentração** |
-| **Ano 2** | motor e linguagem | pose e mãos · áudio: captação primeiro (mic individual em amostra rotativa + array), atribuição ancorada no mapa espacial, validação local antes de qualquer métrica · fusão multimodal |
-| **Ano 3+** | — | constructos complexos, se e quando os protocolos sustentarem |
+| **Mês 0** *(sem GPU)* | fundação | trilha jurídica/ética · consentimento granular **incluindo reprocessamento e retenção de 2 anos** · **diário de sono começa a rodar** · dicionário de variáveis v1 · protocolo de codificação humana · **log diário de contexto** |
+| **Mês 1–3** | **captura completa** | câmeras + calibração · **áudio: array + mic individual rotativo instalados e gravando desde já** · sensor de soneca (radar/colchonete) · etiquetas de identidade, se aceitas · armazenamento proxy+original · humanos codificam 1 semana · concordância entre codificadores |
+| **Mês 3–6** | identidade e espaço | tracking · identidade · mapa espacial · **UI de revisão de tracks** · trajetória validada contra codificação humana |
+| **Mês 6–12** | atividade e primeiro substrato | detecção de materiais · work episodes · **frustração e persistência após falha** (saem do work episode, sem face) · **primeiro cruzamento sono × concentração** |
+| **Ano 2** | motor, linguagem, afeto | pose e mãos · atribuição de falante ancorada no mapa espacial, validada localmente · AUs e prosódia · episódios de distress e tempo de recuperação · **uso não-canônico e combinação de materiais** |
+| **Ano 2–3** | criatividade e difusão | raridade de ação sobre o corpus acumulado · sequências de estratégia · **difusão social de invenção** · validação humana nas dimensões de Torrance |
+| **contínuo** | reprocessamento | recampanha sobre o arquivo a cada mudança de modelo ou definição |
 
-As duas coisas que custam quase nada e destravam todo o resto — **o diário de sono** e **o
-protocolo de codificação humana** — são as duas que estão no mês 0. Não é coincidência: são as
-únicas que não dependem de nenhuma outra peça, e ambas acumulam valor enquanto a engenharia
-acontece.
+Duas observações sobre a tabela:
+
+**A fase 1 ficou mais cara e mais larga do que na versão anterior**, e é assim que tem que ser
+sob R4. Instalar o array de áudio no ano 2 significaria um ano sem áudio nenhum para reprocessar —
+perda permanente, contra a qual nenhum modelo futuro pode nada.
+
+**Criatividade só pode chegar no ano 2–3, e isso não contradiz R2.** A originalidade é definida
+como raridade no corpus da própria sala: ela é *matematicamente impossível* de calcular antes de
+existir corpus. O que R2 exige é que o **substrato seja observado e guardado desde o dia 1** —
+e é o que a tabela faz. O cálculo vem depois porque depende de história acumulada, não porque foi
+adiado por cautela.
+
+As coisas que custam quase nada e destravam todo o resto — **diário de sono**, **protocolo de
+codificação humana** e **log diário de contexto** — estão todas no mês 0. Não é coincidência:
+são as únicas que não dependem de nenhuma outra peça, e todas acumulam valor enquanto a
+engenharia acontece.
+
+### O log diário de contexto
+
+Acréscimo que a versão anterior não tinha e que R4 torna óbvio. O vídeo mostra a sala, não mostra
+o **porquê**. Nada disto é reconstruível depois, e tudo custa alguns minutos por dia:
+
+quem faltou e por quê · material novo introduzido · sala rearranjada · criança doente ·
+medicação · educador ausente ou substituído · evento familiar relevante · passeio, festa,
+quebra de rotina · recalibração de câmera
+
+Sem isso, uma queda coletiva de concentração numa terça-feira fica para sempre sem explicação —
+e o modelo vai atribuí-la a alguma variável interna que nada tem a ver.
 
 ---
 
@@ -968,7 +1245,27 @@ implementada: definição operacional, unidade, fonte, regra de valor ausente e 
 | `nap_onset_latency` | 1 | sono | do deitar ao início do sono | radar × observação |
 | `post_nap_reentry_latency` | 2 | sono + vídeo | do despertar ao próximo work episode | humano × IA |
 | `nap_dependency` | 2 | sono | proporção de dias com soneca, janela móvel | diário |
+| `au_intensity_*` | 1 | vídeo | intensidade por unidade de ação facial (FACS) — **medida física, sem rótulo emocional** | humano × IA |
+| `prosody_f0_var` | 1 | áudio | variância de F0 na fala da criança | acústica |
+| `distress_episode` | 2 | áudio + vídeo | início, duração, desfecho | humano × IA (kappa) |
+| `recovery_time` | 2 | multimodal | do início do distress ao retorno ao comportamento de base | humano × IA (ICC) |
+| `coregulation_latency` | 2 | trajetória + vídeo | aproximação do adulto → resolução do distress | humano × IA |
+| `conflict_episode` | 2 | multimodal | duas crianças, objeto disputado, tipo de resolução | humano × IA |
+| `persistence_after_error` | 2 | vídeo | tentativas após o primeiro erro antes de abandonar | **deriva do work episode, sem face** |
+| `frustration_abandon_ratio` | 2 | vídeo | erro → abandono / erro → nova tentativa | deriva do work episode |
+| `noncanonical_use` | 2 | vídeo | desvio da sequência canônica do material — detectado **como desvio**, sem julgar | humano × IA |
+| `material_combination` | 2 | vídeo | materiais de áreas distintas usados juntos | humano × IA |
+| `strategy_sequence_n` | 2 | vídeo | número de abordagens distintas sobre o mesmo problema | humano × IA |
+| `exploration_ratio` | 2 | vídeo | manipulação exploratória / ação dirigida a objetivo | humano × IA |
+| `return_and_modify` | 2 | vídeo | retorno a trabalho anterior com modificação (elaboração) | humano × IA |
+| `action_rarity` | 2 | derivada | `P(ação \| material, sala, período)` no corpus acumulado — **frequência, não julgamento** | interna; exige ≥1 ano de corpus |
+| `novelty_diffusion_lag` | 2 | derivada | intervalo entre a 1ª ocorrência de uma ação e sua repetição por outra criança, com proximidade no intervalo | humano × IA |
 
-Nível 3 (concentração, coordenação, destreza, criatividade) **não entra no dicionário como
-variável medida** — entra como constructo derivado, com o conjunto de variáveis de nível 1 e 2 que
-o compõem declarado explicitamente e validado à parte.
+Nível 3 (concentração, coordenação, destreza, **criatividade, autorregulação**) **não entra no
+dicionário como variável medida** — entra como constructo derivado, com o conjunto de variáveis de
+nível 1 e 2 que o compõem declarado explicitamente e validado contra critério externo (SDQ, ERC,
+nomeação de educador, prova tipo TTCT).
+
+Isso é R1 em forma de tabela: **a coluna que cresce é esta; a lista de constructos reportados
+permanece curta.** As ~35 linhas acima são a semente das 50–100 — e sob R2 o conjunto observado
+deve crescer bem além delas antes de qualquer indicador ser promovido.
