@@ -3,8 +3,3 @@ Thumbs.db
 .vercel
 node_modules
 *.log
-
-# derivados do pipeline de citações (regeneráveis; ver montessori-freire/pipeline/README.md)
-montessori-freire/pipeline/candidatos.json
-montessori-freire/pipeline/fila-curadoria.txt
-__pycache__/
