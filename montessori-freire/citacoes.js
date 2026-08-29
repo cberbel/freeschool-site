@@ -258,11 +258,11 @@
       '<div class="mf-numero">' + comuns.length + "</div>" +
       "<p><strong>pessoas aparecem nas duas listas.</strong> " +
       (comuns.length === 0
-        ? "Nenhuma. Duas pedagogias que chegam à mesma conclusão sobre a escola — que ela precisa " +
-          "sair do caminho de quem aprende — e que não têm um único autor em comum na fundamentação. " +
-          "Montessori se apoia em médicos, antropólogos e biólogos do século XIX; Freire, em filósofos " +
-          "e pensadores políticos do século XX. É um resultado preliminar: o lado de Freire ainda não " +
-          "foi medido, e o próprio Freire chegou a escrever sobre Montessori."
+        ? "Nenhuma. Dois autores que recusam a escola transmissiva e não têm um único nome em comum " +
+          "na fundamentação. Montessori se apoia em médicos, antropólogos e biólogos do século XIX; " +
+          "Freire, em filósofos e pensadores políticos do século XX. É resultado preliminar em dois " +
+          "sentidos: o lado de Freire ainda não foi medido, e a lista de Montessori ainda vai crescer " +
+          "com a revisão dos candidatos pendentes."
         : "São elas: " + comuns.map(function (c) { return esc(c.f.nome); }).join(", ") + ".") +
       "</p>" +
       (comuns.length ? '<div class="mf-nomes">' + comuns.map(function (c) {
