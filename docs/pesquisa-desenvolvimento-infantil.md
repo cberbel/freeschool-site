@@ -128,6 +128,10 @@ Não um modelo só — uma combinação.
 | ações temporais | modelo temporal PyTorch |
 | coordenadas na sala | calibração multicâmera + homografia/3D |
 
+> **A estratégia de compor muitos modelos estreitos está certa** — ver Parte III §14 para por quê,
+> e para as três ressalvas que decidem se funciona: sincronização, propagação de erro e ordem de
+> entrada dos módulos. Esta tabela é **arquitetura-alvo, não configuração inicial**.
+
 Para pesquisa, MMPose/RTMPose é preferível porque permite trabalhar separadamente com corpo,
 mão, face ou whole-body. Para mão, MediaPipe entrega **21 landmarks por mão**, incluindo ponta
 e articulações de cada dedo.
@@ -1214,6 +1218,126 @@ quebra de rotina · recalibração de câmera
 
 Sem isso, uma queda coletiva de concentração numa terça-feira fica para sempre sem explicação —
 e o modelo vai atribuí-la a alguma variável interna que nada tem a ver.
+
+## 14. Arquitetura modular: muitos modelos especializados
+
+A Parte I §2 propõe compor o sistema de vários modelos estreitos — um só para pose corporal, outro
+só para mãos, outro para objetos, outro para tracking. **Está certo.** Mas o motivo mais forte não
+é o que costuma ser dado, e as ressalvas importam mais do que a decisão.
+
+### Por que está certo
+
+**Não é bem uma escolha.** Não existe um modelo único que faça detecção + tracking 3D entre
+câmeras + pose de corpo inteiro + 21 landmarks por mão + objetos customizados + segmentação
+temporal de ações no nível de qualidade que pesquisa exige. Compor é a única opção disponível
+nessa barra. A pergunta real não é "compor ou não", é **como compor sem que a composição vire o
+problema**.
+
+**O motivo forte: cada parte pode ser validada separadamente.** Isso liga direto ao §2 — anotação
+e validação são o gargalo. Num pipeline modular dá para medir "quão bom é meu landmark de mão"
+contra anotação humana, independentemente de "quão bom é meu detector de material". Num monólito
+sai um número só para o sistema inteiro e **não há como atribuir o erro a lugar nenhum**.
+
+Para um instrumento de medida — que é o que este projeto é — atribuir erro a um estágio não é
+conveniência de engenharia. É a diferença entre um instrumento e uma caixa-preta.
+
+**E cada parte pode ser trocada sem reconstruir o resto.** Em cinco anos, estimação de mão vai
+melhorar. Se mão é um módulo com interface definida, troca-se, reprocessa-se o arquivo (R3/R4) e
+a série continua comparável. Embutida num monólito, seria retreinar tudo.
+
+### Ressalva 1 — a composição é a parte difícil, não os componentes
+
+Todo módulo da lista está a um `pip install` de distância. O que **não** é de graça:
+
+**Alinhamento de tempo e de coordenadas.** MediaPipe devolve landmarks nas coordenadas do próprio
+crop; RTMPose nas dele; DeepStream nas suas; cada câmera na sua. Trazer tudo para coordenadas da
+sala e para um relógio único é onde projetos assim morrem. Câmeras precisam de sincronização de
+timestamp sub-quadro, e o áudio precisa estar alinhado ao vídeo.
+
+> Não é detalhe: a análise multimodal da Parte I §8 — "adulto diz *borboleta* às 10:32:17, criança
+> toca a imagem às 10:32:19" — **perde o sentido com 200 ms de deriva**. Atenção conjunta é
+> medida em centenas de milissegundos. A sincronização não é infraestrutura de apoio; é
+> pré-condição da hipótese científica mais interessante do projeto.
+
+**Propagação de erro.** É o principal risco científico do desenho modular e o outro lado da moeda
+da validação por estágio. Erro de detecção vira erro de tracking, vira troca de ID, vira mão da
+criança errada, vira métrica de destreza atribuída a quem não fez. Os erros **multiplicam** ao
+longo da cadeia:
+
+```
+5 estágios a 95% cada  →  0,95⁵ ≈ 77% de ponta a ponta
+```
+
+Essa conta precisa estar visível. É também o argumento mais forte para a UI de revisão de tracks
+do §4: identidade é o estágio mais a montante, e por isso o que mais contamina.
+
+**Inferno de dependências.** MMPose, MediaPipe, DeepStream, PyTorch e CUDA têm grafos de
+dependência que conflitam entre si. A resposta prática é firme: **um contêiner por módulo,
+comunicação por arquivo ou fila, nunca um ambiente único.** Tentar `pip install` de tudo no mesmo
+venv custa dias — e custa de novo a cada atualização.
+
+### Ressalva 2 — confiança tem que propagar, não ser descartada
+
+Cada estágio produz uma confiança. A métrica final precisa carregar a confiança **conjunta**, e
+linhas de confiança baixa precisam ser marcadas, não diluídas na média.
+
+É exatamente isso que separa "modular e honesto" de "caixa-preta com passos extras". Toda linha
+derivada carrega `confidence` **e** proveniência — quais versões de quais módulos a produziram —
+junto de `pipeline_version` / `model_version` / `definition_version` (R4).
+
+### Ressalva 3 — módulos entram em ordem, não todos no dia 1
+
+A lista da Parte I §2 é **arquitetura-alvo, não configuração inicial**. Cada módulo somado
+multiplica superfície de integração, e um módulo só entra depois que o de baixo estiver validado.
+
+Ligar mãos antes de a identidade estar sólida produz medida de altíssima precisão **atribuída à
+criança errada** — pior que não medir, porque parece dado bom. A ordem do §13 já reflete isso.
+
+Sob R4 não há perda nenhuma nessa cadência: **captura-se tudo desde o dia 1; extrai-se conforme
+cada módulo fica pronto e validado**, reprocessando o arquivo.
+
+### O que **não** deve ser modular: a fusão
+
+Ressalva que inverte a regra, e é onde está o ganho de qualidade. Detectores devem ser modulares;
+**a fusão deve ser conjunta, não sequencial.** Três casos:
+
+| Fusão | Sequencial (pior) | Conjunta (melhor) |
+|---|---|---|
+| áudio × espaço | diarizar e depois casar com posições | inferir falante já condicionado às posições conhecidas (§5) |
+| pose entre câmeras | escolher a melhor vista 2D | triangular as 6 vistas com a calibração |
+| mão × objeto | estimar mão, depois classificar objeto | cada um restringe o outro — saber o objeto na mão melhora as duas estimativas |
+
+Ou seja: **modular nos detectores, conjunto na fusão.**
+
+### O acoplamento certo: por esquema, não por código
+
+A chave para trocar módulos sem reescrever o sistema é que eles **não se chamem**. Cada módulo lê
+e escreve um esquema intermediário versionado em disco — a representação de observações do §11 da
+Parte I. Troca-se o módulo de mão por outro que escreva o mesmo esquema, e nada mais muda.
+
+Módulos acoplados por chamada de função viram monólito em seis meses, sem ninguém decidir isso.
+
+### E os modelos de fundação / VLMs?
+
+Pergunta inevitável hoje. A resposta se divide:
+
+**Não como camada de medida.** Um VLM perguntado "esta criança está concentrada?" devolve um
+número plausível sem característica de erro mensurável e sem reprodutibilidade entre versões. Pior
+para este projeto especificamente: **a saída muda quando o fornecedor atualiza o modelo**, o que
+quebra a série longitudinal em silêncio, sem que nada no sistema acuse. Para um estudo de anos,
+essa propriedade é fatal. A Parte I §14 já diz isso ("nunca como fonte única da métrica") e vale
+manter.
+
+**Sim em dois lugares, e são valiosos:**
+
+1. **Acelerador de anotação** — pré-rotular episódios candidatos para humanos corrigirem. Ataca
+   diretamente o gargalo do §2, que é o centro de custo real do projeto.
+2. **Índice de busca sobre o arquivo** — "ache todos os trechos em que uma criança combinou dois
+   materiais de áreas diferentes". Para o trabalho de criatividade (R2), isso é enorme: é como se
+   montam os datasets de uso não-canônico e combinação sem assistir a dois anos de vídeo.
+
+Nos dois casos o VLM **encontra coisas para humanos verificarem**; não mede. É a mesma linha do
+nível 1–2–3.
 
 ---
 
