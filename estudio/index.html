@@ -45,6 +45,32 @@ main{max-width:680px;margin:0 auto;padding:14px}
 .b-re{background:#fff;border:1.5px solid var(--erro)!important;color:var(--erro)}
 .b-h{background:#fff;border:1.5px solid var(--borda)!important;color:var(--tinta2)}
 .coment{margin-top:10px;display:flex;gap:8px}
+@media(max-width:430px){
+  .abas{gap:5px}
+  .abas button{padding:10px 4px;font-size:13px;letter-spacing:-.2px}
+}
+.imgfiltros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.imgfiltros button{padding:7px 12px;border:1px solid var(--borda);background:#fff;
+  border-radius:999px;font-size:12.5px;font-weight:700;color:var(--tinta2);cursor:pointer}
+.imgfiltros button.on{background:var(--azul2);border-color:var(--azul2);color:#fff}
+.gimg{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.gimg .it{background:var(--card);border:1px solid var(--borda);border-radius:12px;
+  overflow:hidden;display:flex;flex-direction:column}
+.gimg .it.decidida{opacity:.6}
+.gimg .it img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;
+  background:#eef1f5;cursor:zoom-in}
+.gimg .txt{padding:8px 10px 6px;display:flex;flex-direction:column;gap:5px;flex:1}
+.gimg h4{font-size:12.5px;line-height:1.3;font-weight:700}
+.gimg .jus{font-size:11px;color:var(--tinta2);line-height:1.35}
+.gimg .bts{display:flex;gap:6px;padding:0 10px 10px}
+.gimg .bts button{flex:1;padding:9px 4px;border-radius:8px;border:none;
+  font-size:13px;font-weight:800;cursor:pointer}
+.gimg .num{font-size:10.5px;color:var(--tinta2);font-variant-numeric:tabular-nums}
+.orig{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  padding:2px 7px;border-radius:999px;align-self:flex-start}
+.o-aspiracional{background:#f3e2e6;color:#a34e63}
+.o-site{background:#e5ede2;color:#4a6b46}
+.o-rosto-teste{background:#fde5e3;color:var(--erro)}
 .coment input{flex:1;padding:10px;border:1px solid var(--borda);border-radius:10px;font-size:14px}
 .coment button{background:var(--azul2);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700}
 .hist{font-size:12px;color:var(--tinta2);margin-top:8px;border-left:3px solid var(--dourado);
@@ -91,6 +117,7 @@ main{max-width:680px;margin:0 auto;padding:14px}
   <div class="abas">
     <button id="aba-fila" class="on" onclick="mudarAba('fila')">Fila</button>
     <button id="aba-pauta" onclick="mudarAba('pauta')">Pauta</button>
+    <button id="aba-imgs" onclick="mudarAba('imgs')">Imagens</button>
     <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
     <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
   </div>
@@ -125,7 +152,7 @@ function mostrarApp(){
 }
 function mudarAba(a){
   abaAtual = a;
-  for(const x of ['fila','pauta','hist','regras'])
+  for(const x of ['fila','pauta','imgs','hist','regras'])
     document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
   carregar();
 }
@@ -148,6 +175,7 @@ async function carregar(){
   alvo.innerHTML = '<div class="vazio">Carregando…</div>';
   if(abaAtual === 'regras') return carregarRegras();
   if(abaAtual === 'pauta') return carregarPauta();
+  if(abaAtual === 'imgs') return carregarImagens();
   const filtro = (abaAtual === 'fila') ? ['rascunho'] : ['aprovado','publicado','reprovado'];
   const {data, error} = await db.from('pub_fila').select('*')
         .in('status', filtro).order('quando');
@@ -202,6 +230,106 @@ async function cartao(p){
     }
   }
   return el;
+}
+
+
+// ---------------------------------------------------------------- Imagens
+// Banco de stills do Higgsfield (hf_imagens). Ele decide aqui: o que passa
+// vira base de reel e ensina o estilo das proximas ondas.
+let imgStatus = 'proposta';
+let imgOrigem = 'todas';
+
+async function urlImg(u, mini){
+  if(!u) return '';
+  if(u.startsWith('http')) return (mini && u.endsWith('.png')) ? u.slice(0,-4) + '_min.webp' : u;
+  return await urlAssinada(u);   // caminho no bucket
+}
+
+async function carregarImagens(){
+  const alvo = document.getElementById('conteudo');
+  const {data, error} = await db.from('hf_imagens').select('*').order('criado_em');
+  if(error){ alvo.innerHTML = '<div class="vazio">Erro: ' + error.message + '</div>'; return; }
+
+  const cS = {proposta:0, aprovada:0, rejeitada:0};
+  const cO = {aspiracional:0, site:0, 'rosto-teste':0};
+  for(const r of data){ cS[r.status] = (cS[r.status]||0)+1; cO[r.origem] = (cO[r.origem]||0)+1; }
+
+  const lista = data.filter(r =>
+    (imgStatus === 'todas' || r.status === imgStatus) &&
+    (imgOrigem === 'todas' || r.origem === imgOrigem));
+
+  const bt = (v, atual, rot) =>
+    '<button data-v="' + v + '" class="' + (atual === v ? 'on' : '') + '">' + rot + '</button>';
+
+  alvo.innerHTML =
+    '<div class="aviso">Banco de imagens do Higgsfield. Aprove o que serve — o aprovado vira base de reel e ensina o estilo das próximas ondas; o reprovado com motivo evita que eu repita o erro. <b>' +
+      (cS.proposta||0) + '</b> esperando sua decisão.</div>' +
+    '<div class="imgfiltros" id="f-st">' +
+      bt('proposta', imgStatus, 'Para decidir (' + (cS.proposta||0) + ')') +
+      bt('aprovada', imgStatus, 'Aprovadas (' + (cS.aprovada||0) + ')') +
+      bt('rejeitada', imgStatus, 'Reprovadas (' + (cS.rejeitada||0) + ')') +
+      bt('todas', imgStatus, 'Todas (' + data.length + ')') +
+    '</div>' +
+    '<div class="imgfiltros" id="f-or">' +
+      bt('todas', imgOrigem, 'Toda origem') +
+      bt('aspiracional', imgOrigem, 'Geradas (' + (cO.aspiracional||0) + ')') +
+      bt('site', imgOrigem, 'Fotos do site (' + (cO.site||0) + ')') +
+      bt('rosto-teste', imgOrigem, 'Teste rostos (' + (cO['rosto-teste']||0) + ')') +
+    '</div>' +
+    (lista.length ? '<div class="gimg" id="grade"></div>'
+                  : '<div class="vazio">Nada com esse filtro. 🎉</div>');
+
+  document.querySelectorAll('#f-st button').forEach(b =>
+    b.onclick = () => { imgStatus = b.dataset.v; carregarImagens(); });
+  document.querySelectorAll('#f-or button').forEach(b =>
+    b.onclick = () => { imgOrigem = b.dataset.v; carregarImagens(); });
+
+  const grade = document.getElementById('grade');
+  if(!grade) return;
+  let n = 0;
+  for(const r of lista){
+    n++;
+    const el = document.createElement('div');
+    el.className = 'it' + (r.status === 'proposta' ? '' : ' decidida');
+    const rot = r.origem === 'site' ? 'foto real'
+              : r.origem === 'rosto-teste' ? 'teste rosto' : 'gerada';
+    el.innerHTML =
+      '<img loading="lazy" alt="' + (r.titulo||'') + '">' +
+      '<div class="txt">' +
+        '<span class="orig o-' + r.origem + '">' + rot + '</span>' +
+        '<h4>' + (r.titulo||'sem título').replace(/</g,'&lt;') + '</h4>' +
+        (r.justificativa ? '<div class="jus">' + r.justificativa.replace(/</g,'&lt;') + '</div>' : '') +
+        (r.motivo ? '<div class="jus"><b>Motivo:</b> ' + r.motivo.replace(/</g,'&lt;') + '</div>' : '') +
+      '</div>' +
+      '<div class="bts">' +
+        (r.status === 'proposta'
+          ? '<button class="b-ap" data-ok>✓</button><button class="b-re" data-no>✗</button>'
+          : '<button class="b-h" data-volta>↩ voltar p/ decidir</button>') +
+      '</div>';
+    const im = el.querySelector('img');
+    urlImg(r.url, true).then(u => { if(u) im.src = u; });
+    im.onclick = async () => { const u = await urlImg(r.url, false); if(u) window.open(u, '_blank'); };
+    const ok = el.querySelector('[data-ok]'), no = el.querySelector('[data-no]'),
+          vo = el.querySelector('[data-volta]');
+    if(ok) ok.onclick = () => imgDecidir(r.id, 'aprovada');
+    if(no) no.onclick = () => imgDecidir(r.id, 'rejeitada');
+    if(vo) vo.onclick = () => imgDecidir(r.id, 'proposta');
+    grade.appendChild(el);
+  }
+}
+
+async function imgDecidir(id, status){
+  let motivo;
+  if(status === 'rejeitada'){
+    motivo = prompt('O que não serviu? (isso evita que eu repita o erro nas próximas ondas)');
+    if(motivo === null) return;
+  }
+  const campos = {status, atualizado_em: new Date().toISOString()};
+  if(status === 'rejeitada') campos.motivo = motivo;
+  if(status === 'proposta') campos.motivo = null;
+  const {error} = await db.from('hf_imagens').update(campos).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  carregarImagens();
 }
 
 async function aprovar(id){
