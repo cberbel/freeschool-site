@@ -1,0 +1,47 @@
+# Bancada — Fase 0. Copie para config.yaml e preencha. config.yaml está no .gitignore (tem senha).
+#
+# Situação real da escola (fase1rtspreolink.md, 23/07/2026): as câmeras NÃO estão soltas na rede —
+# estão todas num NVR Reolink RLN16-410 (16 canais), IP 192.168.15.11, RTSP na porta 554, ~15 câmeras
+# (recepcao, Cozinha, Corredor, Sala Theo, sala2, sala3a6, sala1a3, sala meio, TrackMix…).
+# Um só IP, um canal por câmera. O número do canal segue a posição na lista lateral do app Reolink.
+# Se você já rodou o sondar.ps1 (C:\gravador), o canais-ok.csv diz qual canal/URL respondeu.
+
+armazenamento:
+  raiz: ./data          # onde tudo é gravado; um disco com espaço (câmera 12 MP H.265 ≈ 20–25 GB/dia nas 4 h)
+  segmento_s: 600       # um arquivo a cada 10 min, alinhado ao relógio (:00, :10, :20…)
+  container: mkv        # tolera truncamento e qualquer codec de áudio da Reolink
+  proxy_altura: 1080
+
+janelas: ["09:00-11:00", "14:00-16:00"]
+dias: 3                 # dias letivos a gravar a partir de hoje
+apenas_dias_uteis: true
+fuso: America/Sao_Paulo
+
+ffmpeg:
+  binario: ffmpeg       # ou caminho completo, ex.: C:\ffmpeg\bin\ffmpeg.exe
+  ffprobe: ffprobe
+  args_entrada: ["-rtsp_transport", "tcp", "-rw_timeout", "15000000"]   # 15 s sem dados → reinicia
+  args_saida: ["-c", "copy", "-map", "0"]                                # cópia de stream, CPU ~zero
+
+reolink:
+  host: 192.168.15.11   # o NVR — vale para todas as câmeras abaixo (pode ser sobrescrito por câmera)
+  usuario: admin
+  senha: "TROQUE_AQUI"  # a mesma do app Reolink; caracteres especiais são codificados automaticamente
+  porta: 554
+  perfil: main          # main = resolução cheia (12 MP costuma vir em H.265) · sub = leve, para teste
+  caminho: auto         # testa h264Preview_XX_main → h265Preview_XX_main → Preview_XX_main no smoke
+                        # e grava a que respondeu em data/canais-ok.yaml; o capturar usa essa.
+
+salas:
+  # Agrupada 1 (1–3 anos) = câmeras "sala1a3" no NVR · Agrupada 2 (3–6 anos) = "sala3a6".
+  # Os canais abaixo são PALPITE pela ordem do app — o smoke confirma (ou o canais-ok.csv do sondar.ps1).
+  agrupada_1:
+    cameras:
+      - { id: cam_A, canal: 6 }
+      - { id: cam_B, canal: 7 }
+  agrupada_2:
+    cameras:
+      - { id: cam_A, canal: 9 }
+      - { id: cam_B, canal: 10 }
+  # Câmera fora do NVR ou outra marca (Intelbras do mezanino/reunião): url completa no lugar de canal:
+  #   - { id: cam_X, url: "rtsp://usuario:senha@172.16.25.40:554/cam/realmonitor?channel=1&subtype=0" }

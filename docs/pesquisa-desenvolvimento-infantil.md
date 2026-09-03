@@ -1374,6 +1374,18 @@ piloto — o piloto também é coleta). O protocolo está no §2.
 "6 câmeras de alta resolução" é a única especificação no documento. Faltam as decisões que mais
 determinam o que será mensurável:
 
+> **O que já existe, descoberto em 03/09/2026 nos documentos do outro projeto (Drive:
+> `fase1rtspreolink.md`, `runbookgravacaofase0.md`):** as câmeras da escola estão num **NVR Reolink
+> RLN16-410** (192.168.15.11, RTSP 554), ~15 câmeras, das quais **6 são de sala** (`sala1a3` =
+> Agrupada 1, `sala3a6` = Agrupada 2, `sala meio`, `Sala Theo`, `sala2`); câmeras de **12 MP gravando
+> o main em H.265**; âncora medida de **~860 GB/dia** para todos os canais main+sub; um gravador
+> PowerShell (`C:\gravador`) já grava em MKV com segmentos de 10 min alinhados ao relógio; e o NVR
+> **tem limite desconhecido de clientes RTSP simultâneos**. A especificação do arquivador definitivo
+> (`spec-arquivador.md`, `plano-armazenamento.md`, `medicoes-fase0.md`) está no PC, na pasta
+> `claude/` daquele projeto — precisa entrar neste documento. O que segue continua valendo: a
+> decisão de **posição, ângulo, fps, obturador e sincronização** das câmeras de sala não está escrita
+> em nenhum dos dois lugares.
+
 | Decisão | Por que importa |
 |---|---|
 | **altura e ângulo** | zenital (teto, olhando para baixo) é excelente para trajetória e quase sem oclusão, e péssimo para rosto e detalhe de mão; oblíquo é o inverso. Provavelmente **híbrido**: 4 câmeras altas oblíquas nos cantos para tracking + câmeras baixas nas áreas de trabalho para mão e rosto |
@@ -1542,6 +1554,11 @@ também é coleta de dado de criança e precisa da mesma base legal.
 
 **Ground truth:** amostra estratificada por criança × fase do dia, anotada à mão. Toda métrica
 abaixo é medida contra ela, nunca herdada da literatura (Parte III §5, regra).
+
+> **Ferramenta pronta:** a bancada está implementada em [`../bancada/`](../bancada/README.md) —
+> captura agendada Reolink/RTSP com segmentos e reinício automático, QA (T16), sincronização por
+> áudio (T2), proxies, medida de resolução (T1) e primeira análise com YOLO + ByteTrack, pose e
+> MediaPipe Hands (T5, T6, T8, T9). O roteiro de uso está no README dela.
 
 ### Os testes
 

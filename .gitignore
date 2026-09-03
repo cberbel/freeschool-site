@@ -3,3 +3,11 @@ Thumbs.db
 .vercel
 node_modules
 *.log
+
+# bancada (Fase 0): credenciais e dados de gravação nunca vão para o git
+bancada/config.yaml
+bancada/config.*.yaml
+!bancada/config.example.yaml
+bancada/data/
+bancada/**/__pycache__/
+*.pt

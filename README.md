@@ -14,6 +14,7 @@ favicon.svg     → ícone (os três quadrados do logo)
 robots.txt / sitemap.xml
 assets/         → logo (og:image)
 docs/           → documentos de projeto (não publicados no site)
+bancada/        → ferramenta de captura e análise da Fase 0 (não publicada)
 ```
 
 ## Documentos
@@ -24,6 +25,10 @@ docs/           → documentos de projeto (não publicados no site)
   de execução. Rascunho, não implementado.
 - [`docs/dicionario-variaveis.md`](docs/dicionario-variaveis.md) — dicionário de ~135 variáveis
   do mesmo projeto, com definição operacional, fonte, validação e camada de promoção.
+- [`bancada/`](bancada/README.md) — ferramenta da Fase 0: captura agendada das câmeras Reolink,
+  QA, sincronização, proxies e primeira análise (detecção, tracking, pose, mãos). Python + ffmpeg.
+
+`docs/` e `bancada/` não são publicados no site (`.vercelignore`).
 
 O logo do cabeçalho/rodapé é montado em HTML/CSS (três quadrados + "free school"),
 então escala perfeitamente e não depende de imagem.
