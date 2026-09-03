@@ -13,6 +13,10 @@ Três partes, com origens diferentes e propositalmente separadas:
 | **I** | Arquitetura, stack e o que analisar | sugestão recebida do GPT, reproduzida e organizada aqui |
 | **II** | Sono como dimensão do projeto | acréscimo |
 | **III** | Comentários críticos, riscos e ordem de execução | acréscimo |
+| **IV** | Revisão: lacunas, bancada de testes (Fase 0) e conjunto inicial de variáveis | acréscimo |
+
+O dicionário de variáveis completo (~135 variáveis) vive em arquivo próprio:
+[`dicionario-variaveis.md`](dicionario-variaveis.md).
 
 A Parte I está preservada em conteúdo. As Partes II e III alteram algumas decisões dela
 (ordem de construção, escopo do MVP, tratamento de áudio) — os pontos de divergência estão
@@ -1104,8 +1108,9 @@ de uma ação em 2028 depende de ter registrado o que era comum em 2026.
 
 **Eventos específicos de Montessori, todos automatizáveis:**
 
-- **uso não-canônico do material** — o sistema conhece a sequência canônica de cada material
-  (é o próprio dado de treino dos detectores). Desvio é detectável **como desvio**, sem julgar.
+- **uso não-canônico do material** — a sequência canônica de cada material é **autorada** por
+  pedagoga na ontologia de materiais (Parte IV §1.4–1.5; o treino do detector ensina como o
+  material *parece*, não como é *usado*). Desvio é detectável **como desvio**, sem julgar.
   Se é erro, exploração ou invenção, é a pergunta da codificação humana — mas a detecção é
   automática, e é um evento de nível 2 excelente
 - **combinação de materiais** de áreas diferentes usados juntos — trivial de detectar depois que
@@ -1182,13 +1187,14 @@ método estiver pronto, porque pode ser refeita sobre o arquivo.
 
 | Fase | Frente | Entregas |
 |---|---|---|
-| **Mês 0** *(sem GPU)* | fundação | trilha jurídica/ética · consentimento granular **incluindo reprocessamento e retenção de 2 anos** · **diário de sono começa a rodar** · dicionário de variáveis v1 · protocolo de codificação humana · **log diário de contexto** |
-| **Mês 1–3** | **captura completa** | câmeras + calibração · **áudio: array + mic individual rotativo instalados e gravando desde já** · sensor de soneca (radar/colchonete) · etiquetas de identidade, se aceitas · armazenamento proxy+original · humanos codificam 1 semana · concordância entre codificadores |
+| **Mês 0** *(sem GPU)* | fundação | trilha jurídica/ética · consentimento granular **incluindo reprocessamento e retenção de 2 anos** · **diário de sono começa a rodar** · dicionário de variáveis v1 · protocolo de codificação humana · **log diário de contexto** · **ontologias de materiais, sala e dia** (Parte IV §1.4) |
+| **Fase 0 — bancada** *(2–3 semanas)* | **teste antes de comprar** | os 21 testes da Parte IV §2 com 2 câmeras candidatas, array, mic individual e sensor de soneca · **especificação de captura assinada** (modelo, resolução, posição, sincronização, UPS) · consentimento iterado com famílias e equipe · protocolo humano com concordância medida · dimensionamento de hardware · **análise de poder → hipóteses confirmatórias fixadas antes do pré-registro** |
+| **Mês 1–3** | **captura completa** | câmeras + calibração · **fiduciais fixos e verificação diária automática de calibração e sincronização** · UPS e gravação redundante · **áudio: array + mic individual rotativo instalados e gravando desde já** · sensor de soneca (radar/colchonete) · etiquetas de identidade, se aceitas · armazenamento proxy+original · **variáveis de camada 0** (observabilidade, uptime, presença) · humanos codificam 1 semana · concordância entre codificadores |
 | **Mês 3–6** | identidade e espaço | tracking · identidade · mapa espacial · **UI de revisão de tracks** · trajetória validada contra codificação humana |
-| **Mês 6–12** | atividade e primeiro substrato | detecção de materiais · work episodes · **frustração e persistência após falha** (saem do work episode, sem face) · **primeiro cruzamento sono × concentração** |
+| **Mês 6–12** | atividade e primeiro substrato | detecção de materiais · work episodes · **frustração e persistência após falha** (saem do work episode, sem face) · **comportamento do adulto**, desenhado com a equipe (Parte IV §1.8) · **primeiro cruzamento sono × concentração** |
 | **Ano 2** | motor, linguagem, afeto | pose e mãos · atribuição de falante ancorada no mapa espacial, validada localmente · AUs e prosódia · episódios de distress e tempo de recuperação · **uso não-canônico e combinação de materiais** |
 | **Ano 2–3** | criatividade e difusão | raridade de ação sobre o corpus acumulado · sequências de estratégia · **difusão social de invenção** · validação humana nas dimensões de Torrance |
-| **contínuo** | reprocessamento | recampanha sobre o arquivo a cada mudança de modelo ou definição |
+| **contínuo** | reprocessamento e coorte | recampanha sobre o arquivo a cada mudança de modelo ou definição · **re-enrolamento de aparência** e gestão de entradas/saídas (Parte IV §1.9) · teste de determinismo a cada versão (§1.12) |
 
 Duas observações sobre a tabela:
 
@@ -1341,55 +1347,314 @@ nível 1–2–3.
 
 ---
 
-## Anexo — Dicionário de variáveis (semente)
+# Parte IV — Revisão: lacunas, bancada de testes e conjunto inicial de variáveis
 
-Ponto de partida para o dicionário de 50–100 variáveis. Cada uma precisa, antes de ser
-implementada: definição operacional, unidade, fonte, regra de valor ausente e método de validação.
+Releitura crítica das Partes I–III. Três blocos: o que falta no plano, quais testes de ferramenta
+fazer antes de comprometer dinheiro e captura, e por quais variáveis começar. Onde uma lacuna
+corrige algo escrito antes, está dito.
 
-| Variável | Nível | Fonte | Definição operacional | Validação |
-|---|---|---|---|---|
-| `work_episode_duration` | 2 | vídeo | do início da manipulação ao abandono/guarda | humano × IA (ICC) |
-| `work_episode_interruptions` | 2 | vídeo | eventos de desengajamento > limiar T durante o episódio | humano × IA (kappa) |
-| `return_after_interruption` | 2 | vídeo | retomou o mesmo material em até T s | humano × IA |
-| `completed_cycle_ratio` | 2 | vídeo | episódios que terminam em "guardar" / total | humano × IA |
-| `distance_travelled_h` | 1 | trajetória | integral de `(x,y)` por hora | geométrica |
-| `area_dwell_time` | 1 | trajetória | tempo por área pedagógica da sala | geométrica |
-| `area_transitions` | 1 | trajetória | mudanças de área por hora | geométrica |
-| `proximity_child` / `proximity_adult` | 1 | trajetória | tempo a menos de D m de outra pessoa | geométrica |
-| `pincer_stability` | 1 | mãos | distância polegar-indicador durante preensão | humano × IA |
-| `time_to_fit` | 2 | mãos + objeto | do primeiro contato ao encaixe correto | humano × IA |
-| `hand_dominance` | 2 | mãos | razão de manipulações direita/esquerda | humano × IA |
-| `speech_duration` | 1 | áudio | tempo de fala atribuído à criança | humano × IA; **exige atribuição validada** |
-| `conversational_turns` | 2 | áudio | trocas alternadas dentro de janela T | **condicionada** à atribuição de falante medida nesta sala (ver Parte III §5) |
-| `response_latency` | 2 | áudio | do fim da fala do adulto ao início da resposta | humano × IA; mais robusta com mic individual |
-| `speaker_attribution_accuracy` | 1 | áudio | acurácia de atribuição medida contra anotação manual **desta** sala | pré-requisito das três linhas acima |
-| `mlu` | 2 | áudio | *bloqueada até WER medida no áudio real* | — |
-| `total_sleep_24h` | 1 | sono | soneca + noite, dia de sono definido na Parte II §6 | actigrafia × diário |
-| `sleep_regularity_index` | 2 | sono | regularidade dia a dia, janela de 7 dias | actigrafia |
-| `nap_onset_latency` | 1 | sono | do deitar ao início do sono | radar × observação |
-| `post_nap_reentry_latency` | 2 | sono + vídeo | do despertar ao próximo work episode | humano × IA |
-| `nap_dependency` | 2 | sono | proporção de dias com soneca, janela móvel | diário |
-| `au_intensity_*` | 1 | vídeo | intensidade por unidade de ação facial (FACS) — **medida física, sem rótulo emocional** | humano × IA |
-| `prosody_f0_var` | 1 | áudio | variância de F0 na fala da criança | acústica |
-| `distress_episode` | 2 | áudio + vídeo | início, duração, desfecho | humano × IA (kappa) |
-| `recovery_time` | 2 | multimodal | do início do distress ao retorno ao comportamento de base | humano × IA (ICC) |
-| `coregulation_latency` | 2 | trajetória + vídeo | aproximação do adulto → resolução do distress | humano × IA |
-| `conflict_episode` | 2 | multimodal | duas crianças, objeto disputado, tipo de resolução | humano × IA |
-| `persistence_after_error` | 2 | vídeo | tentativas após o primeiro erro antes de abandonar | **deriva do work episode, sem face** |
-| `frustration_abandon_ratio` | 2 | vídeo | erro → abandono / erro → nova tentativa | deriva do work episode |
-| `noncanonical_use` | 2 | vídeo | desvio da sequência canônica do material — detectado **como desvio**, sem julgar | humano × IA |
-| `material_combination` | 2 | vídeo | materiais de áreas distintas usados juntos | humano × IA |
-| `strategy_sequence_n` | 2 | vídeo | número de abordagens distintas sobre o mesmo problema | humano × IA |
-| `exploration_ratio` | 2 | vídeo | manipulação exploratória / ação dirigida a objetivo | humano × IA |
-| `return_and_modify` | 2 | vídeo | retorno a trabalho anterior com modificação (elaboração) | humano × IA |
-| `action_rarity` | 2 | derivada | `P(ação \| material, sala, período)` no corpus acumulado — **frequência, não julgamento** | interna; exige ≥1 ano de corpus |
-| `novelty_diffusion_lag` | 2 | derivada | intervalo entre a 1ª ocorrência de uma ação e sua repetição por outra criança, com proximidade no intervalo | humano × IA |
+## 1. Lacunas encontradas
 
-Nível 3 (concentração, coordenação, destreza, **criatividade, autorregulação**) **não entra no
-dicionário como variável medida** — entra como constructo derivado, com o conjunto de variáveis de
-nível 1 e 2 que o compõem declarado explicitamente e validado contra critério externo (SDQ, ERC,
-nomeação de educador, prova tipo TTCT).
+Em ordem de consequência. As três primeiras são **decisões de captura** — sob R4, irreversíveis —
+e por isso vêm antes de tudo.
 
-Isso é R1 em forma de tabela: **a coluna que cresce é esta; a lista de constructos reportados
-permanece curta.** As ~35 linhas acima são a semente das 50–100 — e sob R2 o conjunto observado
-deve crescer bem além delas antes de qualquer indicador ser promovido.
+### 1.1 Não existe fase piloto
+
+O plano vai do mês 0 direto para "6 câmeras instaladas e gravando" sem que nenhuma ferramenta
+tenha sido testada **nesta sala, com estas crianças, nesta luz**. Toda cifra de acurácia da
+literatura veio de adultos, de outro ambiente ou de outra língua. Comprar seis câmeras, definir
+posição, resolução e microfones antes de um piloto é apostar o que não volta.
+
+Correção: uma **Fase 0 — bancada**, de 2–3 semanas, com 2 câmeras candidatas, 1 array de áudio,
+1 microfone individual e 1 sensor de soneca, gravando 2–3 dias inteiros (com consentimento
+piloto — o piloto também é coleta). O protocolo está no §2.
+
+### 1.2 Especificação e posicionamento das câmeras não existem
+
+"6 câmeras de alta resolução" é a única especificação no documento. Faltam as decisões que mais
+determinam o que será mensurável:
+
+| Decisão | Por que importa |
+|---|---|
+| **altura e ângulo** | zenital (teto, olhando para baixo) é excelente para trajetória e quase sem oclusão, e péssimo para rosto e detalhe de mão; oblíquo é o inverso. Provavelmente **híbrido**: 4 câmeras altas oblíquas nos cantos para tracking + câmeras baixas nas áreas de trabalho para mão e rosto |
+| **taxa de quadros** | 15 fps bastam para trajetória; preensão e ajuste fino de mão pedem **30–60 fps** — em 15 fps um movimento de encaixe de 1,4 s são 21 quadros |
+| **obturador** | *rolling shutter* distorce mão em movimento rápido; *global shutter* custa mais e resolve |
+| **faixa dinâmica e luz** | sala Montessori costuma ter janelas grandes: contraluz, luz que muda ao longo do dia, sombras duras. Câmera com bom HDR, ou controle de luz, ou aceitar zonas cegas no fim da tarde |
+| **sincronização em hardware** | PTP ou genlock **como critério de compra**, não como ajuste depois (Parte III §14: 200 ms de deriva matam a atenção conjunta) |
+| **gravação redundante e UPS** | queda de energia é perda irreversível; câmera com cartão local + NVR, e nobreak |
+
+Todas são decisões da Fase 0.
+
+### 1.3 Resolução na mão e no rosto: a conta que faltava
+
+O documento assume análise de 21 landmarks de mão e unidades de ação facial a partir das câmeras
+de teto. Vale fazer a conta antes de assumir.
+
+Sala hipotética de 8 × 6 m, seis câmeras, cada uma cobrindo ~4 × 2,25 m no chão (e na prática
+**mais**, porque tracking multicâmera exige sobreposição — logo estes números são otimistas):
+
+| Resolução | px/m no chão | mão de criança (~8 cm) | rosto de criança (~12 cm) |
+|---|---|---|---|
+| 1080p (proxy) | ~500 | ~40 px | ~60 px |
+| 4K | ~1000 | ~80 px | ~120 px |
+| 8K | ~2000 | ~160 px | ~240 px |
+| 12K | ~3200 | ~250 px | ~380 px |
+
+Estimadores de mão como MediaPipe foram desenhados para distância de webcam; **na prática pedem
+bem mais de 100 px de mão**. Em 4K de teto, mão é marginal; em 1080p, inviável. Rosto para AUs
+precisa de orientação quase frontal além de resolução — de teto, raramente tem.
+
+Consequência: **ou câmeras de resolução muito alta, ou câmeras dedicadas baixas nas mesas de
+trabalho, ou aceitar análise de mão só quando a criança está perto de uma câmera.** É a decisão
+mais cara do projeto e não estava escrita. O piloto mede o px/m real e decide (§2, teste T1).
+
+### 1.4 Ontologias que humanos precisam escrever antes de qualquer modelo
+
+Três estruturas de conhecimento que o documento usa implicitamente e ninguém está encarregado de
+produzir. Nenhuma precisa de GPU; todas são mês 0:
+
+**Ontologia de materiais.** Para cada material: nome canônico e ID · área pedagógica · prateleira
+onde vive · **sequência canônica de apresentação e uso** · o que treina (alvo de desenvolvimento)
+· faixa etária típica · **controle de erro** (o material acusa o erro sozinho? como?) · peças
+confundíveis (cubos adjacentes da Torre Rosa). Escrita por pedagoga montessoriana, versionada.
+
+**Ontologia da sala.** Planta medida · polígonos das áreas · posição de cada prateleira · zonas
+(tapetes, mesas, linha, porta) · pontos fixos de calibração. Atualizada a cada rearranjo (e o
+rearranjo vai para o log de contexto).
+
+**Ontologia do dia.** Fases: chegada · ciclo de trabalho da manhã · refeição · soneca · ciclo da
+tarde · saída. **Métricas se calculam por fase, não por dia** — concentração durante o almoço não
+significa nada, e um ciclo de trabalho de 3 h é a unidade natural montessoriana. Fronteiras
+logadas ou detectadas automaticamente.
+
+### 1.5 Correção: a sequência canônica não vem do treino do detector
+
+A Parte III §11 afirma que "o sistema conhece a sequência canônica de cada material (é o próprio
+dado de treino dos detectores)". Está errado. O dado de treino ensina **como o material parece**,
+não **como ele é usado**. A sequência canônica é conhecimento pedagógico, **autorado** na
+ontologia de materiais (1.4). Sem ela, `noncanonical_use` não tem contra o que ser calculado.
+
+### 1.6 Observabilidade por criança por dia — a covariável que falta
+
+Nenhuma variável do dicionário registra **quanto do dia a criança foi de fato observada com
+confiança**. Sem isso, um dia em que a criança passou 3 h atrás de uma estante parece um dia de
+baixa atividade. Precisa existir `child_observability_frac` por criança, por fase, por dia —
+e toda métrica derivada deve ser normalizada ou marcada por ela. É provavelmente a covariável
+mais importante que não estava escrita.
+
+Junto dela, **presença**: chegada, saída, ausência, motivo (do log de contexto).
+
+### 1.7 Saúde da calibração e da sincronização como verificação diária automática
+
+Câmera esbarrada é silenciosa: coordenadas ficam erradas por semanas sem ninguém notar. Precisa
+de **marcadores fiduciais fixos na sala** (tipo AprilTag, em posições medidas) e uma checagem
+automática diária de erro de reprojeção e de deriva de relógio, com alarme. Sem isso, R4 não se
+sustenta — reprocessar um arquivo com calibração corrompida reproduz o erro.
+
+### 1.8 Comportamento do adulto como classe de variável
+
+O documento trata o adulto como contagem de "intervenções" e como problema trabalhista (§6). Em
+Montessori, o adulto é **a principal variável controlável da sala**: apresentações dadas (a quem,
+qual material, quando), tempo observando × intervindo, redirecionamentos, posição na sala. Se o
+dado deve informar a pedagogia, isso é medida central, não ruído.
+
+Precisa ser desenhado **com** as educadoras, enquadrado como pesquisa pedagógica: reporte
+agregado por padrão, dado individual só sob regra escrita e acordada. É a única forma de ter o
+dado e a equipe ao mesmo tempo.
+
+### 1.9 Coorte dinâmica
+
+Em três anos as crianças crescem, mudam cabelo e roupa, entram e saem da escola. Qualquer galeria
+de aparência para re-identificação precisa de **re-enrolamento periódico**; datas de entrada e
+saída por criança precisam existir como dado; e as análises longitudinais precisam lidar com
+séries de comprimentos diferentes. Nada disso estava no plano.
+
+### 1.10 Idade em meses como covariável obrigatória
+
+Sala Montessori é multi-idade: 2 a 6 anos juntos. Duração de episódio de trabalho de uma criança
+de 2 anos e de uma de 5 **não são comparáveis**. O desenho intra-sujeito resolve para perguntas
+dentro da criança; qualquer comparação entre crianças ou de coorte exige idade em meses, e
+trajetórias de desenvolvimento devem ser modeladas contra idade, não contra calendário.
+
+### 1.11 Orçamento de tempo humano — a conta que faltava
+
+O §2 da Parte III diz que anotação é o gargalo e não estima nada. Ordens de grandeza:
+
+| Tarefa | Custo |
+|---|---|
+| revisão de tracks (correção de troca de ID) | **sem etiquetas:** 4–8 h por dia gravado; **com etiquetas UWB:** 1–2 h, só nos trechos sinalizados |
+| codificação humana para validação | codificação comportamental detalhada corre a 5–10× tempo real. Ninguém codifica a semana inteira: amostram-se ~20 trechos de 15 min estratificados por criança e fase (~5 h de vídeo) → **25–50 h por codificador por rodada**, dois codificadores, uma rodada por módulo |
+| log de contexto | 10 min/dia |
+| acompanhamento do diário de sono (cobrar famílias) | 1–2 h/semana |
+| verificação de saúde do sistema | 15 min/dia se automatizada; horas se não |
+
+A linha de revisão de tracks é o argumento numérico mais forte a favor das etiquetas UWB do §4:
+**a diferença é de uma pessoa em tempo integral.**
+
+### 1.12 Determinismo do pipeline
+
+R4 depende de reprocessar e obter o mesmo resultado quando nada mudou. Modelos com
+não-determinismo de GPU, trackers com dependência de ordem e amostragem aleatória quebram isso em
+silêncio. Precisa de teste de **test-retest da máquina**: rodar o mesmo dia duas vezes e exigir
+igualdade (ou diferença abaixo de limiar declarado). Se a máquina não concorda consigo mesma, a
+concordância com humanos não significa nada.
+
+### 1.13 Marcadores fiduciais nos materiais
+
+Truque barato que pode tornar identidade de material quase determinística: etiqueta fiducial
+pequena (AprilTag) na **base ou no verso** de cada material. Dá identidade e orientação sem
+depender de classificador visual, e resolve os confundíveis (cubos adjacentes da Torre Rosa).
+
+Contras a testar: estética montessoriana (o material é desenhado para ser belo; a etiqueta fica
+onde a criança não vê), oclusão pela mão durante o uso, e se a criança passa a brincar com a
+etiqueta. Vale um teste na Fase 0 antes de descartar.
+
+### 1.14 Piloto para análise de poder antes de pré-registrar
+
+O §8 pede pré-registro de H1–H7. Pré-registrar sem estimativa de tamanho de efeito e de variância
+intra-criança é pré-registrar no escuro. Os dias de piloto fornecem a variância; com ela se calcula
+se 200 dias/ano e ~20 crianças dão poder para cada hipótese — e as que não dão saem do
+confirmatório para o exploratório **antes**, não depois.
+
+### 1.15 Governança de acesso em camadas
+
+Mencionada em pedaços (§6, §10), não desenhada. Três camadas mínimas: **bruto** (pouquíssimas
+pessoas, log de cada acesso) · **derivado por criança** (pesquisadores, pseudonimizado) ·
+**agregado** (educadoras e famílias). Quem está em cada camada fica escrito no RIPD.
+
+### 1.16 O que a família vê
+
+R1 diz "reportar estreito" e o documento não desenha o relatório. Adiado é aceitável; ausente
+não. Registrar aqui que **o relatório à família é um entregável a desenhar no ano 1**, com a regra
+já fixada: só indicadores validados contra critério externo, com incerteza declarada, nunca
+nível 3 sem validação.
+
+## 2. Bancada de testes — Fase 0
+
+**Objetivo:** tomar toda decisão de captura (irreversível, R4) e toda escolha de ferramenta com
+dado **desta sala**, antes de comprar seis câmeras e antes do primeiro dia de gravação definitiva.
+
+**Duração:** 2–3 semanas. **Equipamento:** 2 câmeras candidatas (uma de cada tipo em disputa —
+ex.: 4K oblíqua e 8K/12K zenital, ou uma alta e uma baixa de mesa), 1 array de microfones,
+1–2 microfones individuais, 1 sensor de soneca (radar ou colchonete), 1 workstation com GPU
+candidata. **Coleta:** 2–3 dias inteiros de gravação com **consentimento piloto** — o piloto
+também é coleta de dado de criança e precisa da mesma base legal.
+
+**Ground truth:** amostra estratificada por criança × fase do dia, anotada à mão. Toda métrica
+abaixo é medida contra ela, nunca herdada da literatura (Parte III §5, regra).
+
+### Os testes
+
+| ID | Teste | O que medir | Contra o quê | Métrica | Decisão que destrava |
+|---|---|---|---|---|---|
+| **T1** | resolução e posicionamento | px/m real no chão e na altura da mesa; tamanho em px de mão e rosto de criança nas posições típicas; % do tempo com mão > 100 px e rosto quase frontal | régua/tabuleiro em posições medidas | px/m; distribuição de px de mão e rosto | **resolução, lente, altura, ângulo; se precisa de câmeras baixas de mesa** |
+| **T2** | sincronização | deslocamento entre câmeras e entre áudio e vídeo no início e no fim do dia | palma/flash no início e no fim | deriva em ms ao longo de 11 h | **PTP/genlock como critério de compra; modelo de câmera** |
+| **T3** | calibração e saúde | erro de reprojeção; erro em metros em ≥10 pontos medidos com fita; esbarrar a câmera 1° e ver se o alarme dispara | fita métrica, fiduciais fixos | erro em cm; detecção da perturbação | procedimento, posição dos fiduciais, limiar de alarme |
+| **T4** | luz | exposição e contraste por hora por zona; quadros perdidos por contraluz/estouro | inspeção por hora | % de quadros inutilizáveis por zona e hora | câmera com HDR, cortinas, zonas cegas aceitas |
+| **T5** | detecção de pessoas | YOLO × RTMDet em criança engatinhando, embaixo da mesa, deitada, parcialmente ocluída | ~2.000 quadros com caixas anotadas | recall e precisão @IoU 0,5, **por postura e oclusão** | detector |
+| **T6** | **tracking e identidade** | ByteTrack × BoT-SORT × DeepStream MV3DT | ~10 trechos contínuos de 15 min com identidade anotada | **trocas de ID por criança-hora**, IDF1, HOTA | tracker; **se trocas/criança-hora passam do limiar, etiquetas UWB viram obrigatórias** |
+| **T7** | etiquetas UWB/BLE | posição da etiqueta × posição pela visão; % do tempo que a criança mantém a etiqueta; conversa de aceitação com famílias | visão + observação | erro em cm; % de uso; objeções | adotar ou não |
+| **T8** | pose corporal | RTMPose × MMPose WholeBody destes ângulos | ~500 quadros com keypoints anotados | PCK@0,2 **por postura** (em pé, sentada, agachada, deitada) | modelo; quais posturas são confiáveis |
+| **T9** | mãos | MediaPipe Hands × RTMPose Hand em crops na distância real | ~500 crops com landmarks anotados | erro normalizado; **taxa de detecção confiante por tamanho de mão em px** | viabilidade de análise de mão por tipo de câmera → alimenta T1 |
+| **T10** | rosto e AUs | OpenFace / py-feat ou equivalente em crianças destes ângulos | codificador treinado em FACS avalia presença e intensidade de AUs numa amostra | % de quadros com rosto utilizável; ICC por AU | viabilidade; posição das câmeras baixas |
+| **T11** | materiais | ~20 materiais anotados (incluindo confundíveis), YOLO pequeno treinado; **AprilTag na base** dos mesmos materiais | anotação | mAP; matriz de confusão nos cubos adjacentes da Torre Rosa e nos blocos de cilindros; **taxa de leitura da etiqueta durante o uso** | tamanho do dataset necessário; etiquetar materiais ou não |
+| **T12** | áudio: captação | array × microfone individual | fala marcada à mão | SNR por posição na sala; acurácia de VAD | estratégia de microfones |
+| **T13** | áudio: atribuição | VTC (tipo de falante), pyannote/NeMo (diarização), **atribuição áudio-visual usando as posições da visão** | ~1 h com falante atribuído à mão | acurácia de tipo de falante; DER; **acurácia de atribuição** | quais métricas de linguagem saem da coluna "condicionado" |
+| **T14** | áudio: ASR | Whisper zero-shot × ajustado em fala infantil | 30–60 min de fala infantil transcrita à mão (mic individual) | **WER por faixa etária** | se alguma métrica lexical é viável; desbloqueia ou mantém `mlu` bloqueada |
+| **T15** | sensor de soneca | radar × colchonete × actigrafia por vídeo | **observador humano** registra início do sono, despertar e surtos de movimento (padrão da área) | concordância de início/fim em minutos; concordância sono/vigília por época | sensor |
+| **T16** | armazenamento e vazão | gravar todos os canais um dia inteiro no bitrate-alvo; gerar proxy; rodar o pipeline candidato inteiro de madrugada | — | quadros perdidos; GB/dia real; **horas de processamento por hora gravada** — um dia processa em < 12 h? | dimensionamento de hardware e bitrate |
+| **T17** | determinismo | rodar o mesmo dia duas vezes | a própria saída | % de saídas idênticas; desvio máximo por métrica | quais módulos precisam de semente/modo determinístico; limiar de aceitação (Parte IV §1.12) |
+| **T18** | ferramenta de anotação | CVAT × Label Studio nas tarefas reais: caixas, keypoints, eventos temporais | cronômetro | **minutos de anotador por minuto de vídeo, por tipo de tarefa** | ferramenta; e o orçamento real de tempo humano (§1.11) |
+| **T19** | **protocolo de codificação humana** | dois codificadores codificam as mesmas 2 h com o protocolo-rascunho: work episodes, interrupções, distress, uso não-canônico | um ao outro | **kappa / ICC por variável** | iterar o protocolo até concordância aceitável **antes** de qualquer automação mirar nele |
+| **T20** | consentimento | apresentar os termos a 3–5 famílias e às educadoras | questionário curto de compreensão; objeções | compreensão; o que é recusado | redação final; **quais tipos de dado são aceitos** |
+| **T21** | efeito do observador | *(planejado aqui, executado após a instalação)* semana 1 × 4 × 12 nas mesmas métricas | a própria série | estabilização | quantas semanas iniciais descartar por protocolo |
+
+### Ordem e dependências
+
+```
+semana 1   T1 T2 T3 T4 T16 T20          ← decisões de captura + consentimento; nada depende de modelo
+           T19 começa (protocolo humano, sem GPU)
+semana 2   T5 → T6 (+T7 em paralelo)     ← precisam do vídeo gravado; T6 é o teste decisivo
+           T12 → T13 → T14               ← precisam do áudio gravado
+           T15                           ← precisa das sonecas gravadas
+semana 3   T8 T9 T10 T11                 ← rodam sobre o mesmo vídeo, depois de T5
+           T17 T18                       ← sobre tudo o que rodou
+           T19 fecha; T21 planejado
+```
+
+### Critérios de saída da Fase 0
+
+Nenhuma câmera definitiva é comprada antes de existir, por escrito:
+
+1. **Relatório por teste** com a métrica medida e a decisão tomada
+2. **Especificação de captura assinada:** modelo, resolução, lente, posição e altura de cada
+   câmera; microfones e posições; sensor de soneca; etiquetas sim/não; sincronização; UPS
+3. **Termo de consentimento iterado** com as famílias e a equipe, e a lista do que foi aceito
+4. **Protocolo de codificação humana** com concordância medida e aceitável
+5. **Dimensionamento de hardware** a partir de T16 (GPU, disco, rede)
+6. **Variância intra-criança dos dias de piloto** → análise de poder → **quais hipóteses H1–H7
+   ficam no confirmatório** e quais vão para o exploratório antes do pré-registro (§1.14)
+
+O que falhar aqui custa semanas. O que falharia depois custaria o arquivo.
+
+## 3. Conjunto inicial de variáveis — mais é melhor, organizado por quando fica confiável
+
+**Regra de leitura (R1):** tudo o que a captação permite é **observado e guardado desde o dia 1**.
+"Por onde começar" não é uma lista curta de variáveis — é a **ordem em que cada grupo é validado
+e promovido a indicador**. Essa ordem segue a cadeia de dependência e a prontidão de validação,
+**não** a importância. Sono e log de contexto são o exemplo: baratos, sem GPU, e por isso
+primeiros — não porque importam menos ou mais.
+
+O dicionário completo, com ~120 variáveis, definição operacional, fonte, validação e camada de
+cada uma, está em **[`dicionario-variaveis.md`](dicionario-variaveis.md)**. Aqui, só a estrutura:
+
+| Camada | Quando valida | Grupos | Por que nesta ordem |
+|---|---|---|---|
+| **0 — qualidade e contexto** | mês 1 | observabilidade por criança · uptime · deriva · resíduo de calibração · presença · log de contexto · **diário de sono** | são as covariáveis sem as quais **nada** do que vem depois se interpreta; e as únicas que não dependem de nenhum modelo |
+| **A — espaço, social, sono** | mês 3–6 | trajetória · postura grossa · áreas · proximidade · grupos · preferência entre pares · sono completo | derivam de posição + identidade, que é o primeiro módulo validado; robustas, baratas, densas |
+| **B — atividade e adulto** | mês 6–12 | work episodes e tudo que deriva deles (inclusive **persistência após erro e frustração**, que não precisam de rosto) · uso de materiais · repetição · **comportamento do adulto** | dependem de detecção de material sobre identidade validada; é onde nasce a métrica de concentração |
+| **C — motor fino, áudio, afeto, criatividade-substrato** | ano 2 | mãos · detalhe de pose · atribuição de falante · prosódia · AUs · distress e recuperação · uso não-canônico · combinação de materiais | dependem de resolução, de áudio validado localmente e de camadas anteriores estáveis |
+| **D — derivadas de corpus** | ano 2–3 | raridade de ação · difusão de invenção · `mlu` se desbloqueada | matematicamente exigem história acumulada |
+
+**Onde concentrar esforço de validação nos primeiros 6 meses:** camadas 0 e A inteiras, e o
+protocolo humano da camada B (T19). Isso já dá algo em torno de 45 variáveis promovidas no
+primeiro semestre — enquanto as ~120 são observadas desde o primeiro dia.
+
+Três observações:
+
+**Camada 0 é a novidade desta revisão.** Nenhuma variável de qualidade estava no dicionário
+anterior. Sem `child_observability_frac`, um dia atrás da estante vira um dia parado.
+
+**A camada B contém as duas variáveis emocionais mais defensáveis do projeto** — persistência
+após erro e razão de abandono por frustração — e elas chegam **um ano antes** do resto do bloco
+afetivo, porque saem do work episode sem nenhuma análise de rosto.
+
+**O dicionário é um artefato vivo e versionado** (Parte III §3): toda variável entra com
+definição operacional, unidade, fonte, regra de valor ausente e método de validação, e ganha
+`definition_version` quando a definição muda. É o documento que o protocolo de codificação humana
+implementa e que a automação depois reproduz.
+
+## 4. Alterações decorrentes ao plano de execução
+
+O §13 da Parte III foi atualizado em consequência desta revisão:
+
+- **Fase 0 — bancada** inserida antes do mês 1, com os 21 testes do §2 e seus critérios de saída
+- **Mês 0** ganha as três ontologias (materiais, sala, dia), a especificação de câmeras como
+  entregável explícito, e a análise de poder antes do pré-registro
+- **Mês 1–3** ganha fiduciais fixos, verificação diária automática de calibração e sincronização,
+  UPS e gravação redundante, e as variáveis de camada 0
+- **comportamento do adulto** entra na fase de atividade (mês 6–12), desenhado com a equipe
+- **re-enrolamento de aparência** e gestão de coorte entram como tarefa contínua
+
+---
+
+## Anexo — Dicionário de variáveis
+
+O dicionário foi movido para arquivo próprio, porque cresceu para ~135 variáveis e é um artefato
+vivo, versionado à parte: **[`dicionario-variaveis.md`](dicionario-variaveis.md)**.
+
+Estrutura: dez grupos (qualidade e presença · sono · trajetória e espaço · social · atividade ·
+motor fino · motor grosso · linguagem · substrato emocional · substrato de criatividade · adulto),
+cada variável com nível, fonte, definição operacional, validação e **camada** — quando é validada
+e promovida a indicador (Parte IV §3). Nível 3 fecha o arquivo como constructos derivados, nunca
+como variável medida.

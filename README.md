@@ -22,6 +22,8 @@ docs/           → documentos de projeto (não publicados no site)
   arquitetura e stack de IA para mensuração longitudinal do desenvolvimento infantil na sala
   Montessori (visão computacional, áudio/linguagem, sono), com comentários críticos e ordem
   de execução. Rascunho, não implementado.
+- [`docs/dicionario-variaveis.md`](docs/dicionario-variaveis.md) — dicionário de ~135 variáveis
+  do mesmo projeto, com definição operacional, fonte, validação e camada de promoção.
 
 O logo do cabeçalho/rodapé é montado em HTML/CSS (três quadrados + "free school"),
 então escala perfeitamente e não depende de imagem.
