@@ -1,0 +1,3 @@
+# captura, QA, sync, proxy, medidas — leve
+pyyaml>=6
+numpy>=1.24

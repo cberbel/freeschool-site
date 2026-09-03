@@ -1,0 +1,7 @@
+# análise (detecção, tracking, pose, mãos) — pesado; instale só na máquina que vai analisar
+# GPU NVIDIA: instale antes o torch com CUDA seguindo https://pytorch.org/get-started/locally/
+ultralytics>=8.3
+mediapipe>=0.10
+pandas>=2
+pyarrow>=14
+matplotlib>=3.7
