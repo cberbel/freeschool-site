@@ -18,8 +18,8 @@ header b{font-size:17px} header .d{color:var(--dourado)}
 header button{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;
        border-radius:8px;padding:6px 10px;font-size:12px}
 main{max-width:680px;margin:0 auto;padding:14px}
-.abas{display:flex;gap:8px;margin-bottom:14px}
-.abas button{flex:1;padding:10px;border:1px solid var(--borda);background:#fff;
+.abas{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.abas button{flex:1;min-width:0;padding:10px;border:1px solid var(--borda);background:#fff;
      border-radius:10px;font-weight:700;color:var(--tinta2);font-size:14px}
 .abas button.on{background:var(--azul2);border-color:var(--azul2);color:#fff}
 .card{background:var(--card);border:1px solid var(--borda);border-radius:14px;
@@ -47,7 +47,7 @@ main{max-width:680px;margin:0 auto;padding:14px}
 .coment{margin-top:10px;display:flex;gap:8px}
 @media(max-width:430px){
   .abas{gap:5px}
-  .abas button{padding:10px 4px;font-size:13px;letter-spacing:-.2px}
+  .abas button{padding:8px 3px;font-size:11.5px;letter-spacing:-.3px;flex:1 1 30%}
 }
 .imgfiltros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .imgfiltros button{padding:7px 12px;border:1px solid var(--borda);background:#fff;
@@ -71,6 +71,20 @@ main{max-width:680px;margin:0 auto;padding:14px}
 .o-aspiracional{background:#f3e2e6;color:#a34e63}
 .o-site{background:#e5ede2;color:#4a6b46}
 .o-rosto-teste{background:#fde5e3;color:var(--erro)}
+.o-take{background:#e3e9ff;color:var(--azul2)}
+.o-reel{background:#e0f2e9;color:var(--ok)}
+.tk-grupo{font-size:14px;font-weight:800;color:var(--azul);margin:16px 0 8px}
+.tk-grupo:first-child{margin-top:0}
+.gimg.tk-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.tk-card{background:var(--card);border:1px solid var(--borda);border-radius:12px;
+  overflow:hidden;display:flex;flex-direction:column}
+.tk-card.decidida{opacity:.6}
+.tk-card video{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#000}
+.tk-links{display:flex;gap:10px;padding:0 10px 8px;font-size:12px}
+.tk-links a,.tk-links button{color:var(--azul2);text-decoration:none;font-weight:700;
+  background:none;border:none;cursor:pointer;padding:0;font-size:12px}
+.tk-card .coment{flex-direction:column;gap:6px;padding:0 10px 10px}
+.tk-card .coment button{padding:8px}
 .coment input{flex:1;padding:10px;border:1px solid var(--borda);border-radius:10px;font-size:14px}
 .coment button{background:var(--azul2);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700}
 .hist{font-size:12px;color:var(--tinta2);margin-top:8px;border-left:3px solid var(--dourado);
@@ -118,6 +132,7 @@ main{max-width:680px;margin:0 auto;padding:14px}
     <button id="aba-fila" class="on" onclick="mudarAba('fila')">Fila</button>
     <button id="aba-pauta" onclick="mudarAba('pauta')">Pauta</button>
     <button id="aba-imgs" onclick="mudarAba('imgs')">Imagens</button>
+    <button id="aba-takes" onclick="mudarAba('takes')">Takes</button>
     <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
     <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
   </div>
@@ -152,7 +167,7 @@ function mostrarApp(){
 }
 function mudarAba(a){
   abaAtual = a;
-  for(const x of ['fila','pauta','imgs','hist','regras'])
+  for(const x of ['fila','pauta','imgs','takes','hist','regras'])
     document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
   carregar();
 }
@@ -176,6 +191,7 @@ async function carregar(){
   if(abaAtual === 'regras') return carregarRegras();
   if(abaAtual === 'pauta') return carregarPauta();
   if(abaAtual === 'imgs') return carregarImagens();
+  if(abaAtual === 'takes') return carregarTakes();
   const filtro = (abaAtual === 'fila') ? ['rascunho'] : ['aprovado','publicado','reprovado'];
   const {data, error} = await db.from('pub_fila').select('*')
         .in('status', filtro).order('quando');
@@ -238,6 +254,9 @@ async function cartao(p){
 // vira base de reel e ensina o estilo das proximas ondas.
 let imgStatus = 'proposta';
 let imgOrigem = 'todas';
+let tkStatus = 'todas';
+let tkTipo = 'todos';
+let tkDados = [];
 
 async function urlImg(u, mini){
   if(!u) return '';
@@ -330,6 +349,141 @@ async function imgDecidir(id, status){
   const {error} = await db.from('hf_imagens').update(campos).eq('id', id);
   if(error){ alert('Não deu para salvar: ' + error.message); return; }
   carregarImagens();
+}
+
+// ---------------------------------------------------------------- Takes
+// Vídeos do Higgsfield (hf_takes): 'take' = clipe bruto, 'reel' = vídeo
+// montado com legenda. Agrupados por tema (grupo). Aprovar/reprovar aqui
+// ensina o bot como as próximas ondas de vídeo devem sair.
+async function carregarTakes(){
+  const alvo = document.getElementById('conteudo');
+  const {data, error} = await db.from('hf_takes').select('*').order('grupo').order('criado_em');
+  if(error){ alvo.innerHTML = '<div class="vazio">Erro: ' + error.message + '</div>'; return; }
+  tkDados = data || [];
+
+  const cS = {proposta:0, aprovada:0, rejeitada:0};
+  const cT = {take:0, reel:0};
+  for(const r of tkDados){ cS[r.status] = (cS[r.status]||0)+1; cT[r.tipo] = (cT[r.tipo]||0)+1; }
+
+  const lista = tkDados.filter(r =>
+    (tkStatus === 'todas' || r.status === tkStatus) &&
+    (tkTipo === 'todos' || r.tipo === tkTipo));
+
+  const bt = (v, atual, rot) =>
+    '<button data-v="' + v + '" class="' + (atual === v ? 'on' : '') + '">' + rot + '</button>';
+
+  alvo.innerHTML =
+    '<div class="aviso">Takes = clipes brutos do Higgsfield; Reels = vídeos montados com legenda. Aprove o que serve. <b>' +
+      (cS.proposta||0) + '</b> esperando sua decisão.</div>' +
+    '<div class="imgfiltros" id="f-tst">' +
+      bt('proposta', tkStatus, 'Para decidir (' + (cS.proposta||0) + ')') +
+      bt('aprovada', tkStatus, 'Aprovados (' + (cS.aprovada||0) + ')') +
+      bt('rejeitada', tkStatus, 'Reprovados (' + (cS.rejeitada||0) + ')') +
+      bt('todas', tkStatus, 'Todos (' + tkDados.length + ')') +
+    '</div>' +
+    '<div class="imgfiltros" id="f-ttp">' +
+      bt('todos', tkTipo, 'Todos os tipos') +
+      bt('take', tkTipo, 'Takes (' + (cT.take||0) + ')') +
+      bt('reel', tkTipo, 'Reels (' + (cT.reel||0) + ')') +
+    '</div>' +
+    (lista.length ? '<div id="tk-grupos"></div>'
+                  : '<div class="vazio">Nada com esse filtro. 🎉</div>');
+
+  document.querySelectorAll('#f-tst button').forEach(b =>
+    b.onclick = () => { tkStatus = b.dataset.v; carregarTakes(); });
+  document.querySelectorAll('#f-ttp button').forEach(b =>
+    b.onclick = () => { tkTipo = b.dataset.v; carregarTakes(); });
+
+  const cont = document.getElementById('tk-grupos');
+  if(!cont) return;
+
+  const grupos = new Map();
+  for(const r of lista){
+    const g = r.grupo || '(sem grupo)';
+    if(!grupos.has(g)) grupos.set(g, []);
+    grupos.get(g).push(r);
+  }
+
+  for(const [g, itens] of grupos){
+    const h = document.createElement('h3');
+    h.className = 'tk-grupo';
+    h.textContent = g + ' (' + itens.length + ')';
+    cont.appendChild(h);
+    const grade = document.createElement('div');
+    grade.className = 'gimg tk-grid';
+    cont.appendChild(grade);
+    for(const r of itens){ grade.appendChild(tkCartao(r)); }
+  }
+}
+
+function tkCartao(r){
+  const el = document.createElement('div');
+  el.className = 'tk-card' + (r.status === 'proposta' ? '' : ' decidida');
+  const coms = (r.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
+  const rotTipo = r.tipo === 'reel' ? 'reel' : 'take';
+  el.innerHTML =
+    '<video controls preload="metadata" playsinline' +
+      (r.capa ? ' poster="' + r.capa + '"' : '') +
+      ' src="' + r.url + '"></video>' +
+    '<div class="txt">' +
+      '<span class="orig o-' + rotTipo + '">' + rotTipo + ' · ' + (r.duracao||0) + 's · rodada ' + (r.rodada||0) + '</span>' +
+      '<h4>' + (r.titulo||'sem título').replace(/</g,'&lt;') + '</h4>' +
+      (r.motivo ? '<div class="jus"><b>Motivo:</b> ' + r.motivo.replace(/</g,'&lt;') + '</div>' : '') +
+      (coms ? '<div class="jus">' + coms.replace(/</g,'&lt;') + '</div>' : '') +
+    '</div>' +
+    '<div class="tk-links">' +
+      '<a href="' + r.url + '" download target="_blank">⬇ baixar</a>' +
+      '<button data-copy>🔗 copiar link</button>' +
+    '</div>' +
+    '<div class="bts">' +
+      (r.status === 'proposta'
+        ? '<button class="b-ap" data-ok>✓ Aprovar</button><button class="b-re" data-no>✗ Reprovar</button>'
+        : '<button class="b-h" data-volta>↩ voltar p/ decidir</button>') +
+    '</div>' +
+    '<div class="coment">' +
+      '<input placeholder="Comentário para o Claude…" data-c>' +
+      '<button data-send>Enviar</button>' +
+    '</div>';
+  const ok = el.querySelector('[data-ok]'), no = el.querySelector('[data-no]'),
+        vo = el.querySelector('[data-volta]'), cp = el.querySelector('[data-copy]'),
+        sd = el.querySelector('[data-send]');
+  if(ok) ok.onclick = () => takeDecidir(r.id, 'aprovada');
+  if(no) no.onclick = () => takeDecidir(r.id, 'rejeitada');
+  if(vo) vo.onclick = () => takeDecidir(r.id, 'proposta');
+  cp.onclick = () => {
+    navigator.clipboard.writeText(r.url);
+    const rot = cp.textContent;
+    cp.textContent = 'copiado';
+    setTimeout(() => { cp.textContent = rot; }, 1500);
+  };
+  sd.onclick = () => takeComentar(r.id, el.querySelector('[data-c]'));
+  return el;
+}
+
+async function takeDecidir(id, status){
+  let motivo;
+  if(status === 'rejeitada'){
+    motivo = prompt('O que não serviu? (isso evita que eu repita o erro nas próximas ondas)');
+    if(motivo === null) return;
+  }
+  const campos = {status, atualizado_em: new Date().toISOString()};
+  if(status === 'rejeitada') campos.motivo = motivo;
+  if(status === 'proposta') campos.motivo = null;
+  const {error} = await db.from('hf_takes').update(campos).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  carregarTakes();
+}
+
+async function takeComentar(id, input){
+  const texto = input.value.trim();
+  if(!texto) return;
+  const r = tkDados.find(x => x.id === id);
+  const coms = (r && r.comentarios) || [];
+  coms.push({em: new Date().toISOString(), autor:'claudio', texto});
+  const {error} = await db.from('hf_takes').update({comentarios: coms,
+      atualizado_em: new Date().toISOString()}).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  carregarTakes();
 }
 
 async function aprovar(id){
