@@ -14,6 +14,7 @@ Três partes, com origens diferentes e propositalmente separadas:
 | **II** | Sono como dimensão do projeto | acréscimo |
 | **III** | Comentários críticos, riscos e ordem de execução | acréscimo |
 | **IV** | Revisão: lacunas, bancada de testes (Fase 0) e conjunto inicial de variáveis | acréscimo |
+| **V** | Banco de dados unificado, identidade entre aplicações e séries temporais por criança | acréscimo |
 
 O dicionário de variáveis completo (~135 variáveis) vive em arquivo próprio:
 [`dicionario-variaveis.md`](dicionario-variaveis.md).
@@ -1479,14 +1480,22 @@ dado e a equipe ao mesmo tempo.
 Em três anos as crianças crescem, mudam cabelo e roupa, entram e saem da escola. Qualquer galeria
 de aparência para re-identificação precisa de **re-enrolamento periódico**; datas de entrada e
 saída por criança precisam existir como dado; e as análises longitudinais precisam lidar com
-séries de comprimentos diferentes. Nada disso estava no plano.
+séries de comprimentos diferentes.
+
+> **Resolvido em parte:** `alunos.mes_ingresso` e `alunos.mes_saida` já existem no Supabase
+> (Parte V §1). Falta só o re-enrolamento periódico da biometria.
 
 ### 1.10 Idade em meses como covariável obrigatória
 
-Sala Montessori é multi-idade: 2 a 6 anos juntos. Duração de episódio de trabalho de uma criança
-de 2 anos e de uma de 5 **não são comparáveis**. O desenho intra-sujeito resolve para perguntas
-dentro da criança; qualquer comparação entre crianças ou de coorte exige idade em meses, e
-trajetórias de desenvolvimento devem ser modeladas contra idade, não contra calendário.
+Sala Montessori é multi-idade. Duração de episódio de trabalho de uma criança de 2 anos e de uma
+de 5 **não são comparáveis**. O desenho intra-sujeito resolve para perguntas dentro da criança;
+qualquer comparação entre crianças ou de coorte exige idade em meses, e trajetórias de
+desenvolvimento devem ser modeladas contra idade, não contra calendário.
+
+> **Resolvido:** `alunos.data_nascimento` já existe. E a faixa real é mais ampla do que este
+> documento supôs — a Agrupada 1 tem **bebês de meses**, não crianças de 2 a 6 anos. Ver
+> Parte V §3.1: boa parte da camada B (work episode, material, ciclo completo) não se aplica a
+> ela, e o dicionário precisa de faixa etária de validade por variável.
 
 ### 1.11 Orçamento de tempo humano — a conta que faltava
 
@@ -1662,6 +1671,398 @@ O §13 da Parte III foi atualizado em consequência desta revisão:
   UPS e gravação redundante, e as variáveis de camada 0
 - **comportamento do adulto** entra na fase de atividade (mês 6–12), desenhado com a equipe
 - **re-enrolamento de aparência** e gestão de coorte entram como tarefa contínua
+
+
+---
+
+# Parte V — Banco de dados unificado e séries temporais por criança
+
+Como fazer aplicações diferentes — reconhecimento no portão, rastreio na sala, ponto,
+refeição, sono, registro pedagógico — escreverem **numa linha do tempo só por criança**, e não
+em bancos paralelos que ninguém consegue cruzar.
+
+## 1. Descoberta: metade disto já existe
+
+Inventário do Supabase `ponto-escola-montessoriana` (03/09/2026). **O projeto não começa do
+zero — começa integrando.**
+
+| Tabela | Linhas | O que é, e por que importa aqui |
+|---|---|---|
+| `public.alunos` | 57 | **A identidade canônica da criança.** `id` uuid · `nome` · `data_nascimento` · **`agrupada`** · `mes_ingresso` / `mes_saida` · `status` · `hora_entrada` / `hora_saida` / `frequencia` / `turno` · `neurodivergente` · **`usa_medicamentos` / `medicamentos_detalhe`** · **`autorizacao_imagem` / `restricoes_imagem`** · `foto_path` |
+| `public.children` | **0** | Tabela-sombra em inglês com **`face_ref`** e FK `aluno_id`. Alguém já começou o esquema do reconhecimento facial e o ligou a `alunos`. Vazia |
+| `public.salas_cameras` | 10 | **Mapa sala → câmeras, já pronto** (ver §2) |
+| `observacao_sessoes` / `observacao_entradas` | 34 / 74 | Ferramenta de observação humana **já em uso**, com `relogio`, `video_inicio_s`, `video_fim_s`, `janela_ini_s`, `janela_fim_s`, `sala`, `audio_path`, `transcricao` |
+| `registros_pedagogicos` | 27 | `aluno_id` · `data_observacao` · `tipo` · `texto` · `reservado` |
+| `ponto_batidas` | 140 | Ponto da equipe: `funcionario_id` · `ts` · lat/lng · `distancia_m` |
+| `meal_events` / `menus` | 0 / 1 | Refeição, esquema criado, sem dado |
+| `log_alteracoes` | 748 | Auditoria já existente |
+
+Três consequências imediatas, e todas corrigem coisas que escrevi antes:
+
+**`alunos` já resolve quatro lacunas da Parte IV.** `mes_ingresso`/`mes_saida` são o
+`enrollment_span` do §1.9; `data_nascimento` dá `age_months` do §1.10; `usa_medicamentos` e
+`medicamentos_detalhe` são o confundidor de medicação da Parte II §7; `agrupada` é a turma.
+Nada disso precisa ser criado — precisa ser **usado**.
+
+**`observacao_entradas` já é o protocolo de codificação humana do teste T19**, e melhor do que
+eu havia desenhado: ela já guarda o instante no relógio **e** o deslocamento dentro do vídeo
+(`video_inicio_s`, `janela_ini_s`), que é exatamente o que permite casar anotação humana com
+saída de modelo. Falta só o `aluno_id` e a medida de concordância entre codificadores.
+
+**Existem duas tabelas de criança.** `alunos` (57 linhas, viva) e `children` (0 linhas, com
+`face_ref`). Isso é o começo de uma divisão que arruinaria tudo. Ver §8.
+
+## 2. O mapa de câmeras que já está no banco
+
+`public.salas_cameras`, conteúdo real:
+
+| sala | câmeras | observação |
+|---|---|---|
+| **sala 1a3** | `sala1a3-A` · `sala1a3-B` · `sala1a3-C` · `sala MEIO` | "sala MEIO como complemento — ajustável" |
+| **sala 3a6** | `SALA 3a6-A` · `sala 3a6-B` · `sala MEIO` | idem |
+| patio | `Patio (Ângulo largo)` · `Patio (Rastreio)` · `PATIO-B` | "TrackMix = rastreio automático" |
+| entrada · recepcao · hall · corredor · atelier · cozinha · horta | 1 câmera cada | — |
+
+**Agrupada 1 = `sala 1a3` (4 câmeras) · Agrupada 2 = `sala 3a6` (3 câmeras)**, com a
+`sala MEIO` compartilhada entre as duas. São sete fluxos para as duas salas do piloto, não
+quatro — e a câmera compartilhada é um detalhe de projeto, não de configuração: ela vê as duas
+turmas e precisa de calibração para os dois sistemas de coordenadas.
+
+O `config.yaml` da bancada deve ser **gerado a partir desta tabela**, não digitado à mão. Os
+valores são nomes de câmera no NVR; o `sondar.ps1` do outro projeto (ou o `smoke` da bancada)
+mapeia nome → canal.
+
+## 3. Dois achados que mudam o plano
+
+### 3.1 As idades não são as que o plano assumia
+
+| Agrupada | Sala | Ativos | Nascimentos | Idade aproximada hoje |
+|---|---|---|---|---|
+| 1 | sala 1a3 | 18 | 2023-08 a **2025-10** | **~0 a 3 anos** |
+| 2 | sala 3a6 | 21 | 2019-06 a 2024-08 | ~2 a 7 anos |
+| 3 | — | 7 | 2015-09 a 2018-06 | ~8 a 11 anos |
+
+A Agrupada 1 tem **bebês de meses**. O plano inteiro foi escrito supondo criança que anda,
+escolhe material na prateleira e completa um ciclo de trabalho. Para bebês, quase nada da
+camada B (work episode, material, ciclo completo) se aplica — o que se aplica é motor grosso,
+sono, vocalização, proximidade e corregulação.
+
+**Consequência:** o dicionário precisa de uma coluna de **faixa etária de validade** por
+variável, e a Agrupada 1 provavelmente deve começar pelo bloco de sono + motor + social, não
+pelo de atividade. Trabalho para o dicionário, não para o código.
+
+### 3.2 A autorização de imagem cobre menos da metade — e não é a autorização certa
+
+| Agrupada | Ativos | Com `autorizacao_imagem` |
+|---|---|---|
+| 1 | 18 | **8** |
+| 2 | 21 | **7** |
+| 3 | 7 | 3 |
+
+Duas coisas, e as duas são sérias:
+
+**O número é baixo.** Com ~40% de autorização, um desenho longitudinal intra-sujeito perde
+metade da turma. E não é só amostra: numa sala compartilhada, a criança **sem** autorização
+aparece no quadro de qualquer jeito.
+
+**E essa autorização não é a que o projeto precisa.** `autorizacao_imagem` é para uso de imagem
+(divulgação, foto, vídeo institucional). Pesquisa longitudinal com gravação contínua, biometria
+e dado de saúde é **outra finalidade**, e a LGPD exige consentimento **específico** para cada
+uma (Parte III §6). Reaproveitar o campo existente seria tratar dado fora da finalidade
+consentida.
+
+**O que fazer:** campo novo e separado — `consentimento_pesquisa`, com data, versão do termo,
+escopo (vídeo / áudio / sono / etiqueta) e revogação. E o pipeline lê **esse** campo, nunca o
+de imagem. Detalhe em §7.
+
+## 4. O princípio: uma identidade, muitos observadores
+
+A pergunta que abre esta parte — reconhecimento no portão *versus* reconhecimento na sala — tem
+uma resposta que decide o resto: **não são dois sistemas de identidade. São dois observadores da
+mesma identidade.**
+
+`alunos.id` é o identificador canônico da criança. Nenhuma aplicação cria o seu próprio. Câmera
+do portão, rastreio da sala, etiqueta UWB, ponto, refeição, sensor de sono e registro pedagógico
+são todos **fontes de asserção** sobre esse mesmo id, cada uma com o seu método e a sua confiança.
+
+```
+                        alunos.id  (uma criança, um uuid, para sempre)
+                              │
+   ┌──────────┬───────────┬───┴────┬────────────┬───────────┬──────────┐
+ portão      sala       etiqueta  sono        refeição   pedagógico  família
+ (face)   (rastreio)     (UWB)   (radar)      (manual)    (texto)    (diário)
+   │          │            │        │            │           │          │
+   └──────────┴────────────┴────────┴────────────┴───────────┴──────────┘
+                              ▼
+                    obs.identificacao   ← asserções de identidade, com confiança
+                              ▼
+                       obs.evento       ← a linha do tempo única da criança
+```
+
+A tabela que torna isso possível é `obs.identificacao`: cada linha é **uma afirmação** de que
+uma observação pertence a uma criança, com o método que a produziu e o quanto se confia nela.
+Nada sobrescreve nada; o resolvedor decide, e a decisão fica auditável.
+
+```sql
+create table obs.identificacao (
+  id             bigserial primary key,
+  aluno_id       uuid not null references public.alunos(id),
+  ts             timestamptz not null,
+  metodo         text not null,      -- face_portao | tag_uwb | track_sala | ponto_manual | chamada
+  confianca      real not null,      -- 0..1, na escala do próprio método
+  evidencia      jsonb,              -- {track_id, camera, bbox, distancia_embedding, ...}
+  resolvido_por  text,               -- regra ou pessoa que fechou a atribuição
+  criado_em      timestamptz default now()
+);
+```
+
+## 5. O portão como âncora da sala — a otimização que o dia inteiro permite
+
+Aqui está o ganho concreto de unificar, e é maior do que "ter tudo num lugar só".
+
+Os dois reconhecimentos têm características de erro **opostas**:
+
+| | Portão | Sala |
+|---|---|---|
+| o que vê | rosto frontal, criança parada, uma por vez | corpo de cima, avental igual, oclusão constante |
+| identidade | **forte** — é um problema de verificação 1:N com N pequeno | **fraca** — re-ID infantil é o risco nº 1 do §4 da Parte III |
+| continuidade | pontual: um instante | **forte** — o track é contínuo enquanto não quebra |
+
+Um é bom exatamente onde o outro é ruim. Unificados, cada um cobre o buraco do outro:
+
+**A lista de presença do dia restringe a sala.** Se o portão reconheceu 12 crianças hoje, o
+rastreio da sala não precisa decidir entre 46 matriculados — decide entre 12. O espaço de
+hipóteses cai por um fator de 4, e o erro de re-ID cai junto. **É a melhoria mais barata
+disponível para o problema mais grave do projeto**, e não custa modelo nenhum: custa um `JOIN`.
+
+**A chegada ancora o track.** Criança reconhecida no portão às 08:14; track novo aparece na
+`sala 1a3` entrando pela porta às 08:16, e nenhum outro track novo apareceu no intervalo. A
+atribuição é quase determinística. Cada chegada é um ponto de identidade **verdadeira** injetado
+na sala.
+
+**A saída fecha.** O reconhecimento na saída encerra a série do dia e permite verificar: todo
+track que estava vivo depois da saída da criança X é erro, e o sistema pode acusar sozinho.
+
+**O corredor costura.** `salas_cameras` mostra que existem câmeras em `entrada`, `recepcao`,
+`hall` e `corredor` — o caminho inteiro do portão até a sala está coberto. Isso permite propagar
+identidade por continuidade espacial, não por aparência.
+
+```sql
+-- crianças presentes hoje, do portão: o filtro que o rastreio da sala consome
+create view obs.presentes_hoje as
+select distinct on (i.aluno_id)
+       i.aluno_id, a.nome, a.agrupada, i.ts as chegada
+from   obs.identificacao i
+join   public.alunos a on a.id = i.aluno_id
+where  i.metodo = 'face_portao'
+  and  i.ts::date = current_date
+  and  i.confianca >= 0.85
+order  by i.aluno_id, i.ts;
+```
+
+O mesmo vale ao contrário: um track de sala com identidade estável por três horas é evidência
+**contra** um reconhecimento de portão duvidoso no meio do dia. As fontes se corrigem.
+
+> Isto é a regra "modular nos detectores, conjunto na fusão" (Parte III §14) aplicada à
+> identidade. Os detectores permanecem separados; quem decide quem é a criança é uma camada só,
+> que vê todas as evidências do dia.
+
+## 6. Três camadas de densidade — porque "um banco só" não é uma tabela só
+
+O erro clássico é jogar tudo numa tabela de eventos. Não sobrevive ao volume: 20 crianças ×
+30 fps × 4 h já são ~8,6 milhões de linhas por dia **só de trajetória**. Em Postgres hospedado
+isso é caro e lento; em Parquet é trivial.
+
+Um banco unificado é **um modelo de dados unificado**, com o armazenamento escolhido por
+densidade:
+
+| Camada | O que | Volume/dia | Onde | Por quê |
+|---|---|---|---|---|
+| **1 — denso** | landmarks de pose e mão, trajetória a 15–30 Hz, features de áudio, épocas de sono | 10⁶–10⁷ linhas | **Parquet + DuckDB, local** | nunca sai do arquivador; particionado por `dia/sala/camera`; é reprocessado inteiro (R4) |
+| **2 — eventos** | work episodes, entrada/saída, refeição, distress, uso de material, identificação, registro pedagógico | 10²–10⁴ linhas | **Postgres (Supabase), `obs.evento`** | é aqui que "unificado" importa: toda aplicação escreve nesta tabela |
+| **3 — agregados** | `crianca_dia` e `crianca_fase`: os ~50 indicadores promovidos | ~10²/dia | **Postgres, agregado contínuo** | o que dashboard, relatório e modelo estatístico leem |
+
+A camada 2 é o coração:
+
+```sql
+create table obs.evento (
+  id          bigserial,
+  aluno_id    uuid not null references public.alunos(id),
+  ts          timestamptz not null,
+  ts_fim      timestamptz,                    -- nulo = evento instantâneo
+  dia_letivo  date not null,                  -- ver §7
+  fase        text,                            -- chegada|ciclo_manha|refeicao|soneca|ciclo_tarde|saida
+  sala        text references public.salas_cameras(sala),
+  fonte       text not null,                   -- portao|sala|sono|refeicao|pedagogico|familia|ponto
+  tipo        text not null,                   -- work_episode|distress|material_uso|presenca|...
+  valor       jsonb,                           -- carga específica do tipo
+  confianca   real,
+  observabilidade real,                        -- fração do intervalo com a criança vista (camada 0)
+  pipeline_version text, model_version text, definition_version text,
+  primary key (id, ts)
+) partition by range (ts);
+```
+
+`valor` em `jsonb` é deliberado: cada tipo de evento tem campos próprios, e engessar isso em
+colunas obrigaria a migração de esquema a cada variável nova — o oposto de R1. O que **não** vai
+em `jsonb` são as colunas de junção (`aluno_id`, `ts`, `dia_letivo`, `fase`, `sala`) nem as de
+proveniência.
+
+## 7. O relógio, e o "dia letivo" como chave de junção
+
+Aplicações diferentes têm relógios diferentes: o NVR tem o dele, o PC de captura o seu, o celular
+do ponto o seu, o diário de sono é preenchido de memória à noite. Sem uma convenção escrita, o
+cruzamento sai deslocado e ninguém percebe por meses.
+
+**Três regras:**
+
+1. **Tudo em `timestamptz`, gravado em UTC.** Nenhuma coluna `timestamp` sem fuso. O fuso de
+   apresentação é problema da tela.
+2. **`dia_letivo` é a chave de junção, não `ts::date`.** É uma coluna materializada, não um
+   cálculo na consulta. E ela carrega a convenção da Parte II §6: **a noite de terça para quarta
+   pertence à quarta-feira**, o dia que ela precede. Sem isso, metade das análises de sono sai um
+   dia deslocada.
+3. **`fase` é obrigatória em todo evento.** Métrica se calcula por fase do dia, não por dia
+   (Parte IV §1.4) — concentração durante o almoço não significa nada.
+
+```sql
+create function obs.dia_letivo(t timestamptz) returns date language sql immutable as $$
+  -- eventos antes das 04:00 locais pertencem ao dia anterior; a noite pertence ao dia seguinte
+  select (t at time zone 'America/Sao_Paulo' - interval '4 hours')::date;
+$$;
+```
+
+## 8. Séries temporais por criança: TimescaleDB e os agregados contínuos
+
+O padrão de acesso deste projeto é sempre o mesmo — *esta criança, este intervalo* — e é
+exatamente o que uma extensão de série temporal otimiza.
+
+```sql
+create extension if not exists timescaledb;
+select create_hypertable('obs.evento', 'ts', chunk_time_interval => interval '7 days');
+create index on obs.evento (aluno_id, ts desc);          -- o índice que importa
+create index on obs.evento (dia_letivo, fase, tipo);
+```
+
+E o agregado diário deixa de ser um job que alguém precisa lembrar de rodar:
+
+```sql
+create materialized view obs.crianca_dia
+with (timescaledb.continuous) as
+select aluno_id,
+       time_bucket('1 day', ts) as dia,
+       count(*) filter (where tipo='work_episode')                        as episodios,
+       avg(extract(epoch from ts_fim - ts)) filter (where tipo='work_episode') as duracao_media_s,
+       max(extract(epoch from ts_fim - ts)) filter (where tipo='work_episode') as duracao_max_s,
+       count(*) filter (where tipo='distress')                            as distress_n,
+       avg(observabilidade)                                               as observabilidade_media
+from   obs.evento group by aluno_id, dia;
+```
+
+Três propriedades que isso dá de graça, e que o projeto precisa:
+
+**Reprocessamento sem quebrar a série (R4).** Mudou a definição de "interrupção"? Reprocessa-se
+o arquivo, reescreve-se `obs.evento` com `definition_version` nova, e o agregado contínuo se
+refaz sozinho. A série continua comparável de ponta a ponta porque **foi toda recalculada com a
+mesma definição**.
+
+**A janela intra-sujeito fica trivial.** A hipótese central da Parte II — `sono(noite n) →
+métricas(dia n+1)` — vira uma junção por `dia_letivo`, com cada criança como seu próprio
+controle:
+
+```sql
+select e.aluno_id, e.dia, s.total_sleep_24h, e.duracao_media_s, e.distress_n
+from   obs.crianca_dia e
+join   obs.sono_diario s on s.aluno_id = e.aluno_id and s.dia_letivo = e.dia
+order  by e.aluno_id, e.dia;
+```
+
+**Retenção automática por camada.** `add_retention_policy` apaga os pedaços densos além do prazo
+e mantém os agregados para sempre — que é exatamente a política de R3 (bruto por 2 anos,
+derivado permanente), aplicada pelo banco em vez de por disciplina.
+
+## 9. Consentimento como porta do banco, não como aviso no documento
+
+Com apenas ~40% de `autorizacao_imagem` (§3.2), a regra de consentimento **precisa ser executada
+pelo banco**. Se depender de alguém lembrar no código do pipeline, uma hora não lembra.
+
+```sql
+create table public.consentimento_pesquisa (
+  aluno_id      uuid primary key references public.alunos(id),
+  versao_termo  text not null,
+  concedido_em  timestamptz not null,
+  escopo        text[] not null,   -- {video, audio, sono, etiqueta, reprocessamento}
+  revogado_em   timestamptz,
+  documento     text
+);
+
+create view obs.elegiveis as
+select a.id, a.agrupada, c.escopo
+from   public.alunos a
+join   public.consentimento_pesquisa c on c.aluno_id = a.id
+where  c.revogado_em is null and a.status = 'ativo';
+```
+
+E o RLS fecha a porta de verdade, no padrão `tem_papel` que o sistema já usa:
+
+```sql
+alter table obs.evento enable row level security;
+create policy pesquisa_so_consentidos on obs.evento for select
+  using (aluno_id in (select id from obs.elegiveis) and tem_papel('pesquisa'));
+```
+
+Três camadas de acesso, como pede a Parte IV §1.15: **bruto** (pouquíssimas pessoas, todo acesso
+logado em `log_alteracoes`) · **derivado por criança** (pesquisa, pseudonimizado — `obs.evento`
+nunca guarda nome, só `aluno_id`) · **agregado** (educadoras e famílias).
+
+**Revogação** tem resposta pronta: `revogado_em` preenchido remove a criança de `obs.elegiveis`,
+e portanto de toda consulta de pesquisa, no mesmo instante — sem apagar nada, sem migração, e de
+forma auditável.
+
+## 10. O que fazer com `alunos` × `children`
+
+Existem duas tabelas de criança, e a segunda está vazia. Resolver **agora**, enquanto custa zero:
+
+- **`alunos` é canônica.** Todo `aluno_id` do projeto aponta para ela.
+- **`children` não deve continuar existindo como tabela de criança.** O que ela tem de útil é
+  `face_ref`. Isso vira `obs.biometria_face (aluno_id, embedding, atualizado_em, versao_modelo)`
+  — uma tabela de *evidência biométrica*, não de pessoa.
+- O `embedding` de face é **dado pessoal sensível** (LGPD art. 5º, II). Fica com RLS próprio,
+  acesso mais restrito que o resto, e re-enrolamento periódico (Parte IV §1.9 — criança de 2 anos
+  muda de rosto em seis meses).
+
+## 11. Onde cada coisa mora
+
+| | Local (arquivador) | Supabase |
+|---|---|---|
+| vídeo e áudio brutos | **sim** — nunca sobe | não |
+| camada 1 (densa, Parquet) | **sim** | não |
+| camada 2 (`obs.evento`) | espelho de trabalho | **sim** — é a fonte |
+| camada 3 (agregados) | — | **sim** |
+| identidade, consentimento, salas, materiais | — | **sim** |
+| biometria facial | — | **sim**, RLS restrito |
+
+O arquivador empurra para o Supabase, de madrugada, **só as camadas 2 e 3**. Nenhum quadro de
+vídeo, nenhum landmark, nenhum embedding de criança sem consentimento sai da escola.
+
+## 12. Ordem de implantação
+
+Nada disto precisa de GPU, e quase tudo é do mês 0:
+
+| # | Passo | Depende de |
+|---|---|---|
+| 1 | `consentimento_pesquisa` + termo com escopo granular | jurídico (T20) |
+| 2 | schema `obs`, `obs.identificacao`, `obs.evento` particionada, `dia_letivo` | — |
+| 3 | gerar o `config.yaml` da bancada a partir de `salas_cameras` | — |
+| 4 | `aluno_id` em `observacao_entradas` + concordância entre codificadores | protocolo T19 |
+| 5 | migrar `children.face_ref` → `obs.biometria_face`; aposentar `children` | — |
+| 6 | faixa etária de validade por variável no dicionário | pedagoga |
+| 7 | TimescaleDB + `crianca_dia` + política de retenção | camada 2 existindo |
+| 8 | `obs.presentes_hoje` alimentando o rastreio da sala | portão + sala rodando |
+
+O passo 8 é o que o resto habilita, e é a resposta à pergunta que abriu esta parte: o
+reconhecimento do portão deixa de ser uma aplicação separada e vira **a âncora de identidade do
+dia inteiro**.
 
 ---
 
