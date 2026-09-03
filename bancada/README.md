@@ -201,7 +201,15 @@ bancada_lib/medida.py      quadro com grade; px/m; mão e rosto em px
 bancada_lib/analyze.py     YOLO+ByteTrack, YOLO-pose, MediaPipe Hands em crops → parquet + resumo
 ```
 
-Detalhes de projeto que importam: `-use_wallclock_as_timestamps 1` sem reset por segmento → o
-`start_time` de cada arquivo é época Unix com sub-segundo; `-segment_atclocktime 1` alinha as
-fronteiras dos segmentos ao relógio em todas as câmeras; cópia de stream (`-c copy`) → CPU quase
-zero na captura; MKV tolera truncamento e os codecs de áudio da Reolink.
+Detalhes de projeto que importam:
+
+- **O relógio vem do nome do arquivo.** O MKV zera os timestamps de cada segmento (e `-copyts`
+  corrompe MKV com época Unix), então o início de cada segmento é lido do nome — `strftime`,
+  relógio do computador, resolução de 1 s — e cada arquivo começa em pts 0 (`-reset_timestamps`).
+  `-segment_atclocktime 1` alinha as fronteiras ao relógio em todas as câmeras, então os
+  segmentos das 7 câmeras começam no mesmo minuto.
+- **O alinhamento fino (< 1 s) é medido**, não presumido: `sync` correlaciona os envelopes de
+  áudio das câmeras da mesma sala. No sistema definitivo isso vira sincronização em hardware
+  (PTP/genlock) — decisão da Fase 0, teste T2.
+- **Cópia de stream** (`-c copy`) → CPU quase zero na captura; o gargalo é rede e disco.
+- **MKV, não MP4:** se a luz cair no meio do segmento, o MKV abre mesmo truncado; o MP4 vira lixo.
