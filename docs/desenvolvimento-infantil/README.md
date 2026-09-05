@@ -10,7 +10,8 @@ caderno do projeto.
 | --- | --- | --- |
 | [`2026-08-29-grok-arquitetura.md`](2026-08-29-grok-arquitetura.md) | Grok | Analisado — ver análise ao lado |
 | [`2026-08-29-analise-grok-arquitetura.md`](2026-08-29-analise-grok-arquitetura.md) | Nossa | Em análise — opinião, não decisão |
-| [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md) | Nossa | Em análise — plano de execução em 8 etapas |
+| [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md) | Nossa | Superado em parte pela revisão 2 (unidade, ingestão, áudio, ordem) — ler junto |
+| [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) | Nossa (painel de revisão) | Em análise — revisão contra a meta de monitoramento quase contínuo; roadmap integrado |
 
 ## Convenções
 
@@ -24,27 +25,35 @@ caderno do projeto.
 
 ## Onde o projeto está
 
-O sistema de observação **já roda** no Supabase `ponto-escola-montessoriana`: 47 alunos
-ativos, 17 câmeras mapeadas em 10 espaços, 33 sessões de observação com 3 especialistas,
-73 entradas (40 transcritas) e indexação por LLM em produção. O que falta não é captação
-nem registro — é transformar observação narrativa em **medida comparável**.
+**Meta (05/09):** monitorar todo o desenvolvimento, de modo quase contínuo — sensoriamento
+passivo o dia inteiro, todas as dimensões; a observação humana vira calibração.
 
-O plano de execução está em
-[`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md).
+O sistema de observação **já roda** no Supabase `ponto-escola-montessoriana`: 47 alunos
+ativos, 16 câmeras nomeadas (~15 aparelhos) em 10 espaços, 33 sessões com 3 especialistas,
+75 entradas (40 transcritas — quase todas testes de microfone) e indexação por LLM.
+`meal_events` existe como schema, com **0 eventos**. As câmeras nunca foram inventariadas.
+
+O plano vigente é a **revisão 2**
+([`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md)), que corrige o passo a
+passo de 29/08 para a meta contínua: unidade = janela criança × tempo; ingestão como
+fundação (go2rtc + Frigate); áudio vestível para linguagem; VLM só na amostra; compras só
+com número medido.
 
 ## Próximos passos em aberto
 
-Etapa 1–2 do plano, em ordem:
+Primeira semana da revisão 2 (custo zero):
 
-- [ ] Escrever o **codebook v1** (3 dimensões × 5 níveis, com âncora comportamental).
-      Uma tarde, só texto, antes de qualquer código.
-- [ ] Rodar a migração `obs_codebook` / `obs_avaliacoes` / `obs_golden`.
-- [ ] Adicionar os sliders de 1–5 na tela de observação que já existe.
-- [ ] **Medir o kappa humano-humano** em ~100 entradas com dois avaliadores cegos.
-      É o teste mais decisivo do projeto — portão para tudo o que vem depois.
+- [ ] **T0 — inventário técnico das câmeras** (modelo, streams, fps, PoE, NVR, mic) e
+      confirmar `'sala 1'`, "sala MEIO" e as duas lentes do pátio.
+- [ ] Escrever o **codebook v1** (3 dimensões × 5 níveis, âncora comportamental). Uma tarde.
+- [ ] Migração mínima: `obs_codebook`, `obs_avaliacoes` com `janela_id`, `dev_janelas`,
+      `obs_golden` por janela, `salas_cameras` normalizada, `materiais` vazia.
+- [ ] **Encomendar o piloto RFID** (banda 902–928 MHz) — lead time.
+- [ ] **T1 — go2rtc + Frigate no PC existente** com as 7 câmeras das salas; `captacao_stats`.
+- [ ] Sliders na tela de observação; T2 sincronização de relógio.
+- [ ] Semana 3: **kappa em 60 janelas gravadas** × 3 especialistas (alfa ≥ 0,6) — portão 1.
+- [ ] Semana 4: T5 pose offline, T6 identidade, T7 VLM, T8 teste-reteste, T9 áudio de câmera,
+      T10 ativar `meal_events` → decisões de compra com número.
 
-Mais adiante (etapas 3+):
-
-- [ ] Ligar `video_inicio_s` / `video_fim_s` (já no schema, 0 de 73 preenchidos).
-- [ ] Teste de campo de tag UWB e de leitor RFID numa estante, antes de comprar escala.
-- [ ] Decidir a licença do detector (AGPL do YOLO x alternativas Apache-2.0).
+Pendente do painel: crítico de completude e refutação dos achados 5–8 de testes (cortados
+pelo limite de uso; podem ser retomados).
