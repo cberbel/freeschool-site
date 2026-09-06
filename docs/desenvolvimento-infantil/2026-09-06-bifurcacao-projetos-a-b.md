@@ -5,11 +5,13 @@
   quase contínuo). O **Projeto B** mantém as **quatro decisões que a revisão derrubou** — clipe
   ancorado numa entrada, ingestão sob demanda, áudio só da observadora, VLM como rotulador
   "barato" — ou seja, o passo a passo de 29/08 como foi escrito.
-- **Por quê:** aprender, com número, a diferença entre o **gap de esforço** e o **gap de
-  resultado** entre as duas abordagens. Se B entrega 80% do valor por 10% do esforço, isso
-  muda o produto; se A enxerga o que B não enxerga e a equipe valoriza, isso muda o produto
-  também. Nenhuma das duas hipóteses se decide no papel.
-- **Status:** `DECIDIDO` (bifurcar) / `EM ANÁLISE` (o protocolo de comparação abaixo).
+- **Por quê:** são duas maneiras de aprender a fazer o sistema. A diferença entre o **gap de
+  esforço** e o **gap de resultado** é uma das coisas que os dois projetos ensinam — não a
+  principal, e não há pressa de escolher entre eles. O norte do caderno é o
+  [README](README.md): aprender a fazer o melhor sistema de registro e aprendizado sobre o
+  desenvolvimento infantil. Os dois projetos servem a isso; a comparação é um detalhe útil.
+- **Status:** `DECIDIDO` (dois projetos, sem data para escolher) / `EM ANÁLISE` (o protocolo
+  de comparação abaixo, como instrumento).
 - **Escopo:** só engenharia. Camada jurídica fora, a pedido.
 
 ---
@@ -32,8 +34,9 @@
 | Onde o esforço mora | **Tempo de especialista** (cada clipe nasce de uma entrada humana) | **Tempo de construção e hardware** |
 | O que ela não enxerga, por desenho | Rotina, transições, fila, sesta; social; linguagem da criança; qualquer criança sem entrada naquela semana | Nada por desenho — mas tudo depende de sensores ainda não validados |
 
-**A pergunta que a bifurcação responde:** o Projeto B mede a criança ou mede a agenda da
-especialista? E o Projeto A paga, em esforço, o que entrega a mais em resultado?
+**Duas perguntas que os projetos ajudam a responder, no seu tempo:** o Projeto B mede a
+criança ou mede a agenda da especialista? E o Projeto A paga, em esforço, o que entrega a
+mais em resultado? Nenhuma das duas precisa de resposta rápida — precisa de dado bom.
 
 ---
 
@@ -65,7 +68,8 @@ não o Frigate do Projeto A — se B usar a ingestão de A, o gap de esforço de
 
 ## O que se mede: esforço
 
-Uma tabela, preenchida toda sexta, por projeto. Sem isso a bifurcação vira opinião.
+Uma tabela, preenchida toda sexta, por projeto. É instrumentação do aprendizado — barata de
+manter e impossível de reconstruir depois.
 
 ```sql
 create table bifurcacao_esforco (
@@ -165,17 +169,20 @@ create table bifurcacao_resultados (
 | Semana 4 | Conjunto de comparação começa (20 janelas/semana) | Primeiro relatório semanal por criança (as que tiverem clipe) | T5–T10 |
 | Semanas 5–8 | Comparação semanal; esforço apontado | Golden B (clipes) | Golden A (janelas); sorteio diário; RFID instalado |
 | Semanas 8–16 | **Janela de comparação** (8 semanas com os dois projetos produzindo medida semanal para as mesmas crianças); intervenção planejada na semana 10 | Regime estável | Etapa 5b áudio piloto; edge se T1/T5 pediram; Etapa 6 começa |
-| Mês 4 | **Leitura intermediária** (esforço acumulado; cobertura; viés; utilidade) | | |
-| Mês 6 | **Leitura final** com efeito de idade por projeto → decisão | | |
+| Mês 4 | **Primeira leitura** (esforço acumulado; cobertura; viés; utilidade) | | |
+| Mês 6 | **Segunda leitura**, com efeito de idade por projeto | | |
+| Depois | Leituras a cada trimestre, enquanto os dois rodarem | | |
 
-O Projeto A continua depois; o Projeto B continua até a decisão. Nenhum dos dois para antes da
-leitura final — parar o B cedo é perder justamente o dado do gap.
+Os dois projetos continuam. As leituras alimentam o aprendizado; não são prazos de decisão.
+Se um dia fizer sentido fundir, encolher ou encerrar um deles, será porque o dado mostrou —
+não porque o calendário mandou.
 
 ---
 
-## Regra de decisão (escrita antes de ver o resultado)
+## Hipóteses que os dois projetos ajudam a testar
 
-Três desfechos possíveis, e o que cada um significa para o produto:
+Não há regra de decisão nem data. Mas vale escrever agora, antes de ver dado, o que cada
+desfecho **significaria** — para não reinterpretar o resultado depois. Três hipóteses:
 
 1. **B ≈ A em validade e utilidade; a cobertura de B basta para a equipe.** Então o produto é
    o B — observação humana ampliada por VLM — e o A vira instrumento de pesquisa, não de operação.
@@ -190,10 +197,12 @@ Três desfechos possíveis, e o que cada um significa para o produto:
    B + sensores de contagem, sem visão contínua; visão fica para o que os sensores não medem
    (postura, orientação de cabeça, resistência à distração).
 
-Critérios numéricos para distinguir 1 de 2, fixados agora: (a) Spearman entre os rankings
-semanais das crianças ≥ 0,8 **e** viés médio < 0,3 ponto → "B ≈ A" em resultado; (b) utilidade
-"muda o que faço amanhã" de A ≥ 1,5× a de B → A vale o esforço; (c) horas de especialista por
-criança-semana coberta no B > 3× as do A (operação + construção amortizada) → B não escala.
+Se e quando alguém quiser ler o resultado, estes são critérios razoáveis para distinguir
+1 de 2 — fixados agora para não serem ajustados ao gosto depois: (a) Spearman entre os
+rankings semanais das crianças ≥ 0,8 **e** viés médio < 0,3 ponto → "B ≈ A" em resultado;
+(b) utilidade "muda o que faço amanhã" de A ≥ 1,5× a de B → A vale o esforço; (c) horas de
+especialista por criança-semana coberta no B > 3× as do A → B não escala. São réguas, não
+gatilhos.
 
 ---
 
@@ -213,8 +222,8 @@ criança-semana coberta no B > 3× as do A (operação + construção amortizada
    cortar qualquer projeto.
 2. **O B pode "vencer" por ser a rotina que a equipe já conhece** — a utilidade percebida tem
    viés de familiaridade. Por isso os parágrafos vão cegos.
-3. **O A pode "vencer" por novidade** — a mesma razão, ao contrário. Por isso a leitura final é
-   no mês 6, não no mês 2.
+3. **O A pode "vencer" por novidade** — a mesma razão, ao contrário. Por isso as leituras são
+   trimestrais e continuam, em vez de uma leitura única.
 4. **Construtor solo:** o A consome quase todo o tempo de construção; o B quase nenhum. Isso é o
    gap de esforço funcionando como previsto — mas significa que atrasos no A não podem ser
    compensados tirando tempo do B, porque o B quase não tem tempo a tirar.

@@ -1,5 +1,15 @@
 # Projeto: medir desenvolvimento infantil
 
+## Norte
+
+**Aprender a fazer o melhor sistema de registro e aprendizado sobre o desenvolvimento
+infantil do mundo.** (Dono, 06/09/2026.)
+
+Isso ordena tudo o que está nesta pasta: *registro* — tudo o que se observa fica guardado,
+comparável ao longo de anos, por criança; *aprendizado* — a equipe aprende sobre cada criança,
+e o sistema aprende com a equipe. Não há pressa. Os dois projetos (A e B) são duas maneiras de
+aprender a fazer isso; a comparação entre eles é um instrumento, não o objetivo.
+
 Pasta de **material bruto e notas** do projeto de medição objetiva e longitudinal do
 desenvolvimento infantil no ambiente Montessori. Nada aqui é código do site — é o
 caderno do projeto.
@@ -39,7 +49,8 @@ criança × tempo, ingestão contínua, áudio vestível, VLM só na amostra). O
 passo a passo de 29/08 (clipe ancorado em entrada, recorte sob demanda do NVR, áudio da
 observadora, VLM em todos os clipes). Os dois rodam sobre o mesmo codebook, as mesmas
 especialistas e o mesmo schema (coluna `projeto`), com esforço apontado por projeto e um conjunto
-de comparação semanal — para medir o **gap de esforço** e o **gap de resultado** com número.
+de comparação semanal. A comparação é um detalhe útil, não o principal: os dois projetos
+continuam, sem data para escolher.
 Protocolo em [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-projetos-a-b.md).
 
 ## Próximos passos em aberto
