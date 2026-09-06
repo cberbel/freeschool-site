@@ -21,7 +21,7 @@ caderno do projeto.
 | [`2026-08-29-grok-arquitetura.md`](2026-08-29-grok-arquitetura.md) | Grok | Analisado — ver análise ao lado |
 | [`2026-08-29-analise-grok-arquitetura.md`](2026-08-29-analise-grok-arquitetura.md) | Nossa | Em análise — opinião, não decisão |
 | [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md) | Nossa | **Spec do Projeto B (amostrado)** — clipe ancorado em entrada, VLM como rotulador |
-| [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) | Nossa (painel de revisão) | **Spec do Projeto A (contínuo)** — revisão contra a meta de monitoramento quase contínuo |
+| [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) | Nossa (painel de revisão) | **Spec do Projeto A (contínuo)** — inclui a Revisão 2.1 (06/09): erratas, tabela de captação, DDL única, riscos, primeira semana única |
 | [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-projetos-a-b.md) | Nossa | **Decidido** — Projeto A e Projeto B em paralelo; protocolo de comparação de esforço × resultado |
 
 ## Convenções
@@ -40,7 +40,7 @@ caderno do projeto.
 passivo o dia inteiro, todas as dimensões; a observação humana vira calibração.
 
 O sistema de observação **já roda** no Supabase `ponto-escola-montessoriana`: 47 alunos
-ativos, 16 câmeras nomeadas (~15 aparelhos) em 10 espaços, 33 sessões com 3 especialistas,
+ativos, 16 câmeras nomeadas (~15 aparelhos) em 10 espaços, 33 sessões com 2 avaliadoras,
 75 entradas (40 transcritas — quase todas testes de microfone) e indexação por LLM.
 `meal_events` existe como schema, com **0 eventos**. As câmeras nunca foram inventariadas.
 
@@ -57,22 +57,23 @@ Protocolo em [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-pro
 
 Primeira semana da revisão 2 (custo zero):
 
+- [ ] **Segunda:** doc de decisões de 1 página + perguntas à escola (onde dormem; **quem são as
+      2 avaliadoras**; NVR; rede/energia; `'sala 1'`; TrackMix travada?; fps/bitrate podem mudar?).
 - [ ] **T0 — inventário técnico das câmeras** (modelo, streams, fps, PoE, NVR, mic) e
-      confirmar `'sala 1'`, "sala MEIO" e as duas lentes do pátio.
+      **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
 - [ ] Escrever o **codebook v1** (3 dimensões × 5 níveis, âncora comportamental). Uma tarde.
-- [ ] Migração mínima: `obs_codebook`, `obs_avaliacoes` com `janela_id` **e coluna `projeto`**,
-      `dev_janelas`, `obs_golden` por janela, `salas_cameras` normalizada, `materiais` vazia,
-      `bifurcacao_esforco` e `bifurcacao_resultados`; **uma chave de API por projeto**.
-- [ ] **Encomendar o piloto RFID** (banda 902–928 MHz) — lead time.
-- [ ] **T1 — go2rtc + Frigate no PC existente** com as 7 câmeras das salas; `captacao_stats`.
+- [ ] **DDL única** (Revisão 2.1): `cameras`, `dev_janelas`, `obs_codebook`, `obs_avaliacoes`,
+      `obs_golden`, `materiais`, `captacao_stats`, `reteste_cameras`, `eventos_ambiente`,
+      `bifurcacao_*` — todas com a coluna `projeto`; **uma chave de API por projeto**.
+- [ ] **Cotar** o piloto RFID (banda 902–928 MHz) e o UWB (MaUWB_ESP32S3); pedido só depois do T1, com aprovação.
+- [ ] **T1 — go2rtc + Frigate no PC existente**, começando com 3 câmeras, sem mexer em fps/bitrate; `captacao_stats`.
 - [ ] Sliders na tela de observação; T2 sincronização de relógio.
 - [ ] Projeto B, semana 2: job de clipe a partir do **NVR** (não do Frigate) e meta de
       cobertura das entradas (≈ 3 por criança por semana).
 - [ ] Semana 3: **kappa nas duas unidades** — 30 clipes de entrada (B) + 30 janelas
-      aleatórias (A) × 3 especialistas (alfa ≥ 0,6) — portão 1 e primeiro resultado da
-      bifurcação.
+      aleatórias (A), 2 avaliadoras cegas (kappa quadrático ≥ 0,6) — portão 1 e primeiro
+      resultado da bifurcação.
 - [ ] Semana 4: T5 pose offline, T6 identidade, T7 VLM, T8 teste-reteste, T9 áudio de câmera,
       T10 ativar `meal_events` → decisões de compra com número.
 
-Pendente do painel: crítico de completude e refutação dos achados 5–8 de testes (cortados
-pelo limite de uso; podem ser retomados).
+O painel terminou (3ª rodada, 06/09): crítico de completude e roadmap integrado incorporados na Revisão 2.1.

@@ -44,13 +44,13 @@ mais em resultado? Nenhuma das duas precisa de resposta rápida — precisa de d
 
 1. **Codebook v1** e o dicionário operacional — **um só**, versionado em `obs_codebook`. Os
    dois projetos pontuam com a mesma âncora comportamental.
-2. **As 3 especialistas** — as mesmas pessoas, com o tempo **apontado por projeto** (ver esforço).
+2. **As 2 avaliadoras** (a coluna `especialista` tem `claudio`, `Claudio` e `Sonia` — duas pessoas; confirmar com a escola) — as mesmas, com o tempo **apontado por projeto** (ver esforço). Com 2, a métrica é o kappa quadrático de Cohen; alfa só se entrar uma 3ª.
 3. **Schema** — `obs_codebook`, `obs_avaliacoes`, `obs_golden`, `dev_janelas`, com uma coluna
    nova: `projeto text not null check (projeto in ('A','B','comum'))`. `obs_avaliacoes` já suporta
    os dois ancoradouros (`entrada_id` **ou** `janela_id`); a coluna `projeto` diz qual pipeline
    gerou a linha. Nada mais muda.
 4. **Kappa da semana 3 (T3)** — feito **nas duas unidades**: 30 clipes de entrada (B) **e** 30
-   janelas aleatórias (A), pelas mesmas 3 especialistas, cegas. É o primeiro número da
+   janelas aleatórias (A), pelas mesmas 2 avaliadoras, cegas. É o primeiro número da
    bifurcação: **a concordância humana é diferente em "momentos que chamaram atenção" e em
    rotina?** (A revisão prevê que o acordo em rotina é menor. Se for, isso já é resultado.)
 5. **Supabase, páginas estáticas, worker Python** — a mesma stack; o Projeto B não ganha uma segunda.
@@ -163,9 +163,9 @@ create table bifurcacao_resultados (
 
 | Quando | Comum | Projeto B | Projeto A |
 | --- | --- | --- | --- |
-| Semana 1 | Codebook v1; T0 inventário; migração mínima **com a coluna `projeto`**; sliders; chaves de API separadas; `bifurcacao_esforco` criada | — | T1 captação no PC existente; RFID encomendado |
+| Semana 1 | Codebook v1; T0 inventário; DDL única (Revisão 2.1) **com a coluna `projeto`**; sliders; chaves de API separadas; `bifurcacao_esforco` criada | — | T1 captação no PC existente (3 câmeras); RFID/UWB **cotados** (pedido após o T1, com aprovação) |
 | Semana 2 | Calibração em voz alta (10 clipes + 10 janelas) | Job de clipe a partir do **NVR** (T4, versão B); especialistas passam a registrar entradas com meta de cobertura (ex.: 3 por criança por semana) | T2 sincronização |
-| Semana 3 | **T3 kappa nas duas unidades** (30 clipes + 30 janelas) → primeiro resultado | VLM sobre os clipes (Etapa 4 de 29/08) | T4 versão A (clipe de janela via Frigate) |
+| Semana 3 | **T3 kappa nas duas unidades** (30 clipes + 30 janelas, 2 avaliadoras cegas) → primeiro resultado | VLM sobre os clipes (Etapa 4 de 29/08) | T4 versão A (clipe de janela via Frigate) |
 | Semana 4 | Conjunto de comparação começa (20 janelas/semana) | Primeiro relatório semanal por criança (as que tiverem clipe) | T5–T10 |
 | Semanas 5–8 | Comparação semanal; esforço apontado | Golden B (clipes) | Golden A (janelas); sorteio diário; RFID instalado |
 | Semanas 8–16 | **Janela de comparação** (8 semanas com os dois projetos produzindo medida semanal para as mesmas crianças); intervenção planejada na semana 10 | Regime estável | Etapa 5b áudio piloto; edge se T1/T5 pediram; Etapa 6 começa |
@@ -218,7 +218,7 @@ gatilhos.
 
 1. **Tempo de especialista é o recurso escasso dos dois projetos.** B precisa de entradas; A
    precisa de janelas pontuadas; a comparação precisa de consenso. Somado, pode passar de
-   1 h/dia por especialista. Se estourar, corta-se a comparação para 10 janelas/semana antes de
+   5 h/semana por avaliadora (portão de realismo da Revisão 2.1). Se estourar, corta-se a comparação para 10 janelas/semana antes de
    cortar qualquer projeto.
 2. **O B pode "vencer" por ser a rotina que a equipe já conhece** — a utilidade percebida tem
    viés de familiaridade. Por isso os parágrafos vão cegos.

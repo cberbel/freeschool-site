@@ -4,6 +4,9 @@
 - **Revisa:** [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md) e
   [`2026-08-29-analise-grok-arquitetura.md`](2026-08-29-analise-grok-arquitetura.md)
 - **Status:** `EM ANÁLISE` — proposta; nada aqui é decisão tomada.
+- **Revisão 2.1 (06/09):** a terceira rodada do painel terminou; erratas e adendos na seção
+  [Revisão 2.1](#revisão-21--o-que-o-crítico-de-completude-acrescentou-0609), perto do fim. **Onde
+  houver conflito, vale a 2.1** — em especial: são **2 avaliadoras**, não 3.
 - **Escopo:** só engenharia. Camada jurídica fora, a pedido.
 
 ---
@@ -29,15 +32,16 @@ Painel de agentes independentes, em quatro passos: (1) cinco revisores, um por d
 os três documentos e o estado real do banco; (2) cada achado passou por um refutador com acesso
 à web, tentando derrubá-lo em duas lentes — é factualmente verdade? faz sentido prático para um
 construtor solo?; (3) um redator por dimensão escreveu a partir do que sobreviveu; (4) o crítico
-de completude e o roadmap integrado ficaram por conta do editor, porque o painel foi cortado
-duas vezes pelo limite de uso da sessão.
+de completude e o roadmap integrado ficaram por conta do editor na primeira publicação, porque o
+painel foi cortado duas vezes pelo limite de uso; na terceira rodada o painel terminou, e o
+resultado está na seção Revisão 2.1.
 
 | Dimensão | Achados | Verificados | Mantidos | Seção escrita por |
 | --- | --- | --- | --- | --- |
 | Plano de IA e medição | 8 | 8 | 4 | painel |
 | Arquitetura para fluxo contínuo | 8 | 8 | 5 | editor, a partir dos vereditos |
 | Ferramentas para começar | 8 | 8 | 6 | editor, a partir dos vereditos |
-| Como testar sem hardware novo | 8 | 4 | 1 | editor; achados 5–8 sem refutação, marcados |
+| Como testar sem hardware novo | 8 | 8 | 2 | editor; achados 5–8 verificados na 3ª rodada (ver 2.1) |
 | O que comprar de hardware | 8 | 8 | 2 | editor, a partir dos vereditos |
 
 Uma nota de leitura: "refutado" quase nunca significou "o diagnóstico estava errado". Na maioria
@@ -97,7 +101,7 @@ de vídeo estão vazias em 75/75 linhas. A única sessão em modo `gravacao` é 
 
 **1. Unidade de rótulo e composição do golden (Etapas 1 e 3)**
 - *Estava:* rótulo = clipe `[relogio − 90 s, relogio + 90 s]` recortado em torno de uma `observacao_entrada`; `obs_golden.entrada_id` referencia `observacao_entradas`; golden = 300–500 desses clipes.
-- *Passa a ser:* tabela `obs_janelas (id, aluno_id, inicio timestamptz, fim timestamptz, sala, camera_id, gerada_por text check (gerada_por in ('aleatoria','corte','ativa')), presente boolean)`. Job noturno sorteia janelas de **2 min por (sala, faixa horária)**, uniformes no dia — **não por criança**, porque a posição da criança num instante aleatório só existe a partir do UWB (Etapa 5); a avaliadora abre a câmera daquela sala naquele minuto, pontua todas as crianças visíveis e marca ausentes. Em `obs_avaliacoes`, `janela_id` obrigatório e `entrada_id` opcional; no modo vivo a janela nasce como registro de tempo no ato da entrada e o clipe é anexado depois pelo job de recorte — a Etapa 1 continua sem hardware e sem API. Regra do codebook: **nota holística da janela de 2 min conforme o próprio instrumento Leuven** (o nível que predominou/se sustentou); não adotar whole-interval (subestima duração) nem partial-interval (superestima) — são regras para ocorrência binária, não para escala ordinal. Golden = **300–500 janelas aleatórias (≥ 60% do total) + ~100 de `corte` + ≥ 10 blocos contínuos de ≥ 2 h** (manhãs inteiras das 18 crianças com autorização de imagem), para testar continuidade e fronteiras entre estados. Portão da Etapa 3: "golden fechado com ≥ 60% de janelas aleatórias e ≥ 10 blocos de ≥ 2 h". Orçamento: ~1 janela aleatória/criança/dia a ~1,5 min por janela ≈ 1,2 h/dia para 47 crianças, ≈ 30 min/dia para as 18 autorizadas; acima disso, pré-rotulagem (Etapa 4).
+- *Passa a ser:* tabela `dev_janelas` (DDL única na Revisão 2.1; `origem ∈ {entrada, sorteio, evento, corte}`, `presente boolean`). Job noturno sorteia janelas de **2 min por (sala, faixa horária)**, uniformes no dia — **não por criança**, porque a posição da criança num instante aleatório só existe a partir do UWB (Etapa 5); a avaliadora abre a câmera daquela sala naquele minuto, pontua todas as crianças visíveis e marca ausentes. Em `obs_avaliacoes`, `janela_id` obrigatório e `entrada_id` opcional; no modo vivo a janela nasce como registro de tempo no ato da entrada e o clipe é anexado depois pelo job de recorte — a Etapa 1 continua sem hardware e sem API. Regra do codebook: **nota holística da janela de 2 min conforme o próprio instrumento Leuven** (o nível que predominou/se sustentou); não adotar whole-interval (subestima duração) nem partial-interval (superestima) — são regras para ocorrência binária, não para escala ordinal. Golden = **300–500 janelas aleatórias (≥ 60% do total) + ~100 de `corte` + ≥ 10 blocos contínuos de ≥ 2 h** (manhãs inteiras das 18 crianças com autorização de imagem), para testar continuidade e fronteiras entre estados. Portão da Etapa 3: "golden fechado com ≥ 60% de janelas aleatórias e ≥ 10 blocos de ≥ 2 h". Orçamento: ~1 janela aleatória/criança/dia a ~1,5 min por janela ≈ 1,2 h/dia para 47 crianças, ≈ 30 min/dia para as 18 autorizadas; acima disso, pré-rotulagem (Etapa 4).
 - *Por quê:* entradas `corte` são amostra de eventos escolhidos pela especialista (premissa a confirmar com elas), não de tempo; modelo calibrado só nelas não é validado nas transições, esperas e filas onde a medida contínua vive. LIS-YC é definida como nota de ~2 min de observação; janela curta amostrada uniformemente no tempo é o equivalente ao momentary time sampling, que estima prevalência sem os vieses do partial/whole-interval (Devine 2011; Cook & Snyder 2020).
 
 **2. Papel e custo do VLM (Etapa 4)**
@@ -142,7 +146,7 @@ de vídeo estão vazias em 75/75 linhas. A única sessão em modo `gravacao` é 
 
 **2. Seção "Mapa de medição" antes da Etapa 1** — a tabela do bloco final, tratada como contrato, com três status honestos (JÁ MEDIDO / PASSIVO-CANDIDATO / NÃO PASSIVO, mais PARCIAL para proxies de currículo). "Passivo-candidato" só vira "sim" depois do piloto do sensor. Contagens de sensor ficam **fora** de `obs_avaliacoes` (vão para `janelas_features`).
 
-**3. Schema:** `obs_janelas`, `janelas_features`, `eventos_ambiente`, `materiais`; `janela_id` em `obs_avaliacoes` e `obs_golden`; view materializada diária de cobertura.
+**3. Schema:** `dev_janelas`, `dev_agregados` (features por janela), `eventos_ambiente`, `materiais`; `janela_id` em `obs_avaliacoes` e `obs_golden`; view materializada diária de cobertura. DDL única na Revisão 2.1.
 
 **4. `meal_golden`** — ~100 pares servida/devolvida com 2 avaliadoras cegas, consenso de `consumed_overall`, kappa reportado; coluna de versão do modelo em `meal_events` (não existe); repontuar a cada troca de modelo. Uma tarde, depois de o fluxo estar rodando de verdade (hoje: 0 eventos) — e é a primeira aplicação real do padrão golden; só então `meal_events` prova que mede.
 
@@ -239,8 +243,7 @@ de vídeo estão vazias em 75/75 linhas. A única sessão em modo `gravacao` é 
 - *Estava:* "gravação contínua no gravador local"; "detecção + tracking nas 2 salas".
 - *Passa a ser:* **uma caixa de edge por escola**, com três processos: (1) **go2rtc** (MIT) puxa
   cada câmera **uma vez** e restreama localmente — para Reolink, a recomendação oficial do
-  Frigate é **HTTP-FLV como primeira opção**, RTSP conforme a geração da câmera, e Neolink
-  (AGPL-3.0, proxy externo) como fallback para TrackMix > 8 MP, cujo RTSP nativo cai; (2)
+  Frigate é **HTTP-FLV como primeira opção**, RTSP conforme a geração da câmera, (Neolink, AGPL-3.0, **não** entra — ver 2.1); (2)
   **Frigate** (MIT) grava o main stream sem re-encode, com retenção por dias, e serve o recorte
   de clipe pela API (`/api/<cam>/start/<ts>/end/<ts>/clip.mp4`); (3) o **worker Python** lê o
   restream a 5 fps e escreve Parquet + eventos. Antes de comprar qualquer coisa de rede:
@@ -548,7 +551,7 @@ de vídeo estão vazias em 75/75 linhas. A única sessão em modo `gravacao` é 
 | --- | --- | --- | --- | --- |
 | go2rtc | atual (MIT) | MIT ✔ | Conexão única por câmera + restream local; HTTP-FLV para Reolink | Recomendação oficial do Frigate para Reolink; evita 3–4 sessões RTSP por câmera |
 | Frigate | 0.17.x | MIT ✔ | NVR: gravação sem re-encode, retenção, clipe por API, decode NVDEC | Único NVR open source com API de clipe e preset NVIDIA; **não** como cérebro |
-| Neolink | — | AGPL-3.0 | Proxy para TrackMix > 8 MP quando RTSP nativo cai | Só fallback; AGPL fica isolado num contêiner de rede, não no produto |
+| Neolink | — | AGPL-3.0 | — | **Não usar** (2.1): AGPL e desnecessário, HTTP-FLV resolve |
 | RF-DETR | `rfdetr` 1.10 | Apache-2.0 (N/S/M/L) ✔ | Detector de pessoas a 5 fps no substream | Ativo (release 09/2026), permissivo, ONNX/TensorRT; XL/2XL proibidos |
 | RT-DETRv2-S | — | Apache-2.0 ✔ | Detector alternativo | Mesma licença; repo ativo (v4 em 11/2025) |
 | ByteTrack / BoT-SORT | originais | MIT ✔ | Tracking multi-objeto | Copiar do repo original; **nunca BoxMOT (AGPL)** |
@@ -596,7 +599,7 @@ ficha técnica.
 | T0 | **Inventário técnico das câmeras.** Uma linha por câmera: fabricante, modelo, PoE/Wi-Fi, está num NVR? (canal), stream main/sub (host/canal, **sem credencial no banco**), resolução × fps × bitrate configurados, codec, HFOV, altura/ângulo, PTZ?, microfone? Ligar RTSP/HTTP e NTP. Confirmar com o dono: `'sala 1'` = `'sala 1a3'`?; "sala MEIO" é uma câmera?; pátio = 1 TrackMix com 2 lentes? | Acesso ao NVR/Reolink Client, meio dia | Dia 1–2 | 100% das câmeras de sala com stream testado (`ffprobe` no HTTP-FLV **e** no RTSP — RTSP sozinho pode dar falso negativo) | Câmera sem stream utilizável sai do plano contínuo |
 | T1 | **Prova de vida da captação.** go2rtc (HTTP-FLV p/ Reolink) + Frigate no PC existente; **detect** no substream a 5 fps (OpenVINO se houver iGPU Intel ≥ 6ª gen; senão CPU com detector leve); **record** do **main stream** (gravar não decodifica; 640×360 destruiria o golden). Registrar por minuto em `captacao_stats`: `camera_fps`, `process_fps`, `skipped_fps`, `inference_speed`, CPU, RAM, reconexões | PC comum; ~140 GB/dia para 7 câmeras em 4K → HD de 1–2 TB para 7–14 dias (a única compra possível; talvez zero se o NVR já retém) | Dias 2–5 de montagem; 15 dias úteis rodando | 5 dias × 8 h com uptime ≥ 98% por câmera; `camera_fps` ≈ configurado; `skipped_fps` = 0; CPU média < 70%. **Não** usar `detection_fps` como critério (cai a 0 em sala vazia) | CPU saturada → o número da compra de edge (seção 5). Quedas de stream → trocar protocolo (HTTP-FLV/Neolink), **não** cabo |
 | T2 | **Sincronização de relógio.** NTP (a.ntp.br) nas câmeras/NVR; gravar `now()` do servidor ao lado do `relogio` do tablet; evento de luz (acender/apagar 2×) visto nas 4 câmeras da sala 1a3 | T1 rodando | 1 dia, semana 2 | Offset ≤ 0,5 s entre câmeras (2–3 quadros a 5 fps); offset tablet↔servidor medido e gravado por sessão | Sem sincronia, "mesmo instante" não existe — bloqueia T7/T8 |
-| T3 | **Kappa humano em janelas.** 60 janelas de 2 min gravadas pelo T1 (sala 1a3 e 3a6, horários variados), as 3 especialistas pontuam cegas com o codebook v1, criança-alvo marcada por caixa no 1º quadro; **alfa de Krippendorff ordinal**; 7 dias depois, 15 janelas repontuadas sem ver a nota anterior (intra-observador). Registrar `alfa_inter, alfa_intra, n, medido_em` em `obs_codebook` | T1 + sliders; ~3 h por especialista | Semana 3 (+ 1 dia na semana 4) | Alfa inter ≥ 0,6 no agregado; intra ≥ 0,7. Por turma é diagnóstico, não portão (n pequeno) | Reescrever âncoras; repetir. **Não** avançar para modelo |
+| T3 | **Kappa humano em janelas.** 60 janelas de 2 min gravadas pelo T1 (sala 1a3 e 3a6, horários variados), as 2 avaliadoras pontuam cegas com o codebook v1, criança-alvo marcada por caixa no 1º quadro; **alfa de Krippendorff ordinal**; 7 dias depois, 15 janelas repontuadas sem ver a nota anterior (intra-observador). Registrar `alfa_inter, alfa_intra, n, medido_em` em `obs_codebook` | T1 + sliders; ~3 h por especialista | Semana 3 (+ 1 dia na semana 4) | Alfa inter ≥ 0,6 no agregado; intra ≥ 0,7. Por turma é diagnóstico, não portão (n pequeno) | Reescrever âncoras; repetir. **Não** avançar para modelo |
 | T4 | **Preencher `video_inicio_s`/`video_fim_s`.** Semântica: offsets **relativos a `relogio`** (−90/+90); `janela_*` relativos ao início do clipe; adicionar `video_path`, `video_camera`. Job: clipe pela API do Frigate (ou `reolink_aio` `NvrDownload` com início/fim arbitrários — não precisa de "blocos de 5 min"); `ffmpeg -ss … -c copy` corta em keyframe → registrar o instante real do 1º quadro (`ffprobe`); pular `modo = 'gravacao'`; 1 câmera por padrão, N só para golden/T8 | T1, T2 | 2 dias, semana 3–4 | 100% das entradas novas com sala recebem clipe em < 5 min; em 10 clipes ao acaso, o evento narrado aparece na janela em ≥ 9 | Ajustar offset/GOP |
 | T5 | **Pose infantil offline.** 200 quadros 4K estratificados por postura (em pé / sentada / agachada / de bruços), câmera e faixa (1–3, 3–6), das 18 autorizadas; anotar 100 (pré-anotar com RTMPose, corrigir); RTMPose-m via rtmlib em CPU; PCK@0,5 e OKS por postura e grupo de keypoints; altura em px da criança mais distante; confiança média de punho | Clipes do T1 | 3 dias, semana 4 | PCK@0,5 ≥ 0,7 em pé/sentada (cabeça+ombros+punhos), ≥ 0,5 agachada/de bruços; altura ≥ 150 px; punho > 0,5 em ≥ 70% dos quadros | Parcial → plano B (caixa + orientação de cabeça). Total numa câmera → reposicionar "sala MEIO" (grátis) e repetir; se persistir, 2 câmeras fixas oblíquas por sala (seção 5) |
 | T6 | **Persistência de identidade.** RF-DETR-N + ByteTrack a 5 fps em 10 min × 3 câmeras da sala 1a3 (mesmo intervalo); auditoria manual a cada 5 s de qual criança está em cada track; opcional: marcador visual na peça usada o dia inteiro (topo/ombros/costas), como verdade "entre avistamentos" | T1, T2 | 2 dias, semana 4 | **Sem portão** — mede: mediana e p90 de duração de track, trocas por criança-hora, fração recuperável por fusão entre câmeras | Mediana < 60 s (esperado) → UWB obrigatório; fusão recupera > 50% → começar com 2 âncoras por sala |
@@ -616,9 +619,11 @@ ficha técnica.
 | Sono | Confirmar **onde** é a sesta (as salas 1a3/3a6 já têm câmera; a lista de 10 espaços não tem "sala de sono") | Só se a sesta for em espaço sem câmera |
 | Retenção de vídeo > alguns dias | Depende do disco que existe | T1 → HD |
 
-Achados 5–8 da dimensão de testes **não passaram pela refutação** (limite de uso); o protocolo
-acima já incorpora as correções que os vereditos das outras dimensões impõem a eles (kappa não
-pode usar as transcrições; pose em CPU só offline; VLM com recorte; T6 sem portão).
+Achados 5–8 da dimensão de testes foram refutados na terceira rodada (todos os quatro, na
+prescrição): kappa não pode usar as transcrições e são 2 avaliadoras; pose offline mede com
+OKS/AP e ~120 quadros corrigidos, não PCK em 100; o VLM custa pela saída com thinking (usar
+`effort = 'low'`); T6 não dimensiona âncoras UWB (≥ 3 por sala é geometria). A tabela acima já
+reflete isso; detalhes na Revisão 2.1.
 
 ---
 
@@ -691,9 +696,10 @@ de decodificação errada, lista que não se conecta) — a tabela abaixo é a v
 
 ### Lista por prioridade
 
-Câmbio assumido R$ 5,50/US$. Preços marcados ✔ foram verificados pelo painel; os demais são
-ordem de grandeza **não verificada** (lojas e distribuidores bloqueados pelo proxy) — cotar
-com data antes de comprar.
+Câmbio assumido R$ 5,50/US$ (verificado em 05/09: R$ 5,12). **As conversões abaixo não incluem
+imposto de importação** — acima de US$ 50 são 60% − US$ 30 + ICMS 17–20%, o que quase dobra o
+preço "landed" (ver 2.1). Preços marcados ✔ foram verificados pelo painel; os demais são ordem
+de grandeza **não verificada** — cotar com data antes de comprar.
 
 | # | Item | Spec mínima | Faixa de preço | Pré-requisito de teste | Por quê |
 | --- | --- | --- | --- | --- | --- |
@@ -704,8 +710,8 @@ com data antes de comprar.
 | 4 | **Câmeras fixas** | 2 × 4K PoE oblíquas por sala principal, a 2,5–3 m, campos sobrepostos. Reolink RLC-810A (8 MP, 87° HFOV, fixa) ✔ US$ 90–130 ou Intelbras VIP 3830 IA (preço BR não verificado) | US$ 90–130 cada ✔ (BR não verificado) | **T5 reprova** px/mão numa sala, depois de tentar reposicionar a "sala MEIO" | Não comprar antes de medir nas câmeras reais |
 | 5a | **Gravador vestível (piloto de linguagem)** | 5 gravadores de lapela USB leves, no mesmo colete/camiseta do UWB; formato que sobreviva a criança de 1–3 anos | R$ 150–300 cada (não verificado) | T9 feito; Etapa 5b aprovada; codebook de linguagem escrito | Única forma de "linguagem por criança"; LENA descartado |
 | 5b | **Array de sala (opcional)** | ReSpeaker XVF3800 4 mics, 1–2 por sala, teto ~2,5 m | US$ 50–55 cada (não verificado) | T9 mostra que o mic de câmera não serve nem para clima sonoro | Só clima sonoro/DOA; nunca "quem falou" sozinho |
-| 6 | **RFID piloto** (1 estante, 30 materiais, 2 semanas) | Leitor UHF 4 portas classe Chainway/Chafon, **banda 902–928 MHz**, 1 antena far-field/estante em potência baixa (near-field como fallback), 100 tags passivas; tabela `materiais` no banco | US$ 150–700 leitor (cotar) + antena + tags ≈ **R$ 2–4 k** (não verificado) | **Encomendar na semana 1** (lead time de importação); instalar após o kappa | Portão de acurácia: ≤ 2% falsos "retirou" em 50 passagens a 30 cm; ≥ 95% retiradas detectadas em < 2 s |
-| 7 | **UWB piloto** (4 âncoras + 5 tags, 2 semanas) | 9 × Makerfabs ESP32 UWB DW3000 + 5 LiPo 500 mAh + caixas + carregador; trilateração própria no edge; MQTT a 1 Hz | US$ 43,80/placa (não verificado) ≈ **R$ 2,7 k** com baterias/caixas | **T6 mede** a fragmentação; RFID piloto passou | Portão: mediana ≤ 30 cm e p90 ≤ 60 cm **com crianças presentes** (NLOS); tag intacta e bateria ≥ 8 h em 100% dos dias; nenhuma retirada pela criança em > 1 de 10 dias. Riscos: escalar TDMA 8 → 55 tags; bateria sem deep sleep ~5–8 h; volume da tag em 1–3 anos. Alternativa comercial por orçamento (Sewio, Pozyx Enterprise) |
+| 6 | **RFID piloto** (1 estante, 30 materiais, 2 semanas) | Leitor UHF 4 portas classe Chainway/Chafon, **banda 902–928 MHz**, 1 antena far-field/estante em potência baixa (near-field como fallback), 100 tags passivas; tabela `materiais` no banco | US$ 150–700 leitor (cotar) + antena + tags ≈ **R$ 2–4 k** (não verificado, sem imposto) | **Cotar nas semanas 1–2; pedir no fim da semana 2 se o T1 provar captação, com aprovação do dono** (ver 2.1); instalar após o kappa | Portão de acurácia: ≤ 2% falsos "retirou" em 50 passagens a 30 cm; ≥ 95% retiradas detectadas em < 2 s |
+| 7 | **UWB piloto** (4 âncoras + 5 tags, 2 semanas) | 9 × Makerfabs **MaUWB_ESP32S3** (comandos AT, 8 âncoras + 64 tags/rede) + 5 LiPo 500 mAh + caixas + carregador; trilateração própria no edge; MQTT a 1 Hz; alternativa DWM3001CDK ≈ US$ 30 | US$ 54,80/placa (não verificado) ≈ **R$ 3,3–5 k landed** com imposto (ver 2.1) | **T6 mede** a fragmentação; RFID piloto passou | Portão: mediana ≤ 30 cm e p90 ≤ 60 cm **com crianças presentes** (NLOS); tag intacta e bateria ≥ 8 h em 100% dos dias; nenhuma retirada pela criança em > 1 de 10 dias. Riscos: escalar TDMA 8 → 55 tags; bateria sem deep sleep ~5–8 h; volume da tag em 1–3 anos. Alternativa comercial por orçamento (Sewio, Pozyx Enterprise) |
 | 8 | **Marcador visual** | Impresso em tecido/termocolante na peça usada o dia inteiro, 18 autorizadas | ≈ R$ 100 | Antes do T6 | Verdade de identidade "entre avistamentos" para medir o tracker; não substitui UWB |
 | 9 | **Câmera IR na sala de sesta** | 1 × PoE com IR | US$ 90–130 (não verificado) | Só se a sesta for em espaço **sem** câmera (confirmar) | Sono só entra com sensor |
 | — | **Escala** (depois dos pilotos passarem) | 12 âncoras + 55 tags UWB ≈ 67 placas; 2 leitores RFID + 8 antenas + 500 tags; 47 gravadores vestíveis; 17 câmeras em fps fixo | UWB ≈ R$ 16 k + R$ 3 k; RFID R$ 8–25 k; vestíveis R$ 7–14 k (tudo não verificado) | Todos os portões de piloto | Não orçar escala antes de os pilotos produzirem número |
@@ -735,9 +741,9 @@ câmeras**; **compras só com número medido**.
 
 | Quando | O quê | Portão | Custo acumulado |
 | --- | --- | --- | --- |
-| Semana 1 | Codebook v1 (uma tarde) · T0 inventário técnico (meio dia) · migração mínima (`obs_codebook`, `obs_avaliacoes` com `janela_id`, `dev_janelas`, `obs_golden` por janela, `salas_cameras` normalizada, `materiais` vazia) · sliders na página · T1 montado no PC existente · **encomendar piloto RFID** | 100% das câmeras de sala com stream testado | R$ 0 (+ RFID em trânsito ≈ R$ 2–4 k) |
+| Semana 1 | Codebook v1 (uma tarde) · T0 inventário técnico (meio dia) · migração única (DDL da 2.1: `cameras`, `dev_janelas`, `obs_*`, `materiais`) · sliders na página · T1 montado no PC existente com 3 câmeras · **cotar** piloto RFID/UWB (pedido só após o T1, com aprovação) | 100% das câmeras de sala com stream testado; N de main streams do NVR registrado | R$ 0 |
 | Semana 2 | T1 rodando · T2 sincronização · sexta: calibração em voz alta com 10 janelas do T1 · começa o dicionário operacional por domínio (2–3 semanas, em paralelo) | Uptime ≥ 98% por câmera em 5 dias | R$ 0 (talvez 1 HD) |
-| Semana 3 | **T3 kappa** em 60 janelas × 3 especialistas · T4 job de clipe | **Portão 1:** alfa inter ≥ 0,6 — senão reescrever âncoras e repetir | R$ 0 |
+| Semana 3 | **T3 kappa** em 60 janelas × 2 avaliadoras · T4 job de clipe | **Portão 1:** alfa inter ≥ 0,6 — senão reescrever âncoras e repetir | R$ 0 |
 | Semana 4 | T5 pose offline · T6 identidade · T7 VLM · T8 teste-reteste · T9 áudio de câmera · T3 intra-observador · T10 `meal_events` ativado | Decisões de compra **com número**: GPU sim/não, câmera sim/não, UWB quantas âncoras, mic de câmera serve? | < US$ 5 de API |
 | Semanas 5–6 (Etapa 3 revista) | Sorteio diário de janelas por sala × hora · golden ≥ 60% aleatórias + ≥ 10 blocos contínuos de ≥ 2 h · `meal_golden` · RFID piloto instalado quando chegar | Golden fechado; RFID: ≥ 95% retiradas, ≤ 2% falsos | R$ 2–4 k |
 | Semanas 6–8 (Etapa 4 revista) | VLM como rotulador amostrado (2–4 k janelas/mês) · calibração contínua semanal (20 janelas, alfa em janela móvel de 4 semanas) | Alfa modelo ≥ 0,7 × alfa humano | + ≈ US$ 120–245/mês |
@@ -781,6 +787,9 @@ câmeras**; **compras só com número medido**.
 
 ## Primeira semana depois desta revisão
 
+- **(Esta primeira semana foi substituída pela versão única da Revisão 2.1 — mantida aqui como
+registro.)**
+
 - **Segunda:** manhã — T0: abrir cada câmera/NVR, anotar modelo, streams, fps, bitrate, PoE,
   microfone; ligar RTSP/HTTP e NTP; confirmar com a equipe o que é "sala 1", "sala MEIO" e as
   duas lentes do pátio. Tarde — codebook v1 (3 dimensões × 5 níveis, âncora comportamental).
@@ -792,22 +801,346 @@ câmeras**; **compras só com número medido**.
   no substream a 5 fps; record do main); `captacao_stats` gravando — T1 começa.
 - **Quinta:** sliders na página de observação (3 dimensões, 15 s por entrada); T2 evento de
   luz + `now()` do servidor ao lado do `relogio`.
-- **Sexta:** as 3 especialistas pontuam em voz alta 10 janelas de 2 min **gravadas pelo T1**
+- **Sexta:** as 2 avaliadoras pontuam em voz alta 10 janelas de 2 min **gravadas pelo T1**
   (não as transcrições), calibrando a leitura do codebook antes do kappa cego da semana 3.
 
 Custo da semana: R$ 0 em hardware, R$ 0 em API — mais o RFID em trânsito.
 
 ---
 
+## Revisão 2.1 — o que o crítico de completude acrescentou (06/09)
+
+A terceira rodada do painel terminou completa (52 agentes): as 4 refutações que faltavam, as
+4 seções que o painel escreveu por conta própria, um crítico de completude com 10 lacunas e
+um roadmap integrado. Esta seção registra o que muda em relação ao texto acima. Onde o adendo
+contradiz uma seção anterior, **vale o adendo**; o texto anterior fica como está para
+preservar o raciocínio.
+
+### Erratas — o que estava errado nas seções acima
+
+| Onde | Estava | Passa a ser | Fonte |
+| --- | --- | --- | --- |
+| Toda a revisão e a bifurcação | "3 especialistas" | **2 avaliadoras** (a coluna `especialista` tem `claudio`, `Claudio` e `Sonia`; `count(distinct)` contou 3). Confirmar com a escola quem são e quantas horas/semana cada uma pode dar. Com 2 avaliadoras, **kappa quadrático de Cohen** basta (equivale ao alfa ordinal); alfa só se entrar uma 3ª | banco, 05/09 |
+| Seção 1, "Plano de IA" | tabela `obs_janelas` | **`dev_janelas`** — uma só tabela de janela, com `origem ∈ {entrada, sorteio, evento, corte}` | lacuna 3 |
+| Seção 2, item 2 | Neolink como fallback | **Neolink sai de todas as seções** — AGPL-3.0 e desnecessário: HTTP-FLV via go2rtc é a recomendação oficial do Frigate para Reolink | lacuna 2 |
+| Seção 2, itens 1 e 6 | fps do main "5–10"; retenção "14 dias" | Ver **tabela de captação v0** abaixo: main a **15 fps** (motor grosso a 5 fps é inanalisável — um salto de 400 ms são 2 quadros; em Reolink o bitrate independe do fps); retenção operacional **3 dias no piso, 7–14 se o disco permitir**, com cópia para o Storage do que precisa sobreviver | lacuna 1 |
+| Seção 5, item 7 | "9 × Makerfabs ESP32 UWB DW3000, US$ 43,80/placa" | **Makerfabs MaUWB_ESP32S3** (US$ 54,80, não verificado): STM32 pré-programado com comandos AT, **8 âncoras + 64 tags por rede**, precisão declarada 0,5 m — não exige firmware de rádio, só trilateração em Python. Alternativa: Qorvo DWM3001CDK ≈ **US$ 30** (não US$ 130–150), com firmware sobre o QM33 SDK. Texto: "10–30 cm em linha de visada; planejar 30–50 cm com corpos no caminho"; portão do piloto **p90 ≤ 60 cm com crianças presentes** (o critério de 30 cm sai) | seção do painel + lacuna 7 |
+| Seção 5, todos os itens em US$ | conversão a R$ 5,50 sem imposto | Câmbio verificado 05/09: **R$ 5,12**; **imposto de importação** acima de US$ 50: 60% − US$ 30 + ICMS 17–20% → um XVF3800 de US$ 54 chega perto de **R$ 450**; UWB piloto ≈ **R$ 3,3–5 k landed** (não R$ 2,7 k); UWB escala 67 placas ≈ R$ 19–24 k + baterias/caixas ≈ R$ 3 k | seção do painel |
+| Seção 5, item 6 e roadmap | "encomendar o piloto RFID na semana 1" | **Cotação nas semanas 1–2; pedido só no fim da semana 2, se o T1 provar captação, com aprovação do dono**; instalação após o kappa e a chegada (importação 30–60 dias) | lacuna 7 |
+| Seção 4, T5 | "PCK@0,5" | **OKS/AP** (PCK sem normalização definida não é reprodutível; PCKh é frouxo em criança porque a cabeça é proporcionalmente grande). 100 quadros não sustentam estratificação postura × faixa × câmera × grupo de keypoints — colapsar estratos ou anotar ~120 quadros com correção sobre RTMPose pré-anotado (6–10 min/quadro com 3–8 crianças, não 2) | veredito T6 |
+| Seção 4, T7 | "< US$ 5" | Em `claude-opus-5` o custo é dominado pela **saída com thinking** (US$ 25/M): 180 requisições × 1–3 k tokens de raciocínio = US$ 4,5–13. Usar `output_config.effort = 'low'`; limite de imagem no Opus 5 é 2.576 px / 4.784 tokens, não 1.568 px | veredito T7 |
+| Seção 4, T6 | "se a fusão entre câmeras recupera > 50%, começar com 2 âncoras" | **Errado**: trilateração 2D exige ≥ 3 âncoras (4 em 3D); o número de âncoras é geométrico, não depende do tracker. T6 vira baseline sem portão; a acurácia real do tracker vem da Etapa 5, contra as tags, todo dia | veredito T8 |
+| Correções de fato | offsets de `relogio` "−3 a −70 s" | Medidos contra `now()` do servidor: **+40 s** (24/08 17:43) e **−14 s** (24/08 18:24 em diante; 03/09), no mesmo PC — quase metade da margem de ±90 s do clipe. Gravar `relogio_servidor` e aplicar `offset_s` no corte | veredito T4 |
+| Seção 4, T0 | substream "640×360" | Fixo em 640×360 **só na TrackMix**; vários modelos 4K Reolink têm substream 896×512. Ler da câmera, não assumir | veredito T6 |
+| Seção 1, mapa | Sono "PASSIVO-CANDIDATO" | **NÃO PASSIVO** até a escola responder onde e quando cada agrupada dorme e se há câmera ali | lacuna 5 |
+
+### Vereditos que oscilaram entre as duas rodadas
+
+A verificação adversarial rodou duas vezes em 12 achados (a segunda rodada refez alguns em vez
+de reaproveitar). Onde as duas rodadas discordaram, o achado está marcado **"dividido"** no
+apêndice — leia como "diagnóstico aceito, prescrição em disputa", e não como veredito. São
+eles: contas de 17 câmeras (arquitetura 1), modelo de dados (arquitetura 3), áudio contínuo
+(arquitetura 5), ingestão/decodificação (ferramentas 2), detector e tracker (ferramentas 3),
+pose e modelo temporal (ferramentas 4), anotação (ferramentas 7), stack mantida (ferramentas
+8), ativos que já existem (testes 1), caixa de edge (hardware 2), armazenamento (hardware 3),
+linguagem sem captação (hardware 5). Nenhum deles muda uma decisão: em todos os casos o que
+está em disputa é número, produto ou ordem — que a tabela de captação, a linha de stack e o
+roadmap abaixo fixam.
+
+### Tabela de captação v0 (uma só; substitui as quatro contas das seções)
+
+Escrita agora; a coluna "medido" é preenchida no T0/T1 e a conta é refeita **uma vez**.
+
+| Parâmetro | Decisão v0 | Medido (T0/T1) |
+| --- | --- | --- |
+| Aparelhos | 15–16 ("sala MEIO" é 1 aparelho em 2 salas; pátio provavelmente 1 TrackMix) | — |
+| Canais no NVR | = aparelhos (TrackMix = 1 canal) | — |
+| Streams de inferência | = aparelhos + 1 (TrackMix = 2 lentes) → 16–17 | — |
+| Resolução gravada (main) | 4K nativo, sem downscale (TrackMix: resolução/codec fixos, só fps) | — |
+| fps do main | **15** (bitrate independe do fps em Reolink) | — |
+| fps de inferência | **5** nas 7 câmeras das salas (envolvimento, autonomia, social); **15** em "Patio (Ângulo largo)" + PATIO-B nas faixas de pátio (motor grosso); **2** nos outros 7 espaços (presença) | — |
+| Codec / bitrate | H.265, CBR "fluency first" 4–8 Mbps (faixa da TrackMix; hipótese para as demais) | por câmera, 72 h, ffprobe/iftop |
+| Detecção | substream (640×360 TrackMix; 896×512 em vários 4K) a 5 fps; OpenVINO CPU/iGPU até haver GPU | — |
+| Retenção operacional | **3 dias** no piso (é o que o plano exige); 7–14 se o disco permitir. Expurgo: vídeo bruto → clipes não-golden → nunca Parquet nem golden | — |
+| Cópia para o Storage | clipes de janela com rótulo, golden (permanente), reteste entre câmeras, 10 quadros/dia/câmera para vigilância; nunca vídeo contínuo | — |
+| GB/dia (17 × 9 h) | 275–551 GB/dia → 3 dias = 0,8–1,7 TB; 7 câmeras = 113–227 GB/dia | refazer com o bitrate medido |
+| Decodificação | 17 × 15 fps = 255 quadros 4K/s ≈ 2,1 Gpixel/s — cabe em 1 NVDEC (Ada ≈ 3,4) ou QuickSync; medir com `ffmpeg -hwaccel` antes de comprar | — |
+| Disco | 2 × WD Purple 8 TB independentes (R$ 2,2–4,2 k, a verificar); 1 cobre 3 dias das 17; o 2º é folga e cópia local do golden | — |
+| Alteração na câmera | fps 25 → 15 e CBR **alteram a gravação de segurança da escola** — só depois de confirmar com a direção. T1 começa sem mexer em nada | — |
+| "sala MEIO" ajustável | posição fixada por foto + linha em `eventos_ambiente` a cada mudança | — |
+
+### Linha de stack v0 (uma só, para todas as seções)
+
+`pipeline-v0` = go2rtc (HTTP-FLV, 1 conexão/câmera) → Frigate 0.17.2 (record + detect
+OpenVINO no substream) → worker Python 3.12/uv: **RF-DETR-S** (`rfdetr`, Apache-2.0;
+alternativa RT-DETRv2-S) → **ByteTrack** (código copiado, MIT) → **rtmlib + RTMO-s** (ONNX
+Runtime) no contínuo; RTMPose-m só em recortes do golden; Silero VAD no áudio de zona;
+pyannote community-1 + faster-whisper só na amostra; Parquet (pyarrow) + DuckDB; sem mmcv no
+worker (MMPose 1.3.2 só no contêiner de treino). **Nada de YOLOX, MMDetection, Neolink,
+BoxMOT, MediaPipe.** T5, T6 e o baseline de tracker usam exatamente isto — resultado com
+YOLOX é descartado. GPU: nenhuma antes de T1 + T5 + golden fechado; quando comprar, RTX 5060
+Ti 16 GB. Registro: linha `pipeline-v0` em `obs_codebook` e coluna `pipeline_versao` em
+`dev_eventos`, `dev_agregados`, `captacao_stats`, `reteste_cameras`.
+
+### DDL única da semana 1 (substitui os trechos de schema das seções 1 e 2)
+
+Inclui a coluna `projeto` da bifurcação. `dev_eventos`, `dev_agregados`, `dev_ligacoes` e as
+tabelas de cobertura **não** entram agora — nascem com o primeiro produtor automático (semana
+4+), como a seção 2 já dizia.
+
+```sql
+-- entidade câmera (sem credenciais: salas_cameras tem SELECT público)
+create table cameras (
+  id            text primary key,              -- 'sala1a3-A', 'patio-largo', ...
+  sala          text not null references salas_cameras(sala),
+  nome          text not null,
+  aparelho      text,                          -- id físico; 'sala MEIO' tem 1 aparelho em 2 salas
+  fabricante    text, modelo text, firmware text,
+  canal_nvr     smallint, host_nvr text,
+  protocolo     text check (protocolo in ('rtsp','http-flv')),
+  path_main     text, path_sub text,           -- só o caminho, nunca usuário/senha
+  res_main      text, fps_main smallint, bitrate_kbps_main int,
+  res_sub       text, fps_sub smallint,
+  codec         text, hfov_graus smallint, altura_m numeric, ptz boolean,
+  tem_mic       boolean, tem_stream boolean,
+  fps_deteccao  smallint, fps_pose smallint,   -- da tabela de captação v0
+  verificado_em timestamptz
+);
+
+create table obs_codebook (
+  versao text primary key, descricao text not null, dimensoes jsonb not null,
+  vigente_de date not null, vigente_ate date,
+  kappa_inter numeric, kappa_intra numeric, n_clipes int, medido_em date, decisoes jsonb
+);
+
+create table dev_janelas (
+  id          uuid primary key default gen_random_uuid(),
+  projeto     text not null check (projeto in ('A','B','comum')),
+  aluno_id    uuid references alunos(id),      -- null até haver identidade (UWB) ou marcação manual
+  camera_id   text references cameras(id),
+  sala        text not null references salas_cameras(sala),
+  inicio      timestamptz not null,
+  fim         timestamptz not null,
+  duracao_s   int generated always as (extract(epoch from (fim - inicio))::int) stored,
+  origem      text not null check (origem in ('entrada','sorteio','evento','corte')),
+  entrada_id  uuid references observacao_entradas(id),
+  clip_path   text,                            -- bucket observacao-video
+  janela_rotulo_inicio_s smallint default 30,  -- 2 min centrais do clipe de 3 min
+  janela_rotulo_fim_s    smallint default 150,
+  presente    boolean,                         -- 'criança fora do quadro' é resultado válido
+  criado_em   timestamptz not null default now()
+);
+create index on dev_janelas (sala, inicio);
+create index on dev_janelas (aluno_id, inicio);
+
+create table obs_avaliacoes (
+  id uuid primary key default gen_random_uuid(),
+  projeto    text not null check (projeto in ('A','B','comum')),
+  janela_id  uuid not null references dev_janelas(id) on delete cascade,
+  entrada_id uuid references observacao_entradas(id),
+  aluno_id   uuid not null references alunos(id),
+  avaliador  text not null,                    -- sempre lower(trim())
+  avaliador_tipo text not null check (avaliador_tipo in ('humano','modelo')),
+  envolvimento smallint check (envolvimento between 1 and 5),
+  autonomia    smallint check (autonomia between 1 and 5),
+  persistencia smallint check (persistencia between 1 and 5),
+  contexto text, material text, adulto_proximo boolean,
+  confianca smallint check (confianca between 1 and 5),
+  modelo text, codebook_versao text not null references obs_codebook(versao),
+  em timestamptz not null default now(),
+  unique (janela_id, aluno_id, avaliador, codebook_versao)
+);
+
+create table obs_golden (
+  janela_id uuid primary key references dev_janelas(id),
+  projeto   text not null check (projeto in ('A','B','comum')),
+  incluido_em date not null default current_date,
+  motivo text, consenso jsonb, permanente boolean not null default true
+);
+
+create table materiais (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null, area text, sala text references salas_cameras(sala),
+  tag_epc text unique, estante text, criado_em timestamptz default now()
+);
+
+create table captacao_stats (
+  ts timestamptz not null, camera_id text references cameras(id),
+  camera_fps numeric, process_fps numeric, skipped_fps numeric, detection_fps numeric,
+  cpu_pct numeric, ram_mb int, pipeline_versao text not null, primary key (ts, camera_id)
+);
+
+create table reteste_cameras (
+  instante timestamptz, cam_a text references cameras(id), cam_b text references cameras(id),
+  metrica text, valor numeric, pipeline_versao text, primary key (instante, cam_a, cam_b, metrica)
+);
+
+create table eventos_ambiente (
+  id uuid primary key default gen_random_uuid(), sala text, camera_id text references cameras(id),
+  data date not null, tipo text not null, descricao text
+);
+
+create table bifurcacao_esforco (
+  id uuid primary key default gen_random_uuid(), semana date not null,
+  projeto text not null check (projeto in ('A','B','comum')),
+  categoria text not null check (categoria in ('construcao','operacao','especialista','hardware_brl','api_usd','outro')),
+  quantidade numeric not null, quem text, nota text
+);
+
+create table bifurcacao_resultados (
+  semana date not null, projeto text not null check (projeto in ('A','B')),
+  metrica text not null, valor numeric, n integer, nota text,
+  primary key (semana, projeto, metrica)
+);
+
+alter table observacao_sessoes add column relogio_servidor timestamptz, add column offset_s numeric;
+alter table observacao_entradas
+  add column video_path text, add column video_camera text references cameras(id),
+  add column video_ref_inicio timestamptz;
+comment on column observacao_entradas.video_ref_inicio is 'instante real do 1º quadro do clipe (ffprobe após o corte)';
+comment on column observacao_entradas.video_inicio_s   is 'offset em s relativo a relogio (−90)';
+comment on column observacao_entradas.video_fim_s      is 'offset em s relativo a relogio (+90)';
+
+update observacao_sessoes set especialista = lower(trim(especialista));
+-- só após confirmação com a Sonia:
+-- update observacao_entradas set sala = 'sala 1a3' where sala = 'sala 1';
+-- alter table observacao_entradas add foreign key (sala) references salas_cameras(sala);
+```
+
+Decisões escritas junto com a DDL: rótulo humano = **2 min centrais** (LIS-YC) de um clipe de
+**3 min** (±30 s de contexto); feature = **5 min**; um trigger cria `dev_janelas(origem =
+'entrada', projeto = 'B')` para cada entrada com sala — o fluxo humano do Projeto B não muda;
+o sorteio cria janelas com `projeto = 'A'`; o conjunto de comparação cria com `projeto =
+'comum'`.
+
+### Linguagem: regime declarado para o ano 1
+
+**Regime amostrado-rotativo** (`PASSIVO-AMOSTRADO` no mapa de medição): 8–10 gravadores
+vestíveis, cada criança 1 dia por semana, bolso costurado; 1 pessoa da escola recarrega e
+descarrega por USB no fim do dia (~20 min/dia). Arrays de sala só para clima sonoro. O regime
+contínuo (47 gravadores, ~R$ 25 k + estação de carga + operação diária de 47 aparelhos + 16–39
+GPU-h/dia de diarização — não cabe na placa da visão) só volta à mesa se o piloto de 2
+semanas com 5 crianças fechar **quatro números**: (1) RTF real do pyannote na GPU alvo;
+(2) drift entre gravadores (palma no início e no fim do dia; quartzo de consumo deriva ~0,6 s
+em 8 h, a verificar); (3) minutos/dia de operação efetiva por gravador; (4) precisão/recall da
+atribuição "portadora vs outra criança" em 20 janelas com contagem manual (ICC ≥ 0,7). A
+atribuição por canal de maior energia **exige alinhamento entre gravadores** (job de
+correlação cruzada por blocos de 10 min) — que não estava em nenhum pipeline.
+
+### Sono e motor grosso: sensor de fato
+
+**Sono:** pergunta à escola na segunda da semana 1 — onde e quando cada agrupada dorme, e se há
+câmera nesse espaço. Até a resposta, `NÃO PASSIVO`; se houver espaço sem câmera, decisão de
+compra explícita (câmera IR fixa ≈ R$ 900–1.300 landed, a verificar; actígrafo de pulso para
+47 crianças é inviável em preço e software).
+
+**Motor grosso:** acontece no pátio, e o pátio estava fora de todos os sensores (UWB em 3
+salas; TrackMix travada ou excluída; pose a 2 fps). Correção: "Patio (Ângulo largo)" + PATIO-B
+como câmeras de pose a **15 fps nas faixas de pátio**; **+4 âncoras UWB no pátio** no piloto de
+escala (≈ R$ 1,5–2,2 k landed); TrackMix travada em Monitor Point com auto-tracking desligado
+— se a escola não aceitar (perde a função de segurança), a TrackMix sai da visão e só PATIO-B
+cobre o pátio. Se (a) e (b) falharem, motor grosso é reclassificado como "tarefa eliciada
+trimestral (TGMD-3 filmado em PATIO-B) + eventos grosseiros da câmera fixa".
+
+### Carga humana com 2 avaliadoras (portão de realismo: > 5 h/semana por avaliadora → cortar)
+
+| Semanas | Cada avaliadora | Construtor (estimativa) | Escola |
+| --- | --- | --- | --- |
+| S1–2 | 1 h (voz alta + sliders nas entradas novas) | ~40 h/sem | 1 h (perguntas da S1, acesso ao NVR) |
+| S3 | 2,5 h (kappa: 60 clipes × 2,5 min) + 2 h (correção de 60 quadros de pose pré-anotados) = **4,5 h** | 35 h/sem | — |
+| S4 | 0,7 h (reteste 15 clipes) + 1 h (sorteio) + 0,4 h (20 janelas duplas/sem) ≈ 2,1 h | 30 h/sem | — |
+| S5–12 | 1 h sorteio + 0,4 h duplas + 1,25 h blocos (10 blocos de 1 h ÷ 8 sem) + `meal_golden` ≈ **2,8 h** | 20–25 h/sem | 5 min/dia foto da refeição |
+| S9–14 (pilotos) | + 0,5 h (20 janelas de vocalização/proximidade com contagem manual) ≈ 3,3 h | 25 h/sem | 20 min/dia recarga de gravadores (S13–14) |
+
+Cortes já aplicados para caber: golden **300** (não 500); blocos contínuos de **1 h** (não
+≥ 2 h); anotação de pose só como correção sobre RTMPose pré-anotado (~120 quadros; as ≥ 1.000
+instâncias do fine-tune ficam para o mês 5+, com terceirização a orçar); VLM amostrado
+limitado ao que 10% de revisão humana comporta (≤ 1.000 janelas/mês); **teto único de API
+US$ 150/mês** em `obs_config`. Instrumentos-âncora reduzidos ao mínimo da Etapa 7: ASQ-BR
+(pais, trimestral, licença BR a verificar), HTKS-R (gratuito, ≥ 3 anos, semestral), TGMD-3
+(kit US$ 183, semestral, filmado em PATIO-B), MB-CDI BR "Palavras e Gestos" (≤ 30 meses, pais);
+PDMS-3 (US$ 820, 45–60 min/criança) só com fisioterapeuta/TO parceiro.
+
+### Custo total do ano 1 (capex + opex + horas), sem pressa de gastar nada
+
+| Cenário | Capex ano 1 | Opex mensal | Horas |
+| --- | --- | --- | --- |
+| Mínimo (2 salas, 7 câmeras, edge, pilotos) | ≈ **R$ 26–35 k** (inclui 12 × Supabase Pro, 8 × API no teto, energia R$ 0,8–3 k, TGMD-3) | Supabase Pro US$ 25 + API ≤ US$ 150 ≈ R$ 900 + energia da caixa 24/7 (~250 kWh/mês; R$ 100–370, tarifa a verificar na conta) | construtor ≈ 1.000–1.200 h/ano (estimativa); cada avaliadora ≈ 110–130 h/ano |
+| Recomendado (16–17 streams, UWB em 3 salas + pátio, RFID em 2 salas, áudio amostrado) | ≈ **R$ 63–89 k** (+ R$ 0–6 k câmeras condicionais) | idem | idem |
+| Opcionais | + LENA R$ 31–33 k; + linguagem contínua ≈ R$ 25 k + compute a orçar | — | + 1 h/dia de operação de gravadores |
+
+Expectativa honesta, por marco: mês 3 = kappa medido, golden ≥ 300, alimentação medida com
+`meal_golden`, piloto RFID rodando; mês 6 = envolvimento contínuo em 2 salas com cobertura
+reportada; mês 7–8 = **primeira dimensão passiva validada** (envolvimento); mês 12 = curvas
+longitudinais com cobertura para envolvimento, alimentação e autonomia; linguagem no regime
+amostrado; sono só se houver espaço com câmera. Nenhuma dimensão além de alimentação vira
+"medida" antes do mês 7 — e isso é normal para um sistema que pretende ser o melhor do mundo.
+
+### Riscos técnicos com dono, teste e data
+
+| Risco | Dono | Teste | Quando |
+| --- | --- | --- | --- |
+| **NVR Reolink limita streams simultâneos** (relato: 12 = 2 main + 10 sub; página oficial bloqueada — **não verificado**). Se for assim, 16–17 main 4K para pose são impossíveis sem tirar as câmeras da sub-rede do NVR, e o switch PoE vira obrigatório | construtor | T0: abrir N main streams em paralelo com `ffprobe` até falhar; registrar N. Se N < câmeras de sala → switch PoE 24p (R$ 2–3 k, a verificar) sobe para junto dos discos | terça S1 |
+| Sincronia entre fontes (câmeras NTP; UWB MQTT 1 Hz; RFID Ethernet; gravadores autônomos; navegador +40/−14 s) | construtor | `dev_eventos` com `fonte_relogio` + `offset_s` por fonte; evento diário de sincronia (luz 2× + palma) capturado por câmera, UWB e gravadores | S4 (câmeras), S11 (UWB), S13 (áudio) |
+| 65+ clientes no Wi-Fi 2,4 GHz da escola (55 tags + ESP32 + arrays) | construtor | piloto UWB num AP dedicado (EAP225 R$ 590–1.645, a verificar) ou âncoras por PoE; medir perda de pacotes a 1 Hz com 5 e 20 tags | S11–12 |
+| Handover de tag UWB entre salas/PANs (firmware MaUWB multi-PAN — não verificado) | construtor | criança com tag caminha 1a3 → corredor → pátio; medir tempo de reaquisição e lacunas de cobertura | S11–12 |
+| TrackMix PTZ quebra homografia e reteste | escola + construtor | pedir travamento em Monitor Point; se negado, excluir da visão | S1 (pergunta), S4 |
+| Mudar fps/bitrate altera a gravação de segurança | direção | confirmar antes de tocar; T1 começa sem alterar nada | segunda S1 |
+| Disco enche | construtor | cron diário: alerta < 15% livre ou retenção < 3 d; teste forçado em S4 | S4 |
+| Internet cai | construtor | 2 h sem internet, zero perda (fila SQLite + sync idempotente) | S5 |
+| Drift de gravadores de consumo | construtor | palma início/fim do dia; correlação cruzada por 10 min | S13–14 |
+| Egress do Supabase > 250 GB/mês | construtor | Parquet sempre lido local; monitorar egress mensal | mensal |
+| "sala MEIO" reposicionada sem registro | escola | foto da posição + linha em `eventos_ambiente` | contínuo |
+
+### Primeira semana — versão única (substitui as anteriores)
+
+**Segunda — decisões e perguntas (R$ 0).** (1) Doc de decisões de 1 página: tabela de captação
+v0, linha de stack v0, DDL única, regime de linguagem amostrado, sono `NÃO PASSIVO` até
+resposta, portão UWB p90 ≤ 60 cm, teto de API US$ 150/mês, riscos com dono. (2) Perguntas à
+escola: onde e quando cada agrupada dorme e se há câmera; **quem são as 2 avaliadoras** e
+quantas h/semana; onde fica o NVR e como acessá-lo; ponto de rede e energia para a caixa;
+`sala 1` = `sala 1a3`?; a TrackMix pode ficar travada?; fps/bitrate das câmeras podem mudar?
+(3) Codebook v1 — 3 dimensões × 5 níveis com âncora comportamental; só texto.
+
+**Terça — inventário e migração única (R$ 0).** (1) T0 no NVR/câmeras: `ffprobe` em RTSP **e**
+HTTP-FLV por câmera; modelo, firmware, canal, resolução/fps/bitrate main e sub, codec, HFOV,
+altura, PTZ, microfone; **abrir N main streams em paralelo até falhar e registrar N**; retenção
+real do NVR. (2) Rodar a DDL única; `lower(trim(especialista))`; `sala 1` → `sala 1a3` só
+depois da confirmação. (3) Preencher `cameras` (sem credenciais); cadastrar `pipeline-v0` em
+`obs_codebook`.
+
+**Quarta — codebook no banco e tela (R$ 0).** Codebook v1 em `obs_codebook`; sliders (3 × 1–5 +
+contexto + material + adulto próximo + confiança) gravando em `obs_avaliacoes` via
+`dev_janelas(origem = 'entrada', projeto = 'B')` criada por trigger; RPC `select now()` salvo
+em `relogio_servidor` ao abrir a sessão, `offset_s` calculado.
+
+**Quinta — T1 no PC atual (R$ 0).** Docker + Frigate 0.17.2 com go2rtc (`preset-http-reolink`),
+**3 câmeras** (sala1a3-A, SALA 3a6-A, "sala MEIO"): detect OpenVINO no substream a 5 fps;
+record do main **como está hoje** (sem mexer em fps/bitrate até a escola responder); retenção
+3 d. Job a cada minuto lendo `/api/stats` → `captacao_stats`; medição de bitrate por 72 h
+começa. Se sobrar tempo: 2 h sem internet com a fila local.
+
+**Sexta — calibração e cotações (R$ 0).** Calibração em voz alta (2 avaliadoras + construtor,
+1 h): os ~3 áudios úteis de 24/08 + 5 clipes novos de quinta, com o codebook v1; ajustes de
+âncora viram v1.1. Cotação nacional de 2 × WD Purple 8 TB e cotação de importação do piloto
+RFID (Chafon CF815 / Chainway UR4 + 100 tags), do UWB (9 × MaUWB_ESP32S3 + baterias/caixas) e
+do AP dedicado — **para aprovação do dono no fim da semana 2, condicionada ao T1**.
+
+**Não fazer na semana 1:** comprar GPU, instalar CVAT, ligar áudio, alterar fps/bitrate das
+câmeras, comprar switch, criar `dev_eventos`/`dev_agregados` (ficam para a semana 4, com o
+primeiro produtor automático), ligar `meal_events` por trigger a qualquer coisa.
+
+---
+
 ## Apêndice — achados e vereditos, por dimensão
 
-Registro do que o painel produziu e do que a refutação derrubou. "Refutado" quase sempre = diagnóstico mantido, prescrição corrigida; o motivo resume o veredito do refutador. Útil para reabrir uma decisão depois.
+Registro do que o painel produziu, com o veredito das **duas rodadas** de refutação (a segunda rodada refez parte das verificações). "Mantido" e "refutado" = as duas rodadas concordam; **"dividido"** = discordaram — leia como prescrição em disputa, não como veredito. "Refutado" quase sempre = diagnóstico aceito, prescrição corrigida.
 
 ### Plano de IA e de medição
 
 _Resumo do revisor:_ O passo a passo atual é um bom plano de psicometria para um sistema AMOSTRADO e centrado em UMA dimensão (envolvimento): rótulo = clipe de 3 min ancorado numa entrada de observação, VLM como pré-rotulador de ~800 avaliações/mês, sensores só na etapa 5. Contra a meta nova (sensoriamento passivo o dia inteiro, todas as dimensões, observação humana como calibração) ele tem quatro furos estruturais: (1) a fonte de rótulo (`observacao_entradas`, tipo `corte`, disparada pela especialista) é uma amostra enviesada de "momentos interessantes", e o corpus dourado feito só dela não representa o dia inteiro que o sensor vai medir; (2) áudio das CRIANÇAS não existe no plano (o áudio atual é a ditação da observadora), e linguagem expressiva é a única dimensão que só se mede com áudio; (3) o papel e o custo do VLM foram calculados para 800 avaliações/mês, e a versão contínua são ~32.600 janelas-câmera/mês (US$ ~415 a ~2.075/mês só de rotulagem, e não auditável como medida); (4) o modelo longitudinal não trata cobertura por sensor, autocorrelação de 96 janelas/dia e drift diário. O que está certo — codebook antes do modelo, kappa como teto, corpus dourado permanente, versão do modelo em cada predição, proibição de "tempo parado" — continua certo e fica MAIS importante, não menos. Adaptação principal: trocar a unidade de tudo (rótulo, kappa, golden, avaliação, modelo) de "clipe/entrada" para "janela fixa criança×tempo", e mover os sensores de contagem (UWB/RFID/áudio) para o começo, porque contagem não precisa de rótulo.
 
-| # | Achado | Tipo | Sev | Veredito | Resumo do motivo |
+| # | Achado | Tipo | Sev | Veredito | Resumo do motivo (3ª rodada) |
 | --- | --- | --- | --- | --- | --- |
 | 1 | A unidade de rótulo (clipe ancorado em entrada) não serve para medida contínua: a fonte é enviesada e o golden não cobre o dia | erro | 5 | mantido | LENTE FACTUAL — sustenta. (1) O plano define de fato a unidade de rótulo como clipe [relogio-90s, relogio+90s] ancorado em observacao_entradas (Etapa 3, item 2) e obs_golden.entrada_id referencia observacao_entradas (linha 182), logo o corpus dourado é estruturalmente restrito a trechos disparados por evento. 73 entradas em 24 dias para 47 crianças é amostra de eventos, não de tempo; a meta atualizada do dono é sensoriamento contínuo, então o golden não cobre o domínio que o modelo vai pontuar. (2) Leuven/LIS-YC: procedimento de 'scanning', observar ~2 min e atribuir nota 1–5 — confirmado (str… |
 | 2 | Linguagem exige áudio das crianças e o plano só tem áudio da observadora; é a lacuna de sensor mais cara de fechar depois | lacuna | 5 | mantido | Lente FACTUAL — o núcleo se sustenta. (1) O passo-a-passo (/home/user/freeschool-site/docs/desenvolvimento-infantil/2026-08-29-passo-a-passo-sistema.md) não contém a palavra "áudio" em nenhuma das 8 etapas; as dimensões da escala (envolvimento, autonomia, persistência) e a instrumentação (RFID, UWB, visão sobre keypoints) não geram nenhum sinal de linguagem expressiva. O Grok põe áudio como "opcional na fase 1" e a análise crítica não trata linguagem. Contra a meta atualizada (monitorar TODO o desenvolvimento, quase contínuo), é lacuna real. (2) O áudio existente é da observadora: `observacao_… |
@@ -822,31 +1155,31 @@ _Resumo do revisor:_ O passo a passo atual é um bom plano de psicometria para u
 
 _Resumo do revisor:_ Os três documentos foram escritos para um regime de "clipes amostrados" (entrada de observação → recorte de ±90 s → rótulo → modelo), e a meta mudou para sensoriamento passivo quase contínuo em 17 câmeras, ~9 h/dia, todas as dimensões. O que sobrevive à mudança: edge obrigatório, vídeo bruto com retenção curta e local, Parquet frio + agregado quente no Postgres, versão de modelo em toda predição, corpus dourado como âncora. O que quebra: (a) toda a aritmética foi feita para 6 câmeras × 8 h e o número real é ~3,2× maior (275–550 GB/dia de vídeo conforme bitrate, 16–17 M person-frames/dia); (b) não existe topologia de ingestão — "gravador local" não é uma decisão, e as Reolink (a linha TrackMix é confirmada pela nota "TrackMix = rastreio automático") têm RTSP notoriamente instável, então a caixa precisa de um único ponto de ingestão (go2rtc/Neolink) que alimenta gravação e inferência; (c) não existe modelo de dados para contínuo — a unidade de tudo (obs_avaliacoes, golden, portões) é `entrada_id`, que não existe num fluxo que roda sem ninguém apertar botão; falta uma tabela de eventos append-only, agregados por janela (5 min/hora/dia) com denominador de cobertura, e a resposta para "o que vai no Postgres × Parquet × nunca sai do prédio"; (d) o TimescaleDB que a análise mandou "confirmar" está descontinuado no Supabase em Postgres 17, que é exatamente a versão do projeto — o caminho é partição nativa + pg_partman; (e) áudio contínuo são 153 h/dia: transcrever tudo é inviável em compute numa GPU de consumo e ruim em qualidade (WER de criança 24% em condição boa, 56–62% em campo distante e barulhento), então o que se guarda são métricas por janela, não transcrição; (f) o custo de rotulagem por VLM, "irrelevante" a 800 clipes/mês, vira US$ 5–7 mil/mês se alguém usar o VLM como scorer contínuo (100 k janelas/mês) — o scorer contínuo tem de ser o modelo local sobre keypoints, e o VLM fica só na amostra de calibração; (g) o pipeline de refeições (camera_id → foto → ai_summary) e a indexação de observação já são "produtores de evento" e devem escrever no mesmo modelo de evento, senão nascem três sistemas. Falhas (câmera cai, internet cai, disco enche, modelo muda) não são tratadas em nenhum dos docs e cada uma corrompe a série longitudinal de um jeito silencioso; a correção é barata se entrar no schema agora (cobertura como denominador, buffer local com sincronização idempotente, retenção por marca-d'água, keypoints brutos versionados para reprocessar sem o vídeo).
 
-| # | Achado | Tipo | Sev | Veredito | Resumo do motivo |
+| # | Achado | Tipo | Sev | Veredito | Resumo do motivo (3ª rodada) |
 | --- | --- | --- | --- | --- | --- |
-| 1 | As contas foram feitas para 6 câmeras × 8 h; para 17 × 9 h o vídeo é 275–550 GB/dia e o gargalo passa a ser decode, não inferência | erro | 4 | mantido | NÚCLEO CONFIRMADO. (1) O passo a passo (Etapa 3, linhas 173-174) de fato só diz "a análise tem a conta: ~216 GB/dia em 6 streams 4K; com 17 câmeras, dimensione o disco antes", e a análise (linhas 306-325) assume "3 salas × 2 câmeras = 6 streams, 8 h/dia" e "4,3 M person-frames"; a P10 diz "uma 3060/4060 dá conta de 6 streams a 5 fps". O plano nunca refaz a conta para 17 câmeras — o erro existe. (2) Aritmética do revisor conferida: 8 Mbps × 32.400 s = 32,4 GB/câmera → 550,8 GB/dia; 4 Mbps → 275 GB; 17×5×32.400×6 = 16,5 M; 17×25 = 425 quadros 4K/s. (3) TrackMix PoE: 3840×2160, 2–25 fps, bitrate … |
-| 2 | Não existe topologia de ingestão: 'gravador local' não é decisão, e Reolink por RTSP direto derruba stream | lacuna | 5 | mantido | Lente FACTUAL — o achado se sustenta nos pontos centrais. (1) Lacuna real: o passo a passo (Etapa 3 item 1, Etapa 6 item 1) diz só "gravação contínua no gravador local" e "detecção + tracking nas 2 salas"; não há nenhuma linha sobre caixa, software de gravação, restream, switch ou como o worker recebe quadros — para a meta de sensoriamento quase contínuo, isso é o núcleo do sistema, então severidade 5 é proporcional. (2) Licenças confirmadas: Frigate LICENSE = MIT (Copyright 2026 Frigate, Inc.); go2rtc LICENSE = MIT (Alexey Khit). (3) Frigate discussion #19650: o colaborador NickM-27 escreve l… |
-| 3 | Falta o modelo de dados do contínuo: eventos append-only + agregados por janela + cobertura; e TimescaleDB está descontinuado no Supabase em PG17 | lacuna | 5 | refutado | NÚCLEO FACTUAL: CONFIRMADO e até reforçado. (1) Listei as extensões do projeto real rmpnqrvsmxhnrwlgqmdp (Postgres 17.6.1.141, sa-east-1) via MCP: `timescaledb` NÃO aparece na lista de extensões disponíveis; `pg_partman` 5.3.1 está disponível (não instalado) e `pg_cron` 1.6.4 já está instalado (necessário para `partman.run_maintenance_proc()`). Docs oficiais: "The timescaledb extension is deprecated in projects using Postgres 17" e "Starting from Postgres 17, Supabase projects do not have the timescaledb extension available". (2) Preços confirmados nas docs de billing: disco 8 GB incluído, US$… |
-| 4 | meal_events e observacao_indice já são produtores de evento; conectá-los ao mesmo modelo evita nascer um terceiro sistema | melhoria | 3 | refutado | Lente FACTUAL derruba a premissa central. Verifiquei diretamente no Postgres do projeto ponto-escola-montessoriana (rmpnqrvsmxhnrwlgqmdp): (1) meal_events tem 0 linhas; o bucket meal-photos tem 0 objetos; a tabela children (referenciada por meal_events.child_id) tem 0 linhas. Ou seja, o "pipeline de refeições em produção" é um schema, não um produtor de eventos — não há nada para ligar por trigger hoje, e o contexto fixo estava errado nesse ponto. (2) meal_events.child_id aponta para children.id, não para alunos.id; children só tem uma coluna-ponte aluno_id (nullable). O achado supõe "aluno_id… |
-| 5 | Áudio contínuo são 153 h/dia: transcrever tudo é inviável em compute e ruim em qualidade; guarde métricas por janela, transcreva só a amostra | lacuna | 4 | refutado | Duas partes do achado caem; a recomendação final sobrevive só parcialmente e por outro motivo.  (a) FACTUAL — "transcrever tudo é inviável em compute" é falso. Verificado: pyannote community-1 faz 31 s por hora de áudio em H100 (README oficial), logo 153 h/dia = ~79 min em H100; em GPU de consumo 2–4× mais lenta dá ~2,5–5 GPU-h, e com VAD na frente (grande parte do áudio de sala é silêncio/ruído sem fala) cai mais. Para transcrição, o benchmark oficial do faster-whisper (MIT) mostra large-v2 batched int8 processando 13 min em 16 s numa RTX 3070 Ti de 8 GB (~49× tempo real) → 153 h ≈ 3,1 GPU-h/… |
-| 6 | Nenhum doc trata falhas (câmera cai, internet cai, disco enche, modelo muda) — e cada uma corrompe a série longitudinal em silêncio | lacuna | 4 | mantido | O núcleo do achado sobrevive às duas lentes, mas a evidência tem dois exageros que precisam ser corrigidos.  FACTUAL — o que se confirma: (1) O passo a passo (arquivo principal) não tem nenhuma coluna de cobertura, nenhuma menção a operação offline/fila local, e sobre retenção diz apenas 'retenção curta... dimensione o disco antes' (Etapa 3) e 'retenção indefinida' para o golden (obs_golden). Confirmado por grep nos três docs: 'cobertura' e 'offline' não aparecem em nenhum. (2) Frigate discussion #19650: o mantenedor NickM-27 escreve literalmente 'reolinks rtsp implementation is flawed', e um … |
-| 7 | O que quebra ao ir de clipes para contínuo: unidade de rótulo, viés da amostra de calibração, custo do VLM ×125 e portão da etapa 6 restrito a 2 salas | erro | 4 | mantido | Lente FACTUAL — os quatro pontos estão ancorados no texto e nas contas conferem. (1) obs_avaliacoes referencia entrada_id (linha 79) e o unique (linha 93) fixa entrada como unidade; o plano não define janela em lugar nenhum (Etapa 6 só fala em "agregado por sessão"). (2) O clipe só nasce "ao salvar uma entrada com sala preenchida" (Etapa 3, item 2) e a "fatia aleatória ~10%" da Etapa 4 é sorteio ENTRE entradas espontâneas, não do fluxo — logo a calibração herda o viés de seleção das professoras. (3) Verifiquei na documentação oficial: Opus 5 = US$ 5/25 por MTok, Batch 50% (US$ 2,50/12,50); ima… |
-| 8 | Manter: Parquet frio + agregado quente, vídeo só no edge, versão de modelo em toda predição e corpus dourado — as contas refeitas confirmam que escala para 17 câmeras | confirmacao | 3 | mantido | FACTUAL: os fatos centrais se sustentam. (1) Preços Supabase Pro confirmados em fontes de 2026 (supabase.com bloqueado pelo proxy; makerkit/metacto/flexprice reproduzem a tabela): 100 GB de file storage incluídos, US$0,021/GB extra; egress 250 GB incluídos, US$0,09/GB depois; DB 8 GB, US$0,125/GB. (2) Supabase Storage tem protocolo S3 em GA e rclone/AWS CLI são os clientes documentados (docs 'Download Objects' e 'Features'); upload via S3/resumable até 50 GB por objeto, limite global Pro até 500 GB — arquivos Parquet diários de 0,4–0,8 GB cabem folgado. (3) Reolink TrackMix PoE: 3840×2160, 2–2… |
+| 1 | As contas foram feitas para 6 câmeras × 8 h; para 17 × 9 h o vídeo é 275–550 GB/dia e o gargalo passa a ser decode, não inferência | erro | 4 | **dividido** | O núcleo do achado é válido e útil: o passo a passo (Etapa 3, linhas 173–174) de fato carrega a conta de 6 streams × 8 h (216 GB/dia) e despacha o parque real de 17 câmeras com "dimensione o disco antes"; a aritmética de storage do revisor (4–8 Mbps × 32.400 s × 17 = 275–551 GB/dia; 14 dias = 3,9–7,7 TB) confere, e a faixa 4096–8192 kbps / 2–25 fps da TrackMix e a limitação de codec/resolução (Frigate #19650) foram confirmadas. Porém o achado cai em pontos centrais, nas duas lentes. FACTUAL: (1) "toda GeForce tem um único NVDEC" é falso — RTX 4070 Ti tem 2 NVDEC ativos, 4070 Ti Super 2, e a pr… |
+| 2 | Não existe topologia de ingestão: 'gravador local' não é decisão, e Reolink por RTSP direto derruba stream | lacuna | 5 | mantido | O núcleo do achado sobrevive às duas lentes. FACTUAL: a lacuna é real — o passo a passo (Etapa 3 item 1 'gravação contínua no gravador local'; Etapa 6 item 1 'detecção + tracking nas 2 salas') não nomeia caixa, software de gravação, forma de entrega de quadros ao worker nem topologia de rede para 17 câmeras; a análise (linhas 280-281) só diz 'um micro com GPU de consumo por escola'. Para a meta atualizada (sensoriamento passivo o dia inteiro em todos os espaços), isso é bloqueante, e severidade 5 é correta. Frigate e go2rtc são MIT (verificado nos LICENSE); Frigate detecta a 5 fps no substream… |
+| 3 | Falta o modelo de dados do contínuo: eventos append-only + agregados por janela + cobertura; e TimescaleDB está descontinuado no Supabase em PG17 | lacuna | 5 | **dividido** | FACTUAL: o núcleo do achado se confirma em fonte oficial. Docs Supabase (via MCP search_docs e raw GitHub do repo supabase/supabase): "The timescaledb extension is deprecated in projects using Postgres 17" e, no guia de migração, "Starting from Postgres 17, Supabase projects do not have the timescaledb extension available"; caminho oficial = partição nativa + pg_partman + pg_cron. Prova mais forte: o projeto real ponto-escola-montessoriana (ref rmpnqrvsmxhnrwlgqmdp) roda Postgres 17.6.1.141 e a lista de extensões do projeto NÃO contém timescaledb; contém pg_partman 5.3.1 (disponível, não insta… |
+| 4 | meal_events e observacao_indice já são produtores de evento; conectá-los ao mesmo modelo evita nascer um terceiro sistema | melhoria | 3 | refutado | Lente FACTUAL derruba a premissa central. Verifiquei direto no Postgres do projeto ponto-escola-montessoriana (rmpnqrvsmxhnrwlgqmdp) em 2026-09-05: (1) `meal_events` tem 0 linhas, `children` tem 0 linhas, o bucket `meal-photos` tem 0 objetos. As edge functions `analyze-meal`, `analyze-meal-internal` e `camera-ingest` existem (v9, criadas em jul/2026), mas o pipeline nunca produziu um único evento — "em produção" descreve código implantado, não um produtor de dados. (2) `meal_events.child_id` referencia `children(id)`, não `alunos(id)`; `alunos` só é alcançado por `children.aluno_id` (nullable,… |
+| 5 | Áudio contínuo são 153 h/dia: transcrever tudo é inviável em compute e ruim em qualidade; guarde métricas por janela, transcreva só a amostra | lacuna | 4 | **dividido** | FACTUAL: os fatos centrais conferem. (1) pyannote-audio é MIT e o README reporta community-1 a 31 s por hora de áudio (AMI) e 37 s/h (DIHARD 3) em H100 80GB — confirmado. (2) WSW 2.0 (arXiv 2505.09972 / IEEE 11204438): WER 0,119 professora e 0,238 criança, F1 ponderado 0,845, kappa corrigido 0,672 para classificação criança×professora — confirmado, mas note que o corpus são 235 min de gravações individuais (12 crianças, 5 professoras), não microfone de teto; o F1 0,845 é otimista para campo distante, o que o próprio achado admite ao pedir teste. (3) Colorado ICASSP24: 54% WER no ISAT (sala de … |
+| 6 | Nenhum doc trata falhas (câmera cai, internet cai, disco enche, modelo muda) — e cada uma corrompe a série longitudinal em silêncio | lacuna | 4 | mantido | Tentei derrubar pelas duas lentes e o achado sobrevive no essencial, com quatro correções de precisão.  FACTUAL. (a) A lacuna é real: li o passo-a-passo inteiro; as únicas menções a robustez são "gravação contínua com retenção curta… dimensione o disco" (Etapa 3), "Retenção indefinida" do golden e "toda versão nova repontua o corpus dourado" (Etapa 7). Nenhum DDL tem coluna de cobertura, nenhum trecho fala de operação offline, marca-d'água de disco ou job de reprocessamento. A análise (item 3 de "O que ele acertou") até pede "versão do modelo + calibração + código de features + vetor cru, pra … |
+| 7 | O que quebra ao ir de clipes para contínuo: unidade de rótulo, viés da amostra de calibração, custo do VLM ×125 e portão da etapa 6 restrito a 2 salas | erro | 4 | mantido | FACTUAL — as quatro citações do passo-a-passo conferem literalmente (Etapa 1 linha 93: unique por entrada_id; Etapa 3 linhas 175-177: clipe só nasce ao salvar entrada; Etapa 4 linhas 228-231 e 225: tabela de custo e "custo não importa nesta escala"; Etapa 6 linha 277: "2 salas principais"). obs_golden também é chaveada por entrada_id (linha 182). Preços verificados em platform.claude.com: Opus 5 US$5/25 por MTok (Batch 2,50/12,50), Haiku 4.5 US$1/5 (Batch 0,50/2,50); imagem custa ⌈w/28⌉×⌈h/28⌉ tokens, teto 1.560/quadro 1080p no Haiku e 2.691 no Opus 5 (tier alta resolução, Claude 4.7+). Recont… |
+| 8 | Manter: Parquet frio + agregado quente, vídeo só no edge, versão de modelo em toda predição e corpus dourado — as contas refeitas confirmam que escala para 17 câmeras | confirmacao | 3 | mantido | FACTUAL — as contas do revisor batem quando refeitas com as premissas que a própria análise fixa (5 fps, ~5–6 pessoas/quadro, int16+zstd, 200 dias letivos): 17 câm × 5 fps × 32.400 s × 6 ≈ 16,5 M person-frames/dia (≈3,3 bi/ano letivo); escalando os 100–180 MB/dia da análise (4,3 M pf) dá 0,38–0,69 GB/dia → 76–138 GB/ano, coerente com '0,4–0,8 GB/dia; 80–160 GB/ano'. Vídeo: com bitrate real de 4K H.265 (Reolink RLC-810A 4–6 Mbps; H.265+ 3–5 Mbps; fonte cctvinfo/pvrblog), 17 × 9 h × 4–8 Mbps = 275–550 GB/dia, upload em tempo real 68–136 Mbps, 30 dias = 8–16 TB × US$0,0213 = US$176–351/mês (o rev… |
 
 ### Ferramentas para começar
 
 _Resumo do revisor:_ O passo a passo acerta na arquitetura de dados (Supabase + Parquet/DuckDB, Batch API, saídas estruturadas, detector sem AGPL) mas foi escrito para observação amostrada: a Etapa 6 diz "detector permissivo" e "RTMPose/MediaPipe" sem nomear versão, licença dos pesos nem taxa de quadros, e não existe nenhuma linha sobre ingestão de 17 streams RTSP, decodificação em GPU, áudio contínuo ou o que roda 8 h/dia contra o que roda por amostra. Sob a meta atualizada (sensoriamento passivo, quase contínuo, todas as dimensões, 47 crianças), três coisas mudam de categoria: (1) o custo do VLM deixa de "não importar" — Claude como rotulador contínuo custa US$400–2.000/mês, então Claude vira calibração/pré-rotulagem amostrada e os modelos locais viram a medida; (2) a camada NVR/decodificação vira pré-requisito (Frigate + go2rtc + ffmpeg/NVDEC numa RTX de consumo, detecção no sub-stream e gravação 4K só para clipes); (3) a stack de áudio, ausente nos três documentos, é obrigatória para linguagem em 1–3 anos (VAD + diarização + classificador de tipo de voz, não ASR). Várias alternativas citadas na análise estão obsoletas ou com licença que morde depois: YOLOX parou em 2023, MMDetection/MMPose dependem de mmcv que quebra em PyTorch 2.x/CUDA 12.8, BoxMOT é AGPL apesar de embalar ByteTrack/BoT-SORT (MIT), Sapiens e YOLO-NAS são não-comerciais, D-FINE só é limpo nos checkpoints COCO. A lista concreta proposta abaixo tem licença verificada item a item; o que não consegui verificar está marcado.
 
-| # | Achado | Tipo | Sev | Veredito | Resumo do motivo |
+| # | Achado | Tipo | Sev | Veredito | Resumo do motivo (3ª rodada) |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Etapa 4 trata custo de VLM como irrelevante — só vale para 800 avaliações/mês; contínuo custa 30–50× mais e muda quem é a medida | erro | 4 | mantido | LENTE FACTUAL — o núcleo do achado se sustenta e foi verificado na documentação oficial: fórmula ⌈w/28⌉×⌈h/28⌉; 1000×1000 = 1.296 tokens; tier alta resolução (Claude 4.7+, inclui Opus 5/Sonnet 5) com teto de 4.784 tokens e 4K 3840×2160 → 4.784; exemplos de US$1,30/mil (Haiku 4.5, 1 MP), US$6,48 e US$23,92/mil (Opus 5); 600 imagens/request em modelos de 1M e 100 em modelos de 200k (Haiku 4.5); limite de 2000 px por lado acima de 20 imagens; GIF usa só o primeiro quadro; Batch = 50% em entrada e saída; preços Opus 5 $5/$25, Sonnet 5 $2/$10 (introdutório virou padrão), Haiku 4.5 $1/$5. A aritméti… |
-| 2 | Não existe camada de ingestão/decodificação para 17 streams contínuos — definir Frigate + go2rtc + ffmpeg/NVDEC e inventariar as câmeras | lacuna | 4 | mantido | LENTE FACTUAL — o núcleo do achado se sustenta. (1) A lacuna existe: o passo a passo (Etapa 3, item 1) diz só "gravação contínua no gravador local, com retenção curta... dimensione o disco antes" e nenhum dos três documentos nomeia quem mantém 17 conexões, decodifica H.265, grava com retenção ou recorta o clipe. Com a meta atualizada (sensoriamento passivo o dia inteiro, todos os dias), a ingestão deixa de ser detalhe da Etapa 3 e vira fundação — severidade 4 é adequada. (2) Verificado: Frigate é MIT (README: "source code, configuration files, and documentation... available under the MIT Licen… |
-| 3 | Detector e tracker: nomear os que têm licença e manutenção verificadas (RF-DETR/RT-DETRv2 + ByteTrack original), e apontar as armadilhas (YOLOX parado, MMDet/mmcv, BoxMOT AGPL, YOLO-NAS e D-FINE-obj365 não comerciais) | erro | 3 | mantido | LENTE FACTUAL — o achado se sustenta; todos os fatos centrais foram confirmados na fonte primária: (1) RF-DETR: Nano/Small/Medium/Large Apache-2.0 com exatamente 48,4/53,0/54,7/56,5 AP e 2,3/3,5/4,4/6,8 ms (T4, TensorRT fp16); XL/2XL sob PML 1.0, que exige "platform plan, subscription, order form" com a Roboflow; existe RFDETRKeypointPreview (Apache-2.0); pyproject.toml declara license Apache-2.0, python>=3.10 e grupos opcionais onnx/tensorrt; model.export() com format="tensorrt" documentado; pip rfdetr 1.10.0 lançado em 04/09/2026 (ativo). (2) RT-DETR Apache-2.0, RT-DETRv2-S 48,1 AP, repo ati… |
-| 4 | Pose e modelo temporal: MediaPipe é single-person, MMPose está preso ao mmcv, Sapiens é não-comercial — usar rtmlib (RTMO/RTMPose) em inferência e isolar MMPose só no fine-tune | erro | 3 | mantido | Lente FACTUAL — o núcleo se sustenta e foi verificado: (1) rtmlib é Apache-2.0, declara explicitamente funcionar "WITHOUT any dependencies like mmcv, mmpose, mmdet", depende só de numpy/opencv/onnxruntime, tem backends opencv/onnxruntime/openvino/tensorrt e inclui RTMO, RTMPose, DWPose, RTMW e ViTPose; está ativo (v0.0.15 em fev/2026, commits em jun–ago/2026, inclusive adicionando detector RF-DETR e correção de alinhamento de keypoints do RTMO). (2) MediaPipe Pose Landmarker é single-person: o parâmetro num_poses existe mas o modelo só suporta uma pessoa (issue google-ai-edge/mediapipe #5842, … |
-| 5 | Áudio contínuo não tem stack em nenhum documento — para 1–3 anos a medida de linguagem é vocalização/turnos, não transcrição | lacuna | 4 | refutado | A LACUNA é real e fica de pé: grep nos três documentos não acha VAD, diarização, ASR, microfone ou vocalização; o passo a passo só menciona "áudio e texto" como coisa que já existe (linha 21) e nunca define stack. Os fatos de licença centrais também conferem: Silero VAD = MIT, <1 ms por chunk de 30+ ms em 1 thread CPU (README); pyannote.audio código = MIT; pipeline speaker-diarization-community-1 = cc-by-4.0 e gated no HF (metadado do Hub); faster-whisper = MIT; Whisper-Large WER 14,8 no MyST (inglês). O que DERRUBA o achado é a lente prática/factual sobre a MUDANÇA PROPOSTA, em três pontos: (… |
-| 6 | Armazenamento e análise: Parquet+DuckDB está certo, mas faltam volumes para 17 câmeras, o caminho DuckDB→Supabase Storage e o papel (limitado) do pgvector | melhoria | 2 | mantido | FACTUAL — o núcleo do achado se sustenta e os fatos centrais foram verificados: (1) DuckDB é MIT e o branch ativo no GitHub é v2.0 (confirmado). (2) pgvector: licença PostgreSQL (LICENSE do repo), versão 0.8.6, vector e halfvec aceitam até 16.000 dimensões em armazenamento — mas o achado omite que o índice HNSW/IVFFlat só aceita até 2.000 dim em vector e 4.000 em halfvec; halfvec(768) passa nos dois, então a imprecisão não afeta a proposta. (3) Supabase Storage: egress não cacheado US$0,09/GB e cacheado US$0,03/GB, com cotas separadas de 250 GB + 250 GB no Pro (docs oficiais espelhadas no GitH… |
-| 7 | Anotação: CVAT (MIT) para keypoints/caixas do fine-tune e Label Studio (Apache-2.0) para segmentos temporais — a escala LIS-YC continua na tela própria | melhoria | 2 | mantido | FACTUAL — o núcleo do achado se sustenta. Verificado: (1) o passo a passo (Etapa 6, item 2) diz apenas "fine-tune próprio em algumas centenas de quadros de criança pequena" e não nomeia ferramenta de anotação; Etapa 1 mantém a nota nos "3 sliders" da página de observação existente. (2) CVAT Community é MIT; README avisa que "/serverless é MIT mas pode usar assets de terceiros sob licenças separadas (inclusive não comerciais)" e que usa FFmpeg LGPL/GPL. (3) CVAT tem anotação por esqueleto (pontos + arestas) em modo shape e em modo track (vídeo), e exporta/importa "COCO Keypoints 1.0" com "Suppo… |
-| 8 | Manter: Supabase + páginas estáticas + Python só no worker, e Batch/caching/saídas estruturadas na Etapa 4 | confirmacao | 3 | refutado | Lente FACTUAL: os fatos de API do achado conferem na documentação atual — `output_config.format` é a forma vigente e `output_format` está deprecado (o SDK Python ≥1.0 rejeita `output_format` em `beta.messages.create`); Batch API com 50% de desconto; até 4 breakpoints de `cache_control`; 600 imagens/request (100 nos modelos de 200K, i.e. Haiku 4.5); resultados de batch fora de ordem, chaveados por `custom_id`. Frigate é MIT, fala MQTT + HTTP API, grava contínuo por `record.continuous.days` e exporta por intervalo (`POST /export/custom/{camera}/start/{t0}/end/{t1}`). supabase-py é MIT (uso com s… |
+| 1 | Etapa 4 trata custo de VLM como irrelevante — só vale para 800 avaliações/mês; contínuo custa 30–50× mais e muda quem é a medida | erro | 4 | mantido | Lente factual: todos os fatos centrais conferem na documentação oficial. Vision doc: custo = ⌈largura/28⌉×⌈altura/28⌉ tokens; 1000×1000 = 1.296 tokens; tier alta resolução (Claude 4.7+, inclui Opus 5/Sonnet 5) = 2576 px / 4.784 tokens, 3840×2160 → 4.784 tokens; Haiku 4.5 ≈ US$1,30/mil imagens de 1 MP, Opus 5 ≈ US$6,48 (1 MP) e US$23,92 (4K) por mil — os números do revisor são citações literais da página. GIF/animação: só o primeiro quadro é usado. Limites: 600 imagens/request (100 em modelos de 200k, i.e. Haiku 4.5), 8000×8000 máx., e acima de 20 imagens por request cada imagem precisa ter ≤20… |
+| 2 | Não existe camada de ingestão/decodificação para 17 streams contínuos — definir Frigate + go2rtc + ffmpeg/NVDEC e inventariar as câmeras | lacuna | 4 | **dividido** | O núcleo do achado sobrevive: nenhum dos três documentos nomeia software de ingestão/NVR (grep por Frigate, go2rtc, RTSP, NVR, NVDEC nos três arquivos: zero ocorrências; a Etapa 3 diz só "gravador local"), e as escolhas Frigate (MIT, confirmado no LICENSE), go2rtc (MIT, embutido desde 0.12), imagem `-tensorrt`, `preset-nvidia`, endpoint `/api/<camera>/start/<ts>/end/<ts>/clip.mp4` (existe desde 0.13.2), NVDEC sem limite de sessões, RTX 5060 com 1 NVDEC (~8× 4K60 por engine, segundo Puget), preço ~R$ 2.279 (mín. R$ 1.799 em nov/2025) e TrackMix PoE 4K/25 fps com duas lentes (Preview_01/Preview_… |
+| 3 | Detector e tracker: nomear os que têm licença e manutenção verificadas (RF-DETR/RT-DETRv2 + ByteTrack original), e apontar as armadilhas (YOLOX parado, MMDet/mmcv, BoxMOT AGPL, YOLO-NAS e D-FINE-obj365 não comerciais) | erro | 3 | **dividido** | LENTE FACTUAL — quase tudo se sustenta: Ultralytics LICENSE = AGPL-3.0 (verificado); YOLOX Apache-2.0 com último item de "Updates" em 28/02/2023 e último commit em jun/2025 sendo correção de typo em .rst — ou seja, sem manutenção funcional (verificado); RT-DETR/RT-DETRv2 Apache-2.0, v2-S 48,1 AP (verificado); RF-DETR Apache-2.0 para Nano/Small/Medium/Large (48,4/53,0/54,7/56,5 AP; 2,3/3,5/4,4/6,8 ms) e XL/2XL sob PML 1.0 (verificado); D-FINE Apache-2.0 com o aviso literal sobre checkpoints *_obj365/*_obj2coco (verificado); YOLO-NAS "you may not use the Software for any commercial use" (verific… |
+| 4 | Pose e modelo temporal: MediaPipe é single-person, MMPose está preso ao mmcv, Sapiens é não-comercial — usar rtmlib (RTMO/RTMPose) em inferência e isolar MMPose só no fine-tune | erro | 3 | **dividido** | Refutação PARCIAL: o núcleo do achado sobrevive (MediaPipe Pose Landmarker é single-person — issue #5842 do google-ai-edge confirma que num_poses>1 não é suportado pelo modelo; rtmlib é Apache-2.0 e depende só de numpy/opencv/onnxruntime, com RTMO one-stage multi-pessoa; Sapiens é CC BY-NC 4.0; features em janela antes de ST-GCN é decisão prudente). Mas a evidência que sustenta a severidade 3/'erro' tem quatro falhas: (1) FACTUAL — 'MMPose último release jan/2024 (1.3.0)' está errado: o último é v1.3.2 de 12/07/2024 (página de releases). (2) FACTUAL — 'mmcv não instala limpo em PyTorch 2.x/CUD… |
+| 5 | Áudio contínuo não tem stack em nenhum documento — para 1–3 anos a medida de linguagem é vocalização/turnos, não transcrição | lacuna | 4 | refutado | A lacuna em si é verdadeira (nenhum dos três documentos de 29/08 cita VAD, diarização ou ASR), mas a prescrição cai em duas frentes.  FACTUAL: (1) O portão (b) manda "medir WER do Whisper em 30 trechos de fala infantil já transcritos pelas especialistas no bucket observacao-audio". Consultei observacao_entradas no projeto rmpnqrvsmxhnrwlgqmdp: as 40 transcrições são a VOZ DA OBSERVADORA ditando ("testando, testando", "outro microfone agora", "do microfone 3", "Claudio, você está me ouvindo?", "Maria trabalhando com Max no cubo do trinômio"). Não há um único trecho de fala infantil transcrito. … |
+| 6 | Armazenamento e análise: Parquet+DuckDB está certo, mas faltam volumes para 17 câmeras, o caminho DuckDB→Supabase Storage e o papel (limitado) do pgvector | melhoria | 2 | mantido | Lente factual: os fatos centrais se confirmam. DuckDB é MIT e a linha 2.0 já é o release atual (v2.0-cyanoptera), não "em desenvolvimento". pgvector: v0.8.6, licença PostgreSQL, vector e halfvec até 16.000 dimensões (índice HNSW/IVFFlat só até 2.000/4.000 — irrelevante para 768). uv: dual MIT/Apache-2.0. Supabase Storage: US$0,021/GB-mês, egress US$0,09/GB acima de 250 GB/mês no Pro, egress cacheado 3× mais barato (fontes terceiras; supabase.com bloqueado pelo proxy). O endpoint S3 do Supabase existe (`https://<ref>.storage.supabase.co/storage/v1/s3`, path-style, ainda rotulado "public alpha")… |
+| 7 | Anotação: CVAT (MIT) para keypoints/caixas do fine-tune e Label Studio (Apache-2.0) para segmentos temporais — a escala LIS-YC continua na tela própria | melhoria | 2 | **dividido** | LENTE FACTUAL — o núcleo se sustenta: CVAT Community é MIT com o aviso literal de que /serverless "may use third-party assets under separate licenses (including non-commercial)"; sobe com `docker compose up -d`; tem esqueletos e interpolação por keyframe em modo track (CVAT Academy: "interpolates each keypoint position independently"); exporta esqueletos em "COCO Keypoints 1.0" (docs: "Skeletons can be exported in two formats: CVAT for image and COCO Keypoints"; há issues antigas #5831/#7161 de export vazio — testar o export no primeiro job). Label Studio é Apache-2.0 e o template 'Video timel… |
+| 8 | Manter: Supabase + páginas estáticas + Python só no worker, e Batch/caching/saídas estruturadas na Etapa 4 | confirmacao | 3 | **dividido** | Lente factual: todos os fatos centrais do achado foram confirmados na fonte oficial. (a) Vision: "600 per request on the API, for all other models" e "100 per request ... for models with a 200k-token context window" — correto. (b) Batch: "reducing costs by 50%", resultados "in any order ... always use the custom_id field", limite 100.000 requests ou 256 MB, expira em 24 h — correto. (c) Prompt caching: "up to 4 cache breakpoints" — correto. (d) `output_config.format` é a forma atual e `output_format` está deprecado — confirmado na referência da API carregada nesta sessão. (e) Frigate é MIT, gr… |
 
 ### Como testar sem hardware novo
 
@@ -858,28 +1191,41 @@ Semana 2 — T3 Sincronização + teste-reteste entre câmeras (5 dias): NTP nas
 Semana 3 — T6 Pose em criança pequena (offline, 3 dias): 100 quadros anotados em 4 posturas; portão: PCK@0,5 ≥ 0,7 em pé, ≥ 0,5 agachada/de bruços, senão plano B (caixa + orientação de cabeça). T7 Persistência de ID do tracker (2 dias): auditoria manual de 10 min × 3 câmeras; portão: registrar mediana de duração de track e trocas/hora (esperado < 60 s — isso justifica a compra de UWB, não a reprova). T8 VLM "engajado × vagando" (2 dias): 60 clipes × 16 quadros no claude-opus-5 via Batch com saída estruturada; portão: kappa modelo-humano ≥ 0,7 × kappa humano-humano.
 Semana 4 — consolidação, teste-reteste com a nota do VLM entre câmeras (portão: kappa entre câmeras ≥ 0,6), e lista de compras derivada dos números medidos, não de opinião: GPU/mini-PC (pose contínua em 4K), UWB/RFID (identidade), microfones (linguagem).
 
-| # | Achado | Tipo | Sev | Veredito | Resumo do motivo |
+| # | Achado | Tipo | Sev | Veredito | Resumo do motivo (3ª rodada) |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Os 'ativos que já existem' para teste não existem como o documento assume — resgate o vídeo de 24/08 antes que o NVR sobrescreva (Teste 0) | erro | 4 | refutado | FACTUAL — os números do banco batem (reexecutei em 05/09 no projeto rmpnqrvsmxhnrwlgqmdp: meal_events = 0 linhas e bucket meal-photos com 0 objetos; 1 sessão modo 'gravacao', origem 'pagina-teste', 1 entrada 'fim', sala nula; observacao_entradas por sala = 'sala 1':32, null:30, 'sala 1a3':9, 'sala 3a6':4; salas_cameras só tem sala/cameras[]/observacao, PK em sala; 'sala MEIO' está nas duas salas → 16 nomes únicos em 17 vagas). Mas o achado erra a ATRIBUIÇÃO em 2 das 3 premissas que diz que 'o passo a passo assume': (1) o passo a passo não cita meal_events em lugar nenhum — a frase 'JÁ EXISTE p… |
-| 2 | Falta a prova de vida da captação quase contínua: RTSP em todas as câmeras e orçamento de CPU de um computador comum (Teste 1) | lacuna | 5 | refutado | O núcleo do achado (falta um teste de prova de vida da captação, barato e anterior ao kappa; a conta de 4K da Etapa 3 está mal posicionada) sobrevive. Mas o achado cai em quatro pontos, dois factuais e dois práticos, e a mudança proposta como está criaria um problema maior do que resolve.  FACTUAL 1 — "4K/10 Mbps é exatamente o que um computador comum NÃO decodifica" confunde gravar com decodificar. O Frigate grava o stream de gravação "directly from your camera stream without re-encoding" (docs/configuration/record.md) — é cópia de container, custo de CPU desprezível; só o stream de `detect` … |
-| 3 | Teste-reteste com as câmeras sobrepostas da sala 1a3 dá pra fazer na semana 2 — não na Etapa 6 — e exige sincronização de relógio que o documento não menciona (Teste 3) | lacuna | 4 | refutado | O núcleo do achado sobrevive parcialmente (a lacuna de sincronização de relógio é real e a ideia de antecipar o teste entre câmeras é boa), mas duas partes centrais caem.  FACTUAL — o que confirmei: (1) Passo a passo, Etapa 6, linha 292, de fato só menciona o teste-reteste entre câmeras como regra de avaliação do modelo (meses 5–8), e a Análise P11 item 3 diz "melhor descobrir na semana 4" — a contradição entre os dois documentos existe. (2) No banco: observacao_sessoes.iniciada_em tem default now() (relógio do servidor) e observacao_entradas.relogio NÃO tem default (é gravado pelo navegador).… |
-| 4 | Como preencher video_inicio_s/video_fim_s: falta definir a referência temporal, o arquivo e o job — receita concreta com backfill das 13 entradas de 24/08 (Teste 4) | melhoria | 3 | mantido | O núcleo do achado se sustenta e foi confirmado no banco real (projeto rmpnqrvsmxhnrwlgqmdp): observacao_entradas tem relogio timestamptz, video_inicio_s/video_fim_s/janela_ini_s/janela_fim_s numeric, sala text, audio_path text, e NENHUMA coluna de caminho/câmera do vídeo; as quatro colunas de segundos estão vazias em 75/75 linhas (o contexto da rodada dizia 73 — o revisor está com o número atual, há 2 entradas novas até 03/09); as 13 entradas de 24/08 batem exatamente (9 em 'sala 1a3' 17:39:56–18:25:40 UTC, 4 em 'sala 3a6' 18:27:16–18:30:04 UTC, todas modo 'vivo'), e há mais 6 entradas de 24/… |
-| 5 | Kappa com as 3 especialistas: o acervo não serve como o doc assume; falta intra-observador | melhoria | 3 | não verificado | Limite de uso; incorporado ao T3 com as correções dos outros vereditos |
-| 6 | Pose em criança de 2 anos: teste offline no main stream com anotação própria | lacuna | 4 | não verificado | Incorporado ao T5 |
-| 7 | VLM "engajado × vagando" em 60 clipes, < US$ 5 | lacuna | 3 | não verificado | Incorporado ao T7 |
-| 8 | Tracker não vai segurar identidade — medir em 2 dias e derivar a lista de compras | lacuna | 4 | não verificado | Incorporado ao T6 e à tabela "o que não dá para testar" |
+| 1 | Os 'ativos que já existem' para teste não existem como o documento assume — resgate o vídeo de 24/08 antes que o NVR sobrescreva (Teste 0) | erro | 4 | **dividido** | LENTE FACTUAL — todas as afirmações centrais foram reconfirmadas em 06/09/2026 no projeto rmpnqrvsmxhnrwlgqmdp: meal_events = 0 linhas e bucket meal-photos sem objetos (pipeline de refeição é só schema; a alegação "JÁ EXISTE pipeline" está no contexto da rodada, não no passo a passo — o documento não cita meal_events, o revisor misturou as duas fontes); única sessão modo 'gravacao' = Sonia, 01/08, origem 'pagina-teste', 1 entrada 'fim', sala null; group by sala = 'sala 1':32 / null:30 / 'sala 1a3':9 / 'sala 3a6':4 (os 32 'sala 1' são todos da sessão da Sonia em 04/08, 30 com áudio, só 2 do tip… |
+| 2 | Falta a prova de vida da captação quase contínua: RTSP em todas as câmeras e orçamento de CPU de um computador comum (Teste 1) | lacuna | 5 | refutado | O núcleo do achado sobrevive (o passo a passo não tem prova de vida da captação antes do mês 5; Frigate é MIT; /api/stats expõe camera_fps/process_fps/skipped_fps/detection_fps e cpu_usages — confirmado no código frigate/stats/util.py; câmeras Reolink a bateria não expõem RTSP sozinhas — confirmado; TrackMix expõe RTSP só cabeado — confirmado). Mas quatro pontos derrubam o achado como está escrito. (1) FACTUAL: a evidência para 'um computador comum NÃO decodifica 4K' é um post da Intel sobre decodificação em SOFTWARE de um stream 4K60 a 100 Mbps — nada a ver com stream de câmera 4K/15fps/8 Mbp… |
+| 3 | Teste-reteste com as câmeras sobrepostas da sala 1a3 dá pra fazer na semana 2 — não na Etapa 6 — e exige sincronização de relógio que o documento não menciona (Teste 3) | lacuna | 4 | refutado | A direção do achado é boa (antecipar o teste-reteste e exigir sincronização de relógio), mas ele cai nas duas lentes como está escrito.  FACTUAL — evidência errada, embora a tese sobreviva com outra evidência: (1) O exemplo citado (sessão iniciada 20:21:14 com entrada 20:21:07) é uma entrada tipo 'fala'. No banco, TODAS as 4 entradas com relogio < iniciada_em são 'fala' (deltas -3,4 s a -70,6 s), e para 'fala' relogio − criado_em vai de -1,7 s a -369,9 s (mediana -5,6 s): é o instante de início da gravação de áudio, gravado antes do insert da sessão/entrada — lógica da aplicação, não offset de… |
+| 4 | Como preencher video_inicio_s/video_fim_s: falta definir a referência temporal, o arquivo e o job — receita concreta com backfill das 13 entradas de 24/08 (Teste 4) | melhoria | 3 | mantido | O núcleo do achado sobrevive às duas lentes; o que cai são duas premissas técnicas da receita e um excesso prático, todos corrigíveis sem inverter a conclusão.  FACTUAL — confirmado no banco real (projeto rmpnqrvsmxhnrwlgqmdp): observacao_entradas tem relogio timestamptz (sem default — vem do navegador), video_inicio_s/video_fim_s/janela_ini_s/janela_fim_s numeric, sala text, audio_path text, e NENHUMA coluna de caminho de vídeo ou câmera; nenhuma coluna tem comentário no catálogo (col_description = null), logo a semântica dos segundos não está documentada em lugar nenhum. As quatro colunas de… |
+| 5 | O kappa humano-humano com as 3 especialistas pode começar hoje com as 40 transcrições, mas o documento subestima o que falta: as entradas existentes não identificam criança, 3 avaliadoras pedem estatística de 3, e falta o kappa intra-observador (Teste 5) | melhoria | 3 | refutado (1 rodada) | Lente FACTUAL derruba a premissa central do achado (o teste T5a "kappa de leitura, uma tarde, esta semana, com as 40 transcrições existentes"). Consultei o banco ponto-escola-montessoriana (rmpnqrvsmxhnrwlgqmdp) e: (1) as contagens do revisor estão certas — 75 entradas: corte 5, fala 40 (40 com transcrição), fim 30; aluno_id não existe em observacao_entradas — MAS o CONTEÚDO das 40 transcrições inviabiliza pontuar envolvimento/autonomia/persistência: as 30 de 04/08 (sala 1, 20:12–20:29 UTC) são testes de microfone ("testando, testando", "Muito bem.", "Beleza!", "do microfone 3", 3 strings vazi… |
+| 6 | Pose em criança de 2 anos no ângulo atual: o teste precisa ser offline no stream principal (4K exportado), com anotação própria de 100 quadros por postura — não dá pra 'só medir' sem isso (Teste 6) | lacuna | 4 | refutado (1 rodada) | A recomendação de fundo (testar pose offline no stream principal, com anotação própria e portão de decisão antes da Etapa 6) sobrevive; o que cai são dois fatos centrais e o desenho estatístico do teste.  FACTUAL. (1) O número "30–40 px a 4–5 m no sub-stream 640x360" está errado por ~1,5–2×. Com a FOV publicada do TrackMix (wide 104° H / 60° V) a focal em 640 px é ~250 px: criança de 0,9 m fica com ~45 px a 5 m e ~56 px a 4 m; numa Reolink fixa típica (~87–90° H) dá ~60–76 px. Continua pequeno para RTMPose (crop 256×192), então a conclusão "use o stream principal" fica de pé, mas por outro mot… |
+| 7 | VLM 'engajado × vagando' em quadros amostrados: teste concreto com Claude, 60 clipes, 16 quadros, custo < US$ 5, medido contra o consenso humano do Teste 5 (Teste 8) | lacuna | 3 | refutado (1 rodada) | A ideia central (testar o VLM em quadros amostrados cedo, com variantes de entrada, antes do stick figure) sobrevive, mas o achado cai em três pontos verificáveis. (1) FACTUAL — dois dos três fatos citados da doc de Vision estão desatualizados para o modelo escolhido: em claude-opus-5 (tier 'high-resolution', Claude 4.7+) o limite é 2576 px no lado maior e 4784 tokens visuais, não 1568 px; um quadro 4K inteiro vira 2576x1449 = 4784 tokens (~US$ 0,024/quadro), 16x o quadro do sub-stream. O teto de 100 imagens/requisição vale só para modelos de 200k (Haiku 4.5); Opus 5 aceita 600 (acima de 20 im… |
+| 8 | O tracker não vai segurar identidade numa sala Montessori — meça isso em 2 dias (Teste 7) e use o resultado para a lista do que NÃO dá pra testar sem comprar | lacuna | 4 | refutado (1 rodada) | FACTUAL — o que se sustenta: ByteTrack é MIT e YOLOX é Apache-2.0 (verificado); meal_events tem 0 linhas e meal_event_items 0 (verificado no banco: o 'pipeline em produção' do contexto é só schema); salas_cameras tem 10 espaços sem sala de sono (verificado). O que cai: (1) o critério central 'se a fusão entre câmeras recupera >50% das quebras, compre 2 âncoras em vez de 4 por sala' é tecnicamente errado — trilateração UWB em 2D exige no mínimo 3 âncoras (4 em 3D); com 2 há ambiguidade especular e não há posição. O número de âncoras é ditado pela geometria da sala e NLOS, não pela persistência … |
 
 ### O que comprar de hardware
 
 _Resumo do revisor:_ Os três documentos foram escritos para observação amostrada de UMA dimensão (engajamento) e, coerentes com isso, mandam "não comprar câmera nova", não dimensionam disco para 17 câmeras, não têm nenhum microfone para as crianças e não nomeiam produto nem preço para UWB/RFID. Contra a meta atualizada (sensoriamento passivo, o dia inteiro, motor+linguagem+social+cognitivo+autonomia+autorregulação+alimentação+sono, 47 crianças), isso vira quatro furos de severidade alta: (1) as câmeras existentes não foram inventariadas — as do pátio são Reolink TrackMix (PTZ com auto-tracking que MOVE a câmera, substream de só 640x360, RTSP instável) e as das salas têm marca/modelo desconhecidos; (2) a dimensão "linguagem" não tem captação nenhuma — o áudio que existe é a narração da especialista; (3) o edge foi dimensionado para 6 streams, não 17+ e áudio; (4) UWB e RFID são propostos com kits que já saíram de linha (MDEK1001, Pozyx Creator) e com faixa de preço subestimada (leitor UHF fixo custa US$ 1.274–1.499, não US$ 300–800). Nada disso muda a ordem do plano — a primeira semana continua custando zero — mas o passo a passo precisa de uma "Etapa 0: inventário técnico das câmeras" e de uma lista de compras por fase com critério de gatilho. Ordem de prioridade de compra: (1) desktop de edge com GPU de consumo (não Jetson) + 2 HDD Purple 8 TB; (2) switch PoE + cabear qualquer câmera Wi‑Fi; (3) 2 câmeras fixas 4K PoE oblíquas por sala principal se o teste de pixels/mão falhar; (4) 2 arrays de microfone USB por sala + 3 gravadores de bolso para calibração; (5) piloto UWB com 9 placas Makerfabs; (6) piloto RFID com 1 leitor de 4 portas + antenas near‑field; (7) ArUco impresso no avental (R$ 0) como verdade de identidade antes de qualquer tag. Orçamento (câmbio assumido R$ 5,50/US$; ajustar): MÍNIMO VIÁVEL (2 salas, 7 câmeras, pilotos) ≈ R$ 18–24 mil; RECOMENDADO (17 câmeras, áudio em 3 espaços, UWB em 3 salas, RFID em 2 salas, sem LENA) ≈ R$ 45–70 mil; +≈R$ 33 mil se optar por 3 gravadores LENA com licença de software. Muitos preços de loja brasileira e alguns distribuidores (DigiKey, Makerfabs, Pozyx, Atlas) ficaram atrás de bloqueio de rede nesta revisão e foram marcados como "não verificado" onde só havia snippet.
 
-| # | Achado | Tipo | Sev | Veredito | Resumo do motivo |
+| # | Achado | Tipo | Sev | Veredito | Resumo do motivo (3ª rodada) |
 | --- | --- | --- | --- | --- | --- |
-| 1 | "Não comprar câmera nova — já tem 17" está errado para a meta contínua: as câmeras nunca foram inventariadas e as do pátio são PTZ de auto-tracking | erro | 5 | mantido | FACTUAL — o núcleo do achado se sustenta. (1) O passo a passo de fato trata as 17 câmeras como captação pronta (linha 19: "Não precisa comprar câmera pra começar"; linha 353: reconsiderar só "se a etapa 6 mostrar ângulo ruim"), e o contexto fixo confirma que marca/modelo/RTSP/fps nunca foram inventariados. (2) Reolink TrackMix: 4K/25 fps no main e substream FIXO em 640x360 — confirmado (wiki ZoneMinder; discussão Frigate #19650, onde usuários dizem que o sub é "too low to be useful" e usam o main para detecção). (3) Auto-tracking pode ser desligado e existe "monitor/guard point" com retorno au… |
-| 2 | Caixa de edge: o doc dimensiona para 6 streams; 17 câmeras + áudio exigem desktop com GPU de consumo (Jetson Orin Nano nem decodifica o volume) | lacuna | 4 | refutado | A lacuna existe (o passo a passo não especifica a caixa de edge e a análise dimensiona para 6 streams), mas o achado cai em duas frentes.  (a) FACTUAL — a aritmética de decode que sustenta a comparação está errada nos dois sentidos. "17 × 4K × 5 fps = 85 quadros 4K/s de decode" pressupõe que dá para decodificar só 5 de cada 25 quadros de um stream H.264/H.265. Não dá: quadros P/B dependem dos anteriores, então o decoder processa o fps de ORIGEM do stream (a exceção, decode só de I-frames, dá ~1 fps com GOP típico de 25–50). A documentação do Frigate diz isso literalmente: "Reducing frame rates… |
-| 3 | Armazenamento: o passo a passo manda "dimensionar o disco antes" e nunca dimensiona; para 17 câmeras contínuas são ~245 GB/dia a 5 fps (ou 612 GB/dia a 25 fps) | lacuna | 3 | mantido | O núcleo do achado resiste às duas lentes. FACTUAL: (1) a lacuna é real — o passo a passo, Etapa 3, item 1 (linhas 173–174), diz literalmente "com 17 câmeras, dimensione o disco antes" e nenhuma etapa dimensiona; a única conta está na análise (6 × 10 Mbps × 28.800 s ≈ 216 GB/dia, 2 HDDs de 8 TB ≈ US$ 300). (2) A aritmética do revisor está certa e coerente com a premissa da análise: 17 × 10 Mbps × 28.800 s = 612 GB/dia; features 12 M person-frames/dia ≈ 2,8× os 4,3 M da análise, logo 0,3–0,5 GB/dia bate com os 100–180 MB/dia dela. (3) Frigate é MIT — verificado no LICENSE ("The MIT License. Cop… |
-| 4 | Rede/PoE não aparece em nenhum documento: 17 streams 4K sustentados exigem cabo, switch PoE+ e VLAN — e há indício de câmera Wi‑Fi/móvel | lacuna | 4 | refutado | O núcleo do achado (rede não está dimensionada para 17 streams contínuos) é válido, mas a formulação cai em três pontos factuais e um prático. (1) FACTUAL — "nenhum documento fala de switch, cabeamento ou Wi-Fi" é falso: a análise (linhas 312-316 e 351-352) tem "Upload contínuo exigido: 60 Mbps sustentados, 8 h/dia" e "Switch PoE + cabeamento R$ ~2 k". O que falta é especificação, não menção; o próprio revisor admite isso na evidência. (2) FACTUAL — o "indício de câmera Wi-Fi" é inferência sobre texto que o banco não contém: a coluna real de salas_cameras diz "sala MEIO como complemento — ajus… |
-| 5 | Linguagem não tem captação nenhuma: o áudio existente é a narração da especialista; faltam microfones para as crianças (array de sala + gravador de bolso; LENA como opção cara) | lacuna | 5 | refutado | A LACUNA é real e a severidade 5 se justifica: li os três documentos e o passo-a-passo não menciona microfone em nenhuma das 8 etapas; o Grok chama áudio de "opcional na fase 1"; e o único áudio do banco (observacao-audio, 40/73 entradas) é narração da observadora — a meta atualizada exige linguagem e social quase contínuos, logo o diagnóstico fica de pé. O que cai é a FORMULAÇÃO e a LISTA DE COMPRA, por quatro motivos. (1) FACTUAL — "não tem captação nenhuma" provavelmente é falso: as 17 câmeras IP da linha TrackMix (Reolink) têm, pela linha de produto, microfone embutido e áudio no RTSP; iss… |
-| 6 | UWB: os documentos não nomeiam produto, e os kits que o mercado conhece (MDEK1001, Pozyx Creator) saíram de linha; a faixa "US$ 1,5–3 k" só fecha com placas Makerfabs e firmware próprio | lacuna | 4 | refutado | Refutado parcialmente, por duas razões. (a) FACTUAL: os fatos centrais do achado (MDEK1001 e Pozyx Creator descontinuados; Makerfabs a US$ 43,80; capacidade PANS 150 tags @1 Hz; CR2032 ≤10 mA; preço do DWM3001CDK) NÃO puderam ser confirmados nesta rodada — qorvo.com, forum.qorvo.com, pozyx.io, docs.pozyx.io, makerfabs.com, mouser, digikey, octopart, mdpi e sewio estão bloqueados pelo proxy de saída e a cota de WebSearch da sessão está esgotada. Ficam como "não verificado". O único fato verificável foi o repositório GitHub Makerfabs/Makerfabs-ESP32-UWB-DW3000, e ele contradiz parte do achado: o… |
-| 7 | RFID: preço de leitor UHF subestimado (US$ 300–800 vs US$ 1.274–1.499 reais), sem antena near‑field o "passou perto" é garantido, e a banda UHF do Brasil precisa ser a certa | erro | 3 | refutado | Lente FACTUAL — o núcleo do título ("preço de leitor UHF subestimado, US$ 300–800 vs US$ 1.274–1.499 reais") não se sustenta. A tabela da análise diz explicitamente "ordem de grandeza, conferir preço real" e não nomeia marca; a faixa US$ 300–800 corresponde exatamente à classe de leitor fixo de 4 portas que um construtor solo compraria (Chainway UR4/URA4 ~US$ 500–700 sob cotação; Chafon 4 portas ~US$ 150–300 pela própria estimativa do revisor; Impinj R420 "US$ 800+"; ThingMagic M6e US$ 200+). Só fica "subestimada" se a premissa for Zebra FX9600 / Impinj R700, e mesmo esses aparecem em fonte in… |
-| 8 | Identidade barata antes de qualquer tag: ArUco impresso no avental custa R$ 0 e serve de verdade de identidade para validar o tracker nas 18 crianças autorizadas; BLE só serve para presença por sala; cor não escala para 47 | melhoria | 3 | refutado | A ideia central (marcador visual barato como verdade de identidade ANTES de comprar UWB) é boa e vale manter; o que cai é a fundamentação factual e parte da mecânica proposta.  FACTUAL: 1) "O OpenCV exige perímetro mínimo de 0,05 × largura" é falso. No código-fonte (aruco_detector.hpp, branch 4.x) minMarkerPerimeterRate é um parâmetro de filtragem de contornos com default 0,03, relativo à MAIOR dimensão da imagem; o 0,05 é só o exemplo ilustrativo do tutorial ("640x480 ... 0.05 ... 32 pixels"). Não é exigência, é ajustável. O limite real de decodificação é perspectiveRemovePixelPerCell (defaul… |
+| 1 | "Não comprar câmera nova — já tem 17" está errado para a meta contínua: as câmeras nunca foram inventariadas e as do pátio são PTZ de auto-tracking | erro | 5 | mantido | O núcleo do achado sobrevive às duas lentes. FACTUAL: (1) o banco realmente só tem nome+sala das 17 câmeras — marca, modelo, RTSP, fps, HFOV, PoE/Wi-Fi e altura nunca foram registrados (fato do contexto); (2) as specs da Reolink TrackMix PoE citadas conferem com o que a busca retornou do spec sheet oficial e de support.reolink.com: main 3840x2160 @ até 25 fps, faixa 2–25 fps, H.264/H.265, substream 640x360, RTSP/ONVIF, auto-tracking desligável em Alarm Settings e "Monitor Point" com auto-retorno; (3) a discussão Frigate #19650 confirma quedas de RTSP nativo em Reolink 8MP e o uso de Neolink/go… |
+| 2 | Caixa de edge: o doc dimensiona para 6 streams; 17 câmeras + áudio exigem desktop com GPU de consumo (Jetson Orin Nano nem decodifica o volume) | lacuna | 4 | **dividido** | O núcleo do achado sobrevive às duas lentes. (a) FACTUAL: a lacuna é real — a análise fixa "6 streams a 5 fps" (P10 e a tabela "Micro de edge com GPU R$ 6–9 k", premissa "3 salas × 2 câmeras") e o passo a passo só diz "com 17 câmeras, dimensione o disco antes" (Etapa 3) e "nas 2 salas principais" (Etapa 6), sem nenhuma conta de compute. Verifiquei: aumento de preço Jetson em jul/2026 (Orin Nano Super US$ 249→399; AGX Orin dev kit US$ 1.999→3.499; módulo Orin Nano US$ 99→199) — confirmado em hwbusters/videocardz/notebookcheck; decode Orin Nano 1×4K60\|2×4K30\|11×1080p30, Orin NX 2×4K60\|4×4K30\… |
+| 3 | Armazenamento: o passo a passo manda "dimensionar o disco antes" e nunca dimensiona; para 17 câmeras contínuas são ~245 GB/dia a 5 fps (ou 612 GB/dia a 25 fps) | lacuna | 3 | **dividido** | O núcleo do achado (lacuna) é verdadeiro: o passo a passo, Etapa 3 item 1, diz literalmente "com 17 câmeras, dimensione o disco antes" e a dimensão nunca aparece; a única conta está na análise (6 × 10 Mbps × 28.800 s ≈ 216 GB/dia; "2 HDDs de 8 TB ≈ US$ 300"). Mas o achado cai nas duas lentes por causa dos números e da recomendação central. FACTUAL: (1) O número-manchete "245 GB/dia" depende de "4K @ 5 fps ≈ 3–4 Mbps", que o revisor não verificou e que é frágil: em câmeras Reolink o bitrate é um parâmetro independente do fps (faixa do main stream 1024–8192 kbps; RLC-1212A default 8192 kbps; mod… |
+| 4 | Rede/PoE não aparece em nenhum documento: 17 streams 4K sustentados exigem cabo, switch PoE+ e VLAN — e há indício de câmera Wi‑Fi/móvel | lacuna | 4 | refutado | FACTUAL — três pilares do achado não se sustentam. (1) "Nenhum dos três documentos fala de switch, cabeamento" é falso: a análise (2026-08-29-analise-grok-arquitetura.md, linhas 316 e 352) traz "Upload contínuo exigido: 60 Mbps sustentados, 8 h/dia" e a linha "Switch PoE + cabeamento R$ ~2 k" — a própria evidência do revisor admite isso ("único registro"). A lacuna real é de ESPECIFICAÇÃO, não de ausência; isso derruba o título e reduz a severidade. (2) A inferência "sala MEIO (compartilhada, ajustável) → câmera Wi‑Fi" não tem base: o texto real em salas_cameras.observacao é "sala MEIO como co… |
+| 5 | Linguagem não tem captação nenhuma: o áudio existente é a narração da especialista; faltam microfones para as crianças (array de sala + gravador de bolso; LENA como opção cara) | lacuna | 5 | **dividido** | LENTE FACTUAL — o núcleo do achado se sustenta: (1) o passo-a-passo (8 etapas) não contém a palavra "microfone" nem qualquer captação de áudio das crianças; o único áudio é o bucket observacao-audio com a narração da especialista (40/73 entradas); o Grok classifica áudio como "opcional na fase 1". Com a meta atualizada (linguagem e social quase contínuos), isso é lacuna real de severidade 5. (2) Fatos de produto verificados: Shure MXA910 descontinuado em maio/2022 e substituído pelo MXA920 (Shure/323.tv); ES945O/XLR US$ 219 no site da Audio-Technica (MSRP antigo US$ 249); Sony ICD-PX470 R$ 527… |
+| 6 | UWB: os documentos não nomeiam produto, e os kits que o mercado conhece (MDEK1001, Pozyx Creator) saíram de linha; a faixa "US$ 1,5–3 k" só fecha com placas Makerfabs e firmware próprio | lacuna | 4 | refutado | O núcleo do achado (documentos não nomeiam produto; MDEK1001 e Pozyx Creator saíram de linha; PANS 750/150/15 tags; "10–30 cm" é otimista) confere. Mas duas afirmações centrais que sustentam o título e a mudança proposta caem: (1) "a faixa US$ 1,5–3 k só fecha com placas Makerfabs e firmware próprio" é falsa — o DWM3001CDK custa US$ 29,50 (loja Qorvo, 1–24 un.) / US$ 31,61 (Avnet, 20+), não os "US$ 130–150" que o revisor chutou sem verificar; 67 placas ≈ US$ 2,0 k, dentro da faixa e mais barato que Makerfabs. (2) "Makerfabs sem stack de posicionamento pronto — exige firmware próprio (2–4 seman… |
+| 7 | RFID: preço de leitor UHF subestimado (US$ 300–800 vs US$ 1.274–1.499 reais), sem antena near‑field o "passou perto" é garantido, e a banda UHF do Brasil precisa ser a certa | erro | 3 | refutado | LENTE FACTUAL — o núcleo do achado ("US$ 300–800 está subestimado") cai. (1) A análise escreve "ordem de grandeza, conferir preço real" e "por leitor"; o achado compara essa faixa só com a classe enterprise (Impinj R700 US$ 1.499 confirmado; Zebra FX9600 4 portas ≈ US$ 1.213–1.274, MSRP US$ 1.685) e omite que a classe que um construtor solo compraria está ABAIXO da faixa: Chafon CF815 com chip Impinj E710, 4 portas RP‑TNC, 0–33 dBm, opção 902–928 MHz, US$ 196–206 (Alibaba), Chafon US$ 279/unidade e Ascend IoT US$ 232 (Accio). O próprio achado admite "Chafon ≈ US$ 150–300", contradizendo o títu… |
+| 8 | Identidade barata antes de qualquer tag: ArUco impresso no avental custa R$ 0 e serve de verdade de identidade para validar o tracker nas 18 crianças autorizadas; BLE só serve para presença por sala; cor não escala para 47 | melhoria | 3 | refutado | Refutação PARCIAL: a ideia central (ArUco no avental como verdade de identidade barata antes de comprar UWB) sobrevive, mas três pontos do achado não se sustentam como escritos.  (a) FACTUAL — 1. "O OpenCV exige perímetro mínimo de 0,05 × largura" é errado: minMarkerPerimeterRate é parâmetro ajustável com default 0,03, relativo à MAIOR dimensão da imagem; o 0,05 é só o exemplo do tutorial (640×0,05 = 32 px). Com 0,03 o mínimo seria 115 px de perímetro (~29 px de lado, ~7 cm a 5 m). O limite real não é esse parâmetro, e sim resolução por célula (4×4 + borda = 6 células; ~8 px/célula em 48 px), … |
+
+### Lacunas apontadas pelo crítico de completude (3ª rodada)
+
+1. **Captação: as quatro seções técnicas assumem parques, fps, bitrate, resolução e retenção diferentes — e duas delas se contradizem no que é inegociável (4K e fps do pátio)** — Arquitetura: 17 câmeras, main a 8–10 fps, 4–8 Mbps 4K, retenção 3 dias, 275–551 GB/dia, pose a 2 fps fora das salas. Ferramentas: 17 × 10 Mbps ≈ 612 GB/dia, retenção 7 dias. Como testar: 15–16 aparelhos (sala MEIO duplicada; TrackMix = 1 canal), gravar main a 1080p–1440p/15 fps/3 Mbps ≈ 76 GB/dia (7 câm.), 30 dias. Hardware: 17–19 streams (TrackMix = 2 lentes), main 4K a 15 fps, 245–670 GB/dia, 14 dias, e afirma que na TrackMix resolução/codec não são alteráveis. Duas contradições de fundo: (a) …
+2. **Stack de visão e GPU divergentes: três detectores, dois modelos de pose, duas gerações de GPU e um proxy proibido (Neolink) que reaparece** — Plano de IA, Arquitetura e Como testar usam YOLOX + RTMPose-m; Ferramentas descarta YOLOX (sem release funcional desde fev/2023) e MMDetection (mmcv não compila em PyTorch 2.9) e propõe RF-DETR Nano/Small ou RT-DETRv2-S + rtmlib/RTMO-s (one-stage) para o contínuo; Hardware escreve 'YOLOX-s/RT-DETR + RTMPose-m'. GPU: Arquitetura orça RTX 4060 8 GB; Ferramentas e Hardware orçam RTX 5060/5060 Ti 16 GB; Como testar diz que nenhuma GPU é comprada antes de T1+T6 e roda OpenVINO em CPU/iGPU. Hardware a…
+3. **Schema divergente e um erro estrutural: colunas por câmera numa tabela cuja chave é a sala; nomes, comprimento de janela e métrica de concordância diferem entre seções** — Como testar (`alter table salas_cameras add column modelo, canal_nvr, rtsp_path_main…`) e Ferramentas (`fabricante, modelo, stream_main_url, tem_microfone…` em `salas_cameras`) põem atributos por câmera numa tabela cuja PK é `sala` e cujas câmeras são `text[]` (sala 1a3 tem 4) — não há onde guardar 4 modelos/4 URLs numa linha; Arquitetura cria `cameras(id, sala, nome, modelo, …)`, que é o certo. Também: `obs_janelas` (Plano de IA) vs `dev_janelas` (Arquitetura); `janelas_features` vs `dev_agrega…
+4. **Linguagem em regime pleno não tem hardware, compute, sincronia nem operação — só o piloto está orçado** — Plano de IA diz que o regime pleno são 47 gravadores vestíveis e 376 h/dia de áudio; Hardware orça 2–3 Sony ICD-PX470 (R$ 527/un.) 'rotativas' (= amostrado, não contínuo) e arrays XVF3800 que entregam um único azimute (fonte dominante) numa sala com 20 crianças. Ninguém orça 47 × R$ 527 ≈ R$ 24,8 k, nem quem recarrega/descarrega 47 gravadores por USB todo dia. Compute: pyannote community-1 leva 31–37 s por hora de áudio numa H100 (README verificado: https://raw.githubusercontent.com/pyannote/pya…
+5. **Duas dimensões sem sensor de fato: sono não tem espaço nem câmera confirmados; motor grosso perde o pátio (sem UWB, câmera PTZ travada, pose a 2 fps)** — Plano de IA classifica sono como PASSIVO-CANDIDATO via 'câmera IR na sala de sesta'; Como testar verifica que não há sala de sono em `salas_cameras` e Ferramentas manda 'registrar onde acontece a soneca' — ou seja, o sensor é hipótese. Motor grosso depende, no Plano de IA, de pose + UWB (velocidade, subir/pular), que acontece no pátio; mas o UWB em escala cobre 3 salas (Hardware), a Hardware manda travar ou excluir a TrackMix do pátio, e a Arquitetura roda pose a 2 fps fora das salas. Na prática…
+6. **Carga humana e instrumentos-âncora nunca foram somados — e com 2 avaliadoras reais a soma provavelmente não cabe** — Somando o que as seções pedem às mesmas 2 pessoas nas primeiras 12 semanas: 9 janelas/dia ≈ 25 min/dia (Plano de IA) + sorteio 15 min/dia (Arquitetura) + 20 janelas/semana em dupla cega + golden com 10 blocos ≥2 h (60 janelas de 2 min por bloco × 2 avaliadoras ≈ 20–40 h) + `meal_golden` 100 pares × 2 + T5 (60 clipes × 2 + reteste 15) + ~960 caixas à mão para T8 (3–4 h) + 10–15 h de anotação de pose (T6) + ≥1.000 instâncias no CVAT (Ferramentas). Mais os instrumentos do item E do Plano de IA, sem…
+7. **Roadmap integrado: as cinco seções mudaram a ordem e os portões do plano original sem consolidar — e discordam entre si sobre quando comprar RFID/UWB e a GPU** — Original: E1 (s1–2) → E2 (s3) → E3 (s4–6) → E4 (s6–8) → E5 RFID/UWB (m3–4) → E6 visão (m5–8) → E7 (m9+). Mudanças não conciliadas: três 'Etapas 0' diferentes (inventário na Hardware, ingestão na Ferramentas, 'sem etapa 0 bloqueante' na Arquitetura); Como testar liga gravação contínua na semana 1 (T1) e faz kappa sobre clipes (T5) em vez de sobre entradas; Plano de IA exige que o golden da E3 tenha ≥60% de janelas aleatórias + 10 blocos ≥2 h — só fecha com gravação rodando semanas antes; Plano de…
+8. **Custo total (capex + opex + horas) e prazo total nunca foram somados; várias linhas de API se sobrepõem** — Hardware: R$ 15–21 k (mínimo) / R$ 45–68 k (recomendado) / +R$ 31–33 k (LENA) — só hardware. Opex espalhado e parcialmente duplicado: Plano de IA US$ 120–245/mês (VLM amostrado); Arquitetura US$ 50–110 (calibração) + US$ 30–50 (transcrição); Ferramentas US$ 13/mês (crops Haiku) — três estimativas para a mesma amostra. Faltam: Supabase Pro (US$ 25/mês + disco/egress), energia de uma caixa 24/7 (~350 W ≈ 250 kWh/mês ≈ R$ 200–300/mês; tarifa não verificada), 47 gravadores (lacuna 4), UWB do pátio (…
+9. **Riscos técnicos sem dono: NVR Reolink como gargalo de streams, sincronia entre sensores, 65+ clientes ESP32 no Wi‑Fi e handover de tag UWB entre salas** — (a) Se as 17 câmeras pendem de um NVR Reolink (provável: 33 sessões ao vivo, nota 'TrackMix'), elas ficam na sub-rede PoE do NVR e o edge só as acessa por canal do NVR; há relato de limite de 12 streams simultâneos por NVR (2 main + 10 sub — trecho de busca; página oficial https://support.reolink.com/articles/360008742233 bloqueada nesta sessão, não verificado). Se for assim, 17–19 main 4K para pose são impossíveis sem tirar as câmeras do NVR — e o switch PoE que a Hardware manda não comprar 'an…
+10. **A primeira semana do construtor solo está em cinco versões diferentes — precisa de uma só, e ela tem que resolver as contradições antes de cristalizá-las na migração** — Plano original: codebook → migração → sliders → calibração em voz alta. Plano de IA: + encomendar RFID + criar `materiais`. Arquitetura: + `dev_janelas`/`cameras`. Ferramentas: + migração em `salas_cameras` + Frigate TensorRT. Como testar: T0 (inventário, resgate 24/08), T1 (Frigate no PC atual), T2 (`relogio_servidor`). Hardware: Etapa 0 (inventário), ArUco, teste de px/punho. Feitas todas ao mesmo tempo, sem a lacuna 3 resolvida, a migração de terça grava o schema errado (`salas_cameras` com c…
