@@ -5,6 +5,14 @@
   banco real (`ponto-escola-montessoriana`, Postgres 17, sa-east-1)
 - **Status:** `EM ANÁLISE` — proposta de execução, não decisão tomada.
 - **Escopo:** só engenharia. Camada jurídica fora, a pedido.
+- **Papel atual (06/09):** este documento é a **spec do Projeto B** (amostrado) na
+  [bifurcação](2026-09-06-bifurcacao-projetos-a-b.md). O texto é mantido como foi escrito;
+  as **erratas de fato** apuradas depois valem sobre ele: são **2 avaliadoras**, não 3
+  (`claudio`/`Claudio`/`Sonia`); `meal_events` tem **0 eventos** (schema pronto, fluxo nunca
+  rodou); são **16 câmeras nomeadas, ~15 aparelhos**, sem ficha técnica; as transcrições
+  existentes são quase todas **teste de microfone** e não servem para o kappa; `video_*` e
+  `janela_*` estão vazios em 75/75 entradas; a chave `'sala 1'` não existe em `salas_cameras`.
+  Detalhes na [Revisão 2.1](2026-09-05-revisao-2-plano.md).
 
 ---
 
