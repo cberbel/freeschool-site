@@ -1,8 +1,8 @@
-# Bifurcação — duas linhas em paralelo: amostrada (B) e contínua (A)
+# Bifurcação — Projeto A e Projeto B em paralelo
 
 - **Data:** 2026-09-06
-- **Decisão do dono:** seguir em **duas linhas**. A linha **A** é a revisão 2 (monitoramento
-  quase contínuo). A linha **B** mantém as **quatro decisões que a revisão derrubou** — clipe
+- **Decisão do dono:** seguir em **dois projetos** ("Projeto A" e "Projeto B"; "linha A/B" é sinônimo). O **Projeto A** é a revisão 2 (monitoramento
+  quase contínuo). O **Projeto B** mantém as **quatro decisões que a revisão derrubou** — clipe
   ancorado numa entrada, ingestão sob demanda, áudio só da observadora, VLM como rotulador
   "barato" — ou seja, o passo a passo de 29/08 como foi escrito.
 - **Por quê:** aprender, com número, a diferença entre o **gap de esforço** e o **gap de
@@ -14,15 +14,15 @@
 
 ---
 
-## As duas linhas, lado a lado
+## Os dois projetos, lado a lado
 
-| | **Linha B — amostrada** | **Linha A — contínua** |
+| | **Projeto B — amostrado** | **Projeto A — contínuo** |
 | --- | --- | --- |
-| Especificação | [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md), Etapas 1–4 (o doc de 29/08 deixa de ser "superado" e vira a spec de B) | [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) |
+| Especificação | [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md), Etapas 1–4 (o doc de 29/08 deixa de ser "superado" e vira a spec do Projeto B) | [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) |
 | **1. Unidade de medida** | **Clipe de 3 min ancorado numa entrada** da especialista (`[relogio − 90 s, relogio + 90 s]`); `obs_avaliacoes.entrada_id` | **Janela criança × tempo** (2 min para rótulo humano, 5 min para features); `obs_avaliacoes.janela_id`; janelas sorteadas por sala × hora |
 | **2. Ingestão** | **Sob demanda**: recorte do NVR existente quando a entrada é salva (`reolink_aio`, início/fim arbitrários). Nada roda o dia inteiro | **Fundação**: go2rtc + Frigate + worker a 5 fps em 16–17 câmeras, o dia inteiro |
 | **3. Áudio** | **Só a narração da observadora** (`observacao-audio` → transcrição → índice), como hoje | Gravador **vestível** por criança para linguagem (Etapa 5b) + clima sonoro por zona |
-| **4. Papel do VLM** | **Rotulador de todos os clipes** (`claude-opus-5`, 16 quadros, Batch, saída estruturada). A ~800 clipes/mês "o custo não importa" — e nesta linha é verdade | Rotulador **só da amostra** (2–4 mil janelas/mês); a medida contínua vem de modelo local sobre keypoints, RFID, UWB, áudio |
+| **4. Papel do VLM** | **Rotulador de todos os clipes** (`claude-opus-5`, 16 quadros, Batch, saída estruturada). A ~800 clipes/mês "o custo não importa" — e neste projeto é verdade | Rotulador **só da amostra** (2–4 mil janelas/mês); a medida contínua vem de modelo local sobre keypoints, RFID, UWB, áudio |
 | Fonte de rótulo humano | Sliders na **entrada** (3 dimensões, 15 s) | Sliders na **janela sorteada** + calibração contínua |
 | Corpus dourado | 300–500 **clipes de entrada** (`obs_golden` com `entrada_id`) | ≥ 60% **janelas aleatórias** + blocos contínuos (`obs_golden` com `janela_id`) |
 | Identidade da criança | A especialista escreve quem é | Tracker + UWB (piloto) + marcador visual |
@@ -32,46 +32,46 @@
 | Onde o esforço mora | **Tempo de especialista** (cada clipe nasce de uma entrada humana) | **Tempo de construção e hardware** |
 | O que ela não enxerga, por desenho | Rotina, transições, fila, sesta; social; linguagem da criança; qualquer criança sem entrada naquela semana | Nada por desenho — mas tudo depende de sensores ainda não validados |
 
-**A pergunta que a bifurcação responde:** a linha B mede a criança ou mede a agenda da
-especialista? E a linha A paga, em esforço, o que entrega a mais em resultado?
+**A pergunta que a bifurcação responde:** o Projeto B mede a criança ou mede a agenda da
+especialista? E o Projeto A paga, em esforço, o que entrega a mais em resultado?
 
 ---
 
 ## Tronco comum (não duplicar — é o que torna a comparação justa)
 
-1. **Codebook v1** e o dicionário operacional — **um só**, versionado em `obs_codebook`. As
-   duas linhas pontuam com a mesma âncora comportamental.
-2. **As 3 especialistas** — as mesmas pessoas, com o tempo **apontado por linha** (ver esforço).
+1. **Codebook v1** e o dicionário operacional — **um só**, versionado em `obs_codebook`. Os
+   dois projetos pontuam com a mesma âncora comportamental.
+2. **As 3 especialistas** — as mesmas pessoas, com o tempo **apontado por projeto** (ver esforço).
 3. **Schema** — `obs_codebook`, `obs_avaliacoes`, `obs_golden`, `dev_janelas`, com uma coluna
-   nova: `linha text not null check (linha in ('A','B','comum'))`. `obs_avaliacoes` já suporta
-   os dois ancoradouros (`entrada_id` **ou** `janela_id`); a coluna `linha` diz qual pipeline
+   nova: `projeto text not null check (projeto in ('A','B','comum'))`. `obs_avaliacoes` já suporta
+   os dois ancoradouros (`entrada_id` **ou** `janela_id`); a coluna `projeto` diz qual pipeline
    gerou a linha. Nada mais muda.
 4. **Kappa da semana 3 (T3)** — feito **nas duas unidades**: 30 clipes de entrada (B) **e** 30
    janelas aleatórias (A), pelas mesmas 3 especialistas, cegas. É o primeiro número da
    bifurcação: **a concordância humana é diferente em "momentos que chamaram atenção" e em
    rotina?** (A revisão prevê que o acordo em rotina é menor. Se for, isso já é resultado.)
-5. **Supabase, páginas estáticas, worker Python** — a mesma stack; B não ganha uma segunda.
-6. **O conjunto de comparação** (abaixo) — sorteado e pontuado uma vez, usado pelas duas.
-7. **Mapa de medição** da revisão 2 — as duas linhas reportam nas mesmas dimensões, e o mapa
-   diz para cada dimensão o que cada linha consegue e o que não consegue.
+5. **Supabase, páginas estáticas, worker Python** — a mesma stack; o Projeto B não ganha uma segunda.
+6. **O conjunto de comparação** (abaixo) — sorteado e pontuado uma vez, usado pelos dois.
+7. **Mapa de medição** da revisão 2 — os dois projetos reportam nas mesmas dimensões, e o mapa
+   diz para cada dimensão o que cada projeto consegue e o que não consegue.
 
-**Contaminação a evitar.** As especialistas produzem as entradas de B **e** pontuam as janelas
-de A. Regras: (a) os painéis por criança de A **não são mostrados** às especialistas durante o
+**Contaminação a evitar.** As especialistas produzem as entradas do Projeto B **e** pontuam as
+janelas do Projeto A. Regras: (a) os painéis por criança do Projeto A **não são mostrados** às especialistas durante o
 período de comparação (senão as entradas de B passam a ser guiadas por A); (b) o tempo é
-apontado no ato, por linha, não reconstruído de memória; (c) o job de clipe de B lê o **NVR**,
-não o Frigate de A — se B usar a ingestão de A, o gap de esforço de B fica falso.
+apontado no ato, por projeto, não reconstruído de memória; (c) o job de clipe do Projeto B lê o **NVR**,
+não o Frigate do Projeto A — se B usar a ingestão de A, o gap de esforço de B fica falso.
 
 ---
 
 ## O que se mede: esforço
 
-Uma tabela, preenchida toda sexta, por linha. Sem isso a bifurcação vira opinião.
+Uma tabela, preenchida toda sexta, por projeto. Sem isso a bifurcação vira opinião.
 
 ```sql
 create table bifurcacao_esforco (
   id           uuid primary key default gen_random_uuid(),
   semana       date not null,                 -- segunda-feira da semana
-  linha        text not null check (linha in ('A','B','comum')),
+  projeto      text not null check (projeto in ('A','B','comum')),
   categoria    text not null check (categoria in
                  ('construcao','operacao','especialista','hardware_brl','api_usd','outro')),
   quantidade   numeric not null,              -- horas, R$ ou US$ conforme a categoria
@@ -82,11 +82,11 @@ create table bifurcacao_esforco (
 
 | Métrica de esforço | Como se mede | O que se espera (hipótese a testar) |
 | --- | --- | --- |
-| Horas de construção | Apontamento do construtor, por linha | A ≫ B |
+| Horas de construção | Apontamento do construtor, por projeto | A ≫ B |
 | Horas de operação | Reinício de stream, recarga de gravadores, troca de bateria de tag, manutenção do NVR | A ≫ B |
 | Horas de especialista | Entradas (B) × tempo médio; janelas pontuadas (A); comparação (comum) | **B ≫ A por criança coberta** — é a hipótese central: B só escala com gente |
 | Hardware (R$ acumulado) | Notas fiscais | A ≫ B (B ≈ 0) |
-| API (US$/mês) | Console da Anthropic, por chave — **uma chave por linha** | Parecido em valor absoluto; muito diferente por janela medida |
+| API (US$/mês) | Console da Anthropic, por chave — **uma chave por projeto** | Parecido em valor absoluto; muito diferente por janela medida |
 | Dias-calendário até o marco | "primeiro relatório semanal por criança para as 47"; "primeira curva de 3 meses" | B chega primeiro ao relatório; A chega primeiro à curva |
 
 O número que interessa no fim não é o total, é a **razão**: horas e reais **por criança-semana
@@ -105,51 +105,51 @@ janelas do tempo presente com cobertura ≥ 0,8. Hoje B parte de **~1,5 entrada 
 mês** — cobrir 47 crianças toda semana exige uma mudança de rotina das especialistas, e esse
 custo é exatamente o que a tabela de esforço captura.
 
-### 2. Validade do pontuador (o mesmo alvo para as duas)
+### 2. Validade do pontuador (o mesmo alvo para os dois)
 
 **Conjunto de comparação:** 20 janelas aleatórias por semana (sorteio por sala × faixa horária,
 começando pelas 18 crianças com autorização de imagem), pontuadas cegas por 2 especialistas
-→ consenso. **As duas linhas pontuam as mesmas janelas:** A com o que tiver (VLM sobre a
+→ consenso. **Os dois projetos pontuam as mesmas janelas:** A com o que tiver (VLM sobre a
 janela até a Etapa 6; modelo local depois); B com o **seu** pontuador — o VLM sobre um clipe de
 3 min recortado do NVR em torno do mesmo instante. Métrica: alfa de Krippendorff ordinal de
-cada linha contra o consenso, por dimensão. Isso separa "o pontuador de B é bom?" de "a
+cada projeto contra o consenso, por dimensão. Isso separa "o pontuador de B é bom?" de "a
 amostragem de B é boa?" — são perguntas diferentes e a segunda é a que o desenho de B
 compromete.
 
 ### 3. Viés de amostragem (o coração da bifurcação)
 
-Para cada criança-semana em que **as duas** linhas têm medida: `viés = média_B − média_A`.
+Para cada criança-semana em que **os dois** projetos têm medida: `viés = média_B − média_A`.
 Se as entradas das especialistas são "momentos que chamaram atenção", B será sistematicamente
 mais alto (ou mais extremo) que A para a mesma criança na mesma semana. Reportar: viés médio,
-desvio, correlação entre os rankings das crianças (Spearman) e a fração de semanas em que as
-duas linhas ordenam as crianças de forma diferente. **Este é o número que ninguém tem hoje e que
+desvio, correlação entre os rankings das crianças (Spearman) e a fração de semanas em que os
+dois projetos ordenam as crianças de forma diferente. **Este é o número que ninguém tem hoje e que
 só a bifurcação produz.**
 
 ### 4. Sensibilidade
 
-Cada linha consegue detectar uma mudança real? Duas provas: (a) **efeito de idade** em 3 meses
-(deve existir em qualquer medida válida de desenvolvimento) — estimado por linha, contra o
-ruído da própria linha; (b) **uma intervenção planejada** — a equipe introduz um material novo
-numa turma (ou muda um horário) numa data conhecida; quantos dias cada linha leva para mostrar
+Cada projeto consegue detectar uma mudança real? Duas provas: (a) **efeito de idade** em 3 meses
+(deve existir em qualquer medida válida de desenvolvimento) — estimado por projeto, contra o
+ruído do próprio projeto; (b) **uma intervenção planejada** — a equipe introduz um material novo
+numa turma (ou muda um horário) numa data conhecida; quantos dias cada projeto leva para mostrar
 a mudança em repetição/envolvimento, e com que confiança. B mede isso só se houver entradas;
 A mede por RFID/janela.
 
 ### 5. Utilidade pedagógica (o "e daí?")
 
-Toda semana, os parágrafos por criança das duas linhas vão para a equipe **sem dizer de qual
-linha veio cada um**. A professora responde a duas perguntas por parágrafo: "isso eu já sabia?"
-e "isso muda o que eu faço amanhã?". Contagem por linha. Sem isso, o resultado é acadêmico.
+Toda semana, os parágrafos por criança dos dois projetos vão para a equipe **sem dizer de qual
+projeto veio cada um**. A professora responde a duas perguntas por parágrafo: "isso eu já sabia?"
+e "isso muda o que eu faço amanhã?". Contagem por projeto. Sem isso, o resultado é acadêmico.
 
 ```sql
 create table bifurcacao_resultados (
   semana   date not null,
-  linha    text not null check (linha in ('A','B')),
+  projeto  text not null check (projeto in ('A','B')),
   metrica  text not null,   -- 'cobertura','alfa_envolvimento','vies_medio','spearman',
                             -- 'dias_para_detectar','util_ja_sabia','util_muda_amanha', ...
   valor    numeric,
   n        integer,
   nota     text,
-  primary key (semana, linha, metrica)
+  primary key (semana, projeto, metrica)
 );
 ```
 
@@ -157,19 +157,19 @@ create table bifurcacao_resultados (
 
 ## Cronograma da bifurcação
 
-| Quando | Comum | Linha B | Linha A |
+| Quando | Comum | Projeto B | Projeto A |
 | --- | --- | --- | --- |
-| Semana 1 | Codebook v1; T0 inventário; migração mínima **com a coluna `linha`**; sliders; chaves de API separadas; `bifurcacao_esforco` criada | — | T1 captação no PC existente; RFID encomendado |
+| Semana 1 | Codebook v1; T0 inventário; migração mínima **com a coluna `projeto`**; sliders; chaves de API separadas; `bifurcacao_esforco` criada | — | T1 captação no PC existente; RFID encomendado |
 | Semana 2 | Calibração em voz alta (10 clipes + 10 janelas) | Job de clipe a partir do **NVR** (T4, versão B); especialistas passam a registrar entradas com meta de cobertura (ex.: 3 por criança por semana) | T2 sincronização |
 | Semana 3 | **T3 kappa nas duas unidades** (30 clipes + 30 janelas) → primeiro resultado | VLM sobre os clipes (Etapa 4 de 29/08) | T4 versão A (clipe de janela via Frigate) |
 | Semana 4 | Conjunto de comparação começa (20 janelas/semana) | Primeiro relatório semanal por criança (as que tiverem clipe) | T5–T10 |
 | Semanas 5–8 | Comparação semanal; esforço apontado | Golden B (clipes) | Golden A (janelas); sorteio diário; RFID instalado |
-| Semanas 8–16 | **Janela de comparação** (8 semanas com as duas linhas produzindo medida semanal para as mesmas crianças); intervenção planejada na semana 10 | Regime estável | Etapa 5b áudio piloto; edge se T1/T5 pediram; Etapa 6 começa |
+| Semanas 8–16 | **Janela de comparação** (8 semanas com os dois projetos produzindo medida semanal para as mesmas crianças); intervenção planejada na semana 10 | Regime estável | Etapa 5b áudio piloto; edge se T1/T5 pediram; Etapa 6 começa |
 | Mês 4 | **Leitura intermediária** (esforço acumulado; cobertura; viés; utilidade) | | |
-| Mês 6 | **Leitura final** com efeito de idade por linha → decisão | | |
+| Mês 6 | **Leitura final** com efeito de idade por projeto → decisão | | |
 
-A linha A continua depois; a linha B continua até a decisão. Nenhuma das duas para antes da
-leitura final — parar B cedo é perder justamente o dado do gap.
+O Projeto A continua depois; o Projeto B continua até a decisão. Nenhum dos dois para antes da
+leitura final — parar o B cedo é perder justamente o dado do gap.
 
 ---
 
@@ -178,43 +178,43 @@ leitura final — parar B cedo é perder justamente o dado do gap.
 Três desfechos possíveis, e o que cada um significa para o produto:
 
 1. **B ≈ A em validade e utilidade; a cobertura de B basta para a equipe.** Então o produto é
-   B — observação humana ampliada por VLM — e A vira instrumento de pesquisa, não de operação.
+   o B — observação humana ampliada por VLM — e o A vira instrumento de pesquisa, não de operação.
    O gap de esforço foi pago à toa? Não: sem A não haveria como saber que B bastava.
 2. **A enxerga o que B não enxerga (rotina, social, linguagem, transições) e a equipe diz que
-   isso muda o que faz.** Então o produto é A, e o custo de A se justifica pelo que só ele mede.
-   B continua como camada de calibração humana — que é exatamente o papel que a revisão 2 lhe
+   isso muda o que faz.** Então o produto é o A, e o custo do A se justifica pelo que só ele mede.
+   O B continua como camada de calibração humana — que é exatamente o papel que a revisão 2 lhe
    dá.
-3. **Híbrido (o mais provável):** os **sensores de contagem** de A (RFID, UWB, áudio por zona)
+3. **Híbrido (o mais provável):** os **sensores de contagem** do A (RFID, UWB, áudio por zona)
    entregam a maior parte do ganho de cobertura por uma fração do esforço da **visão** contínua,
-   e os clipes humanos de B seguem sendo a melhor fonte de rótulo de construto. Produto =
+   e os clipes humanos do B seguem sendo a melhor fonte de rótulo de construto. Produto =
    B + sensores de contagem, sem visão contínua; visão fica para o que os sensores não medem
    (postura, orientação de cabeça, resistência à distração).
 
 Critérios numéricos para distinguir 1 de 2, fixados agora: (a) Spearman entre os rankings
 semanais das crianças ≥ 0,8 **e** viés médio < 0,3 ponto → "B ≈ A" em resultado; (b) utilidade
 "muda o que faço amanhã" de A ≥ 1,5× a de B → A vale o esforço; (c) horas de especialista por
-criança-semana coberta em B > 3× as de A (operação + construção amortizada) → B não escala.
+criança-semana coberta no B > 3× as do A (operação + construção amortizada) → B não escala.
 
 ---
 
-## O que registrar no doc de cada linha
+## O que registrar no doc de cada projeto
 
-- **B:** o passo a passo de 29/08 é a spec; acrescentar só a coluna `linha`, a meta de cobertura
-  (entradas por criança por semana) e a chave de API própria. **Não** "melhorar" B com peças de
-  A durante a comparação — se B ganhar janelas sorteadas ou Frigate, deixa de ser B.
-- **A:** a revisão 2 é a spec; acrescentar a coluna `linha` e o conjunto de comparação como
+- **B:** o passo a passo de 29/08 é a spec; acrescentar só a coluna `projeto`, a meta de cobertura
+  (entradas por criança por semana) e a chave de API própria. **Não** "melhorar" o B com peças do
+  A durante a comparação — se o B ganhar janelas sorteadas ou Frigate, deixa de ser B.
+- **A:** a revisão 2 é a spec; acrescentar a coluna `projeto` e o conjunto de comparação como
   parte da calibração contínua (já prevista: 20 janelas/semana — é o mesmo esforço).
 
 ## Riscos da bifurcação
 
-1. **Tempo de especialista é o recurso escasso das duas linhas.** B precisa de entradas; A
+1. **Tempo de especialista é o recurso escasso dos dois projetos.** B precisa de entradas; A
    precisa de janelas pontuadas; a comparação precisa de consenso. Somado, pode passar de
    1 h/dia por especialista. Se estourar, corta-se a comparação para 10 janelas/semana antes de
-   cortar qualquer linha.
-2. **B pode "vencer" por ser a rotina que a equipe já conhece** — a utilidade percebida tem
+   cortar qualquer projeto.
+2. **O B pode "vencer" por ser a rotina que a equipe já conhece** — a utilidade percebida tem
    viés de familiaridade. Por isso os parágrafos vão cegos.
-3. **A pode "vencer" por novidade** — a mesma razão, ao contrário. Por isso a leitura final é
+3. **O A pode "vencer" por novidade** — a mesma razão, ao contrário. Por isso a leitura final é
    no mês 6, não no mês 2.
-4. **Construtor solo:** A consome quase todo o tempo de construção; B quase nenhum. Isso é o
-   gap de esforço funcionando como previsto — mas significa que atrasos em A não podem ser
-   compensados tirando tempo de B, porque B quase não tem tempo a tirar.
+4. **Construtor solo:** o A consome quase todo o tempo de construção; o B quase nenhum. Isso é o
+   gap de esforço funcionando como previsto — mas significa que atrasos no A não podem ser
+   compensados tirando tempo do B, porque o B quase não tem tempo a tirar.
