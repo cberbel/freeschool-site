@@ -10,6 +10,11 @@ comparável ao longo de anos, por criança; *aprendizado* — a equipe aprende s
 e o sistema aprende com a equipe. Não há pressa. Os dois projetos (A e B) são duas maneiras de
 aprender a fazer isso; a comparação entre eles é um instrumento, não o objetivo.
 
+**Regra master: tudo para hoje, nada para amanhã.** E o sistema **não espera ninguém**:
+começa com as observações e os critérios que temos; o modelo pontua desde já (o que existe e
+cada entrada nova); as avaliadoras entram quando puderem e pontuam a mesma janela — ao vivo ou
+no passado. Kappa e consenso são portão do que chamamos de "medido", não portão do trabalho.
+
 Pasta de **material bruto e notas** do projeto de medição objetiva e longitudinal do
 desenvolvimento infantil no ambiente Montessori. Nada aqui é código do site — é o
 caderno do projeto.
@@ -23,6 +28,10 @@ caderno do projeto.
 | [`2026-08-29-passo-a-passo-sistema.md`](2026-08-29-passo-a-passo-sistema.md) | Nossa | **Spec do Projeto B (amostrado)** — clipe ancorado em entrada, VLM como rotulador |
 | [`2026-09-05-revisao-2-plano.md`](2026-09-05-revisao-2-plano.md) | Nossa (painel de revisão) | **Spec do Projeto A (contínuo)** — inclui a Revisão 2.1 (06/09): erratas, tabela de captação, DDL única, riscos, primeira semana única |
 | [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-projetos-a-b.md) | Nossa | **Decidido** — Projeto A e Projeto B em paralelo; protocolo de comparação de esforço × resultado |
+| [`2026-09-06-codebook-v1.md`](2026-09-06-codebook-v1.md) | Nossa | **Vigente** — codebook v1 (envolvimento, autonomia, persistência); vale para humanos e modelo; gravado em `obs_codebook` |
+| [`2026-09-06-decisoes-v0.md`](2026-09-06-decisoes-v0.md) | Nossa | **Vigente** — decisões v0 numa página (regra master, captação, stack, schema, compras) |
+| [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | Pronto para enviar — 15 perguntas; nenhuma bloqueia o trabalho |
+| [`sql/2026-09-06-ddl-v0.sql`](sql/2026-09-06-ddl-v0.sql) | Nossa | **Aplicada em 06/09** no projeto `ponto-escola-montessoriana` (aditiva, RLS ligado) |
 
 ## Convenções
 
@@ -55,19 +64,24 @@ Protocolo em [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-pro
 
 ## Próximos passos em aberto
 
-Primeira semana da revisão 2 (custo zero):
+Feito em 06/09: codebook v1 (no repositório e em `obs_codebook`), decisões v0, perguntas à
+escola, DDL v0 aplicada (tabelas novas com RLS ligado, `cameras` semeada a partir de
+`salas_cameras`, colunas de vídeo/relógio adicionadas). Pendências deliberadas da DDL: trigger
+de `dev_janelas` por entrada (entra com os sliders), normalização de `especialista`, `sala 1`
+→ `sala 1a3`, policies das páginas.
 
-- [ ] **Segunda:** doc de decisões de 1 página + perguntas à escola (onde dormem; **quem são as
-      2 avaliadoras**; NVR; rede/energia; `'sala 1'`; TrackMix travada?; fps/bitrate podem mudar?).
-- [ ] **T0 — inventário técnico das câmeras** (modelo, streams, fps, PoE, NVR, mic) e
-      **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
-- [ ] Escrever o **codebook v1** (3 dimensões × 5 níveis, âncora comportamental). Uma tarde.
-- [ ] **DDL única** (Revisão 2.1): `cameras`, `dev_janelas`, `obs_codebook`, `obs_avaliacoes`,
-      `obs_golden`, `materiais`, `captacao_stats`, `reteste_cameras`, `eventos_ambiente`,
-      `bifurcacao_*` — todas com a coluna `projeto`; **uma chave de API por projeto**.
-- [ ] **Cotar** o piloto RFID (banda 902–928 MHz) e o UWB (MaUWB_ESP32S3); pedido só depois do T1, com aprovação.
+Primeira semana (custo zero):
+
+- [ ] **Segunda:** enviar as [perguntas à escola](2026-09-06-perguntas-escola.md); ler a
+      [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
+- [ ] **Desde já:** o modelo pontua com o codebook v1 as entradas que existem e as novas
+      (`avaliador_tipo = 'modelo'`) — ligar na rotina `indexa-observacao`; **uma chave de API por projeto**.
+- [ ] **T0 — inventário técnico das câmeras** preenchendo `cameras` (modelo, streams, fps, PoE,
+      NVR, mic) e **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
+- [ ] Sliders na tela de observação gravando em `obs_avaliacoes` via `dev_janelas` (trigger
+      por entrada); policies das páginas; RPC `now()` → `relogio_servidor` (T2).
 - [ ] **T1 — go2rtc + Frigate no PC existente**, começando com 3 câmeras, sem mexer em fps/bitrate; `captacao_stats`.
-- [ ] Sliders na tela de observação; T2 sincronização de relógio.
+- [ ] **Cotar** discos, o piloto RFID (banda 902–928 MHz), o UWB (MaUWB_ESP32S3) e o AP dedicado; pedido só depois do T1, com aprovação.
 - [ ] Projeto B, semana 2: job de clipe a partir do **NVR** (não do Frigate) e meta de
       cobertura das entradas (≈ 3 por criança por semana).
 - [ ] Semana 3: **kappa nas duas unidades** — 30 clipes de entrada (B) + 30 janelas
