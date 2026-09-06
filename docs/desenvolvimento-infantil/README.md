@@ -32,6 +32,8 @@ caderno do projeto.
 | [`2026-09-06-decisoes-v0.md`](2026-09-06-decisoes-v0.md) | Nossa | **Vigente** — decisões v0 numa página (regra master, captação, stack, schema, compras) |
 | [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | Pronto para enviar — 15 perguntas; nenhuma bloqueia o trabalho |
 | [`sql/2026-09-06-ddl-v0.sql`](sql/2026-09-06-ddl-v0.sql) | Nossa | **Aplicada em 06/09** no projeto `ponto-escola-montessoriana` (aditiva, RLS ligado) |
+| [`sql/2026-09-06-trigger-janela-por-entrada.sql`](sql/2026-09-06-trigger-janela-por-entrada.sql) | Nossa | **Aplicada em 06/09** — janela automática (Projeto B) por entrada com sala válida; guardada, nunca aborta a página; backfill feito |
+| [`tools/pontuar_entradas.py`](tools/README.md) | Nossa | Pronto para rodar com a chave do Projeto B — o modelo pontua as janelas existentes com o codebook v1 |
 
 ## Convenções
 
@@ -66,20 +68,21 @@ Protocolo em [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-pro
 
 Feito em 06/09: codebook v1 (no repositório e em `obs_codebook`), decisões v0, perguntas à
 escola, DDL v0 aplicada (tabelas novas com RLS ligado, `cameras` semeada a partir de
-`salas_cameras`, colunas de vídeo/relógio adicionadas). Pendências deliberadas da DDL: trigger
-de `dev_janelas` por entrada (entra com os sliders), normalização de `especialista`, `sala 1`
-→ `sala 1a3`, policies das páginas.
+`salas_cameras`, colunas de vídeo/relógio adicionadas). Trigger de janela por entrada aplicado e
+backfill feito. Pendências deliberadas: normalização de `especialista`, `sala 1` → `sala 1a3`
+(após confirmação), policies das páginas (com os sliders).
 
 Primeira semana (custo zero):
 
 - [ ] **Segunda:** enviar as [perguntas à escola](2026-09-06-perguntas-escola.md); ler a
       [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
-- [ ] **Desde já:** o modelo pontua com o codebook v1 as entradas que existem e as novas
-      (`avaliador_tipo = 'modelo'`) — ligar na rotina `indexa-observacao`; **uma chave de API por projeto**.
+- [ ] **Desde já:** rodar `tools/pontuar_entradas.py` com a chave do Projeto B (o modelo pontua
+      as janelas existentes com o codebook v1); depois absorver na rotina `indexa-observacao`.
+      **Uma chave de API por projeto.**
 - [ ] **T0 — inventário técnico das câmeras** preenchendo `cameras` (modelo, streams, fps, PoE,
       NVR, mic) e **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
-- [ ] Sliders na tela de observação gravando em `obs_avaliacoes` via `dev_janelas` (trigger
-      por entrada); policies das páginas; RPC `now()` → `relogio_servidor` (T2).
+- [ ] Sliders na tela de observação gravando em `obs_avaliacoes` (a janela por entrada já é
+      criada por trigger); policies das páginas; RPC `now()` → `relogio_servidor` (T2).
 - [ ] **T1 — go2rtc + Frigate no PC existente**, começando com 3 câmeras, sem mexer em fps/bitrate; `captacao_stats`.
 - [ ] **Cotar** discos, o piloto RFID (banda 902–928 MHz), o UWB (MaUWB_ESP32S3) e o AP dedicado; pedido só depois do T1, com aprovação.
 - [ ] Projeto B, semana 2: job de clipe a partir do **NVR** (não do Frigate) e meta de

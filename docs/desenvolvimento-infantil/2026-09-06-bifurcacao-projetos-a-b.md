@@ -214,6 +214,17 @@ gatilhos.
 - **A:** a revisão 2 é a spec; acrescentar a coluna `projeto` e o conjunto de comparação como
   parte da calibração contínua (já prevista: 20 janelas/semana — é o mesmo esforço).
 
+## Ideias registradas
+
+- **Óculos Meta como câmera do Projeto B (06/09).** Ray-Ban Meta de 2ª geração na avaliadora:
+  a entrada dispara a gravação (toque/voz) e o clipe de até 3 min, em primeira pessoa e a
+  1–2 m, vira o clipe da janela — com mãos, material e voz da criança, que a câmera de teto
+  a 5 m não dá. Não é o Display (US$ 799, só nos EUA, ajuste em loja); a 2ª geração (US$ 379,
+  menos na Black Friday) basta. A verificar antes de comprar: como o vídeo sai (app + exportação
+  manual hoje; kit de acesso ao dispositivo para desenvolvedores, se aberto); bateria gravando
+  (dezenas de minutos por carga — serve para 5–10 clipes/dia, não para contínuo); recursos do
+  assistente no Brasil (câmera funciona em qualquer lugar). Entra na tabela de esforço de B.
+
 ## Riscos da bifurcação
 
 1. **Tempo de especialista é o recurso escasso dos dois projetos.** B precisa de entradas; A
