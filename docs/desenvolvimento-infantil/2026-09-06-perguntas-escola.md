@@ -1,7 +1,7 @@
-# Perguntas para a escola (para enviar na segunda, 07/09)
+# Perguntas em aberto (responde o Cláudio — a escola é ele)
 
-Pode copiar e colar. Nenhuma resposta bloqueia o trabalho — o sistema segue com o que tem e
-ajusta quando a resposta chegar.
+Nenhuma resposta bloqueia o trabalho — o sistema segue com o que tem e ajusta quando a resposta
+chegar. Respostas entram como bloco "Respostas" no fim deste arquivo, com data.
 
 **Sobre as pessoas**
 1. Quem são hoje as avaliadoras das observações? No sistema aparecem "Claudio" e "Sonia" — é

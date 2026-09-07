@@ -30,10 +30,12 @@ caderno do projeto.
 | [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-projetos-a-b.md) | Nossa | **Decidido** — Projeto A e Projeto B em paralelo; protocolo de comparação de esforço × resultado |
 | [`2026-09-06-codebook-v1.md`](2026-09-06-codebook-v1.md) | Nossa | **Vigente** — codebook v1 (envolvimento, autonomia, persistência); vale para humanos e modelo; gravado em `obs_codebook` |
 | [`2026-09-06-decisoes-v0.md`](2026-09-06-decisoes-v0.md) | Nossa | **Vigente** — decisões v0 numa página (regra master, captação, stack, schema, compras) |
-| [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | Pronto para enviar — 15 perguntas; nenhuma bloqueia o trabalho |
+| [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | **Aguardando respostas do Cláudio** (a escola é ele) — 15 perguntas; nenhuma bloqueia o trabalho |
 | [`sql/2026-09-06-ddl-v0.sql`](sql/2026-09-06-ddl-v0.sql) | Nossa | **Aplicada em 06/09** no projeto `ponto-escola-montessoriana` (aditiva, RLS ligado) |
 | [`sql/2026-09-06-trigger-janela-por-entrada.sql`](sql/2026-09-06-trigger-janela-por-entrada.sql) | Nossa | **Aplicada em 06/09** — janela automática (Projeto B) por entrada com sala válida; guardada, nunca aborta a página; backfill feito |
-| [`tools/pontuar_entradas.py`](tools/README.md) | Nossa | Pronto para rodar com a chave do Projeto B — o modelo pontua as janelas existentes com o codebook v1 |
+| [`functions/pontuar-janelas/index.ts`](functions/pontuar-janelas/index.ts) | Nossa | **Publicada em 07/09** no Supabase — o modelo pontua, na nuvem e sem credencial local, toda janela de entrada com texto, usando o codebook vigente; grava como avaliador `modelo`, nunca toca nota humana |
+| [`sql/2026-09-07-pontuacao-janelas.sql`](sql/2026-09-07-pontuacao-janelas.sql) | Nossa | **Aplicada em 07/09** — fila, contagem, disparo (chave do Vault) e agendamento pg_cron `pontuar-janelas` (dias úteis, a cada 15 min) |
+| [`tools/pontuar_entradas.py`](tools/README.md) | Nossa | Alternativa local da função acima (mesma lógica); não é mais o caminho principal |
 
 ## Convenções
 
@@ -55,6 +57,15 @@ ativos, 16 câmeras nomeadas (~15 aparelhos) em 10 espaços, 33 sessões com 2 a
 75 entradas (40 transcritas — quase todas testes de microfone) e indexação por LLM.
 `meal_events` existe como schema, com **0 eventos**. As câmeras nunca foram inventariadas.
 
+**Pontuação pelo modelo ligada (07/09).** A função `pontuar-janelas` roda no Supabase a cada 15 min
+em dias úteis e pontua, com o codebook vigente, toda janela de entrada que já tenha transcrição ou
+nota. Primeira rodada sobre as 9 janelas com texto: 8 não avaliáveis (testes de microfone e
+conversas entre adultos, como previsto na errata) e 1 avaliável — "Max (com Maria)" no cubo do
+trinômio: envolvimento 3, autonomia 3, persistência sem oportunidade, confiança 2 — que ficou em
+`pontuacao_pendente` porque "Max" não existe no cadastro de alunos. Saída estruturada funcionou;
+custo da rodada ≈ US$ 0,14 (≈ 1,5 centavo por janela). Daqui em diante, cada entrada nova com
+sala válida vira janela (trigger) e recebe nota do modelo em até 25 min depois de transcrita.
+
 **Decisão (06/09): Projeto A e Projeto B em paralelo.** O **Projeto A** segue a revisão 2 (janela
 criança × tempo, ingestão contínua, áudio vestível, VLM só na amostra). O **Projeto B** mantém o
 passo a passo de 29/08 (clipe ancorado em entrada, recorte sob demanda do NVR, áudio da
@@ -66,19 +77,23 @@ Protocolo em [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-pro
 
 ## Próximos passos em aberto
 
-Feito em 06/09: codebook v1 (no repositório e em `obs_codebook`), decisões v0, perguntas à
-escola, DDL v0 aplicada (tabelas novas com RLS ligado, `cameras` semeada a partir de
+Feito em 06/09: codebook v1 (no repositório e em `obs_codebook`), decisões v0, perguntas em
+aberto, DDL v0 aplicada (tabelas novas com RLS ligado, `cameras` semeada a partir de
 `salas_cameras`, colunas de vídeo/relógio adicionadas). Trigger de janela por entrada aplicado e
-backfill feito. Pendências deliberadas: normalização de `especialista`, `sala 1` → `sala 1a3`
-(após confirmação), policies das páginas (com os sliders).
+backfill feito. Feito em 07/09: pontuação pelo modelo na nuvem (função + cron), primeira rodada
+executada. Pendências deliberadas: normalização de `especialista`, `sala 1` → `sala 1a3`
+(após confirmação), policies das páginas (com os sliders), ligar "Max" a uma criança do cadastro
+(apelido?) ou registrar apelidos.
 
 Primeira semana (custo zero):
 
-- [ ] **Segunda:** enviar as [perguntas à escola](2026-09-06-perguntas-escola.md); ler a
-      [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
-- [ ] **Desde já:** rodar `tools/pontuar_entradas.py` com a chave do Projeto B (o modelo pontua
-      as janelas existentes com o codebook v1); depois absorver na rotina `indexa-observacao`.
-      **Uma chave de API por projeto.**
+- [ ] **Cláudio responde** as [perguntas em aberto](2026-09-06-perguntas-escola.md) (as respostas
+      entram no fim do arquivo); ler a [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
+- [x] **Pontuação pelo modelo na nuvem** (`pontuar-janelas` + cron), rodando desde 07/09.
+      Pendente: chave de API própria do Projeto B (hoje usa a chave do bot; **uma chave por projeto**).
+- [ ] A página de observação (`observacao-escola-v2`) não está em nenhum repositório — o fonte
+      vive no PC do Cláudio, em `Documents/observacao-escola/index.html`. Colocar no `SistemaEscola`
+      para os sliders e as policies entrarem por commit.
 - [ ] **T0 — inventário técnico das câmeras** preenchendo `cameras` (modelo, streams, fps, PoE,
       NVR, mic) e **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
 - [ ] Sliders na tela de observação gravando em `obs_avaliacoes` (a janela por entrada já é
