@@ -5,6 +5,8 @@
 // janela × criança × modelo × versão do codebook. O que não consegue ligar a uma criança, ou não é
 // avaliável (teste de microfone, conversa entre adultos), fica em dev_janelas.pontuacao_pendente
 // e SAI da fila (apagar o jsonb re-enfileira). Falha de IA idem, marcada '#falha' (padrão da casa).
+// Ligação da criança citada ao cadastro: nome completo exato → primeiro nome único → apelido
+// registrado (aluno_apelidos: Max = Maximiliano) → prefixo do primeiro nome único (3+ letras).
 // Roda pelo pg_cron via public.disparar_pontuacao_janelas(); mesma chave Anthropic do bot (secret).
 // Fonte no repositório freeschool-site: docs/desenvolvimento-infantil/functions/pontuar-janelas/.
 
@@ -55,6 +57,7 @@ type Saida = {
   contexto: string | null; material: string | null; adulto_proximo: boolean | null; confianca: number; justificativa: string;
 };
 type Crianca = { id: string; nome: string; sobrenome: string | null; agrupada: number | null };
+type Apelido = { aluno_id: string; apelido: string };
 type Janela = {
   janela_id: string; projeto: string; sala: string | null; inicio: string; fim: string;
   entrada_id: string; tipo: string; texto: string; especialista: string | null;
@@ -84,6 +87,35 @@ function texto(v: unknown, max: number): string | null {
   return s ? s.slice(0, max) : null;
 }
 
+// Devolve exatamente 1 criança quando a ligação é inequívoca; várias quando é ambígua (vão para
+// o pendente como candidatas); nenhuma quando não há pista.
+function resolver(criancas: Crianca[], apelidos: Apelido[], alvo: string | null, citada: string | null): Crianca[] {
+  const a = norm(alvo);
+  if (a) {
+    const exato = criancas.filter((c) => norm(nomeCompleto(c)) === a);
+    if (exato.length === 1) return exato;
+  }
+  const citado = norm(citada).replace(/\(.*$/, "").replace(/\s+(com|e)\s+.*$/, "").trim();
+  let ambiguas: Crianca[] = [];
+  for (const t of [a, citado].filter(Boolean)) {
+    const primeiro = t.split(" ")[0];
+    const regras = [
+      () => criancas.filter((c) => norm(c.nome).split(" ")[0] === primeiro),
+      () => {
+        const ids = new Set(apelidos.filter((x) => norm(x.apelido) === primeiro || norm(x.apelido) === t).map((x) => x.aluno_id));
+        return criancas.filter((c) => ids.has(c.id));
+      },
+      () => (primeiro.length >= 3 ? criancas.filter((c) => norm(c.nome).split(" ")[0].startsWith(primeiro)) : []),
+    ];
+    for (const r of regras) {
+      const cand = r();
+      if (cand.length === 1) return cand;
+      if (cand.length > 1 && !ambiguas.length) ambiguas = cand;
+    }
+  }
+  return ambiguas;
+}
+
 function montarSistema(codebook: unknown, lista: string[]): string {
   return (
     "Você pontua observações de crianças numa escola Montessori usando o CODEBOOK abaixo (JSON). Regras:\n" +
@@ -93,8 +125,9 @@ function montarSistema(codebook: unknown, lista: string[]): string {
     "instrução técnica, vazio), responda avaliavel=false com um motivo curto e as notas em null.\n" +
     "- Se descreve mais de uma criança, a criança-alvo é a que o texto mais descreve.\n" +
     "- crianca_alvo: nome EXATO da lista fechada abaixo (nome e sobrenome como na lista), apenas quando a menção " +
-    "for inequívoca (primeiro nome que só existe uma vez na lista conta); na dúvida, null. " +
-    "crianca_citada: como apareceu no texto.\n" +
+    "for inequívoca (primeiro nome que só existe uma vez na lista conta). Apelidos e diminutivos contam " +
+    "(Max é Maximiliano, Bia é Beatriz) quando só uma criança da lista combina; os apelidos já conhecidos " +
+    "aparecem na lista. Na dúvida, null. crianca_citada: como apareceu no texto.\n" +
     "- Persistência só recebe nota se houve dificuldade, erro ou interrupção; senão persistencia=null e " +
     "persistencia_motivo='sem_oportunidade'.\n" +
     "- justificativa: até 30 palavras, citando o observável.\n\n" +
@@ -146,7 +179,14 @@ async function atender(req: Request): Promise<Response> {
     const { data: criancas, error: erroAl } = await db.from("alunos")
       .select("id, nome, sobrenome, agrupada").eq("status", "ativo");
     if (erroAl) throw new Error(`alunos: ${erroAl.message}`);
-    const lista = (criancas as Crianca[]).map((c) => `${nomeCompleto(c)} (agrupada ${c.agrupada ?? "?"})`);
+    const { data: apelidosBrutos, error: erroAp } = await db.from("aluno_apelidos").select("aluno_id, apelido");
+    if (erroAp) console.warn("aluno_apelidos:", erroAp.message);
+    const apelidos = (apelidosBrutos ?? []) as Apelido[];
+    const apelidosPor = new Map<string, string[]>();
+    for (const x of apelidos) apelidosPor.set(x.aluno_id, [...(apelidosPor.get(x.aluno_id) ?? []), x.apelido]);
+    const lista = (criancas as Crianca[]).map((c) =>
+      `${nomeCompleto(c)} (agrupada ${c.agrupada ?? "?"}${apelidosPor.has(c.id) ? "; apelido: " + apelidosPor.get(c.id)!.join(", ") : ""})`
+    );
     const sistema = montarSistema(cb.dimensoes, lista);
 
     for (const j of janelas) {
@@ -194,14 +234,8 @@ async function atender(req: Request): Promise<Response> {
         justificativa: texto(s.justificativa, 400) ?? "",
       };
 
-      // Liga a criança: nome exato da lista; senão primeiro nome único; senão fica pendente.
-      const alvo = norm(s.crianca_alvo);
-      let cand = alvo ? (criancas as Crianca[]).filter((c) => norm(nomeCompleto(c)) === alvo) : [];
-      if (cand.length !== 1) {
-        const primeiro = (norm(s.crianca_alvo) || norm(s.crianca_citada)).split(" ")[0];
-        const porPrimeiro = primeiro ? (criancas as Crianca[]).filter((c) => norm(c.nome).split(" ")[0] === primeiro) : [];
-        if (porPrimeiro.length) cand = porPrimeiro;
-      }
+      // Liga a criança (nome exato → primeiro nome → apelido → prefixo); ambíguo fica pendente.
+      const cand = resolver(criancas as Crianca[], apelidos, s.crianca_alvo, s.crianca_citada);
 
       if (cand.length === 1) {
         const { error: erroGrava } = await db.from("obs_avaliacoes").insert({

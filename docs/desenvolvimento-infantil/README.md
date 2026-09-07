@@ -35,6 +35,7 @@ caderno do projeto.
 | [`sql/2026-09-06-trigger-janela-por-entrada.sql`](sql/2026-09-06-trigger-janela-por-entrada.sql) | Nossa | **Aplicada em 06/09** — janela automática (Projeto B) por entrada com sala válida; guardada, nunca aborta a página; backfill feito |
 | [`functions/pontuar-janelas/index.ts`](functions/pontuar-janelas/index.ts) | Nossa | **Publicada em 07/09** no Supabase — o modelo pontua, na nuvem e sem credencial local, toda janela de entrada com texto, usando o codebook vigente; grava como avaliador `modelo`, nunca toca nota humana |
 | [`sql/2026-09-07-pontuacao-janelas.sql`](sql/2026-09-07-pontuacao-janelas.sql) | Nossa | **Aplicada em 07/09** — fila, contagem, disparo (chave do Vault) e agendamento pg_cron `pontuar-janelas` (dias úteis, a cada 15 min) |
+| [`sql/2026-09-07-aluno-apelidos.sql`](sql/2026-09-07-aluno-apelidos.sql) | Nossa | **Aplicada em 07/09** — `aluno_apelidos` (Max = Maximiliano) e `ligar_janela_pendente()` para ligar à mão o que o modelo pontuou sem identificar a criança |
 | [`tools/pontuar_entradas.py`](tools/README.md) | Nossa | Alternativa local da função acima (mesma lógica); não é mais o caminho principal |
 
 ## Convenções
@@ -61,8 +62,10 @@ ativos, 16 câmeras nomeadas (~15 aparelhos) em 10 espaços, 33 sessões com 2 a
 em dias úteis e pontua, com o codebook vigente, toda janela de entrada que já tenha transcrição ou
 nota. Primeira rodada sobre as 9 janelas com texto: 8 não avaliáveis (testes de microfone e
 conversas entre adultos, como previsto na errata) e 1 avaliável — "Max (com Maria)" no cubo do
-trinômio: envolvimento 3, autonomia 3, persistência sem oportunidade, confiança 2 — que ficou em
-`pontuacao_pendente` porque "Max" não existe no cadastro de alunos. Saída estruturada funcionou;
+trinômio: envolvimento 3, autonomia 3, persistência sem oportunidade, confiança 2. "Max" é
+Maximiliano (agrupada 2): a ligação inicial falhou por casar só nome exato; corrigido no mesmo
+dia com a tabela `aluno_apelidos` (Max já registrado), prefixo do primeiro nome e regra de
+diminutivos no prompt; a nota entrou em `obs_avaliacoes`. Saída estruturada funcionou;
 custo da rodada ≈ US$ 0,14 (≈ 1,5 centavo por janela). Daqui em diante, cada entrada nova com
 sala válida vira janela (trigger) e recebe nota do modelo em até 25 min depois de transcrita.
 
@@ -82,8 +85,8 @@ aberto, DDL v0 aplicada (tabelas novas com RLS ligado, `cameras` semeada a parti
 `salas_cameras`, colunas de vídeo/relógio adicionadas). Trigger de janela por entrada aplicado e
 backfill feito. Feito em 07/09: pontuação pelo modelo na nuvem (função + cron), primeira rodada
 executada. Pendências deliberadas: normalização de `especialista`, `sala 1` → `sala 1a3`
-(após confirmação), policies das páginas (com os sliders), ligar "Max" a uma criança do cadastro
-(apelido?) ou registrar apelidos.
+(após confirmação), policies das páginas (com os sliders). Apelidos novos entram em
+`aluno_apelidos`; janela pontuada sem criança liga-se com `ligar_janela_pendente()`.
 
 Primeira semana (custo zero):
 
