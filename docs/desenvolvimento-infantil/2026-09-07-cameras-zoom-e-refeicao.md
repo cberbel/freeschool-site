@@ -95,3 +95,37 @@ câmera achou e enquadrou a criança certa. Compra por sala só se (a) subir e (
 
 **Alternativa sem movimento:** uma segunda câmera fixa com lente mais fechada (tele) sobre a área
 de trabalho mais usada, ou uma fixa de 12 MP: mais pixels sem motor nem distração.
+
+## 4. Pergunta mais geral (Cláudio, 07/09): outro stack de câmeras, melhor ou mais simples, vale testar?
+
+Vale, mas como **teste de uma unidade por candidato**, no mesmo protocolo, nunca como troca de
+stack. As 16 Reolink fixas em 4K são a base e continuam sendo; a pergunta é qual câmera a mais
+compra mais resultado por real, para os construtos que medimos. O que costuma falhar numa sala
+Montessori com 23 crianças não é a qualidade da imagem: é **oclusão** (criança na frente de
+criança) e **identidade** (o rastreador perde quem é quem). Isso se resolve com ângulo, não com
+megapixel.
+
+**Candidatos, do mais simples ao mais capaz** (preços de memória, a cotar; sem busca esta semana):
+
+| Candidato | O que resolve | Custo por unidade | Quando testar |
+| --- | --- | --- | --- |
+| As mesmas Reolink, só reconfiguradas (fps, bitrate, substream) | Custo zero; é o T1 | 0 | agora |
+| Fixa 4K comum a mais, **no teto olhando para baixo** (1–2 por sala; cozinha) | Oclusão, identidade, prato servido × devolvido | R$ 400–900 | logo após T1 |
+| Celular velho com app de câmera IP | Testar ângulo e altura antes de furar parede | 0 | qualquer dia |
+| Fixa de 12 MP, ou panorâmica de duas lentes 16 MP (180°) | Mais pixels por criança sem motor; uma cobre a sala | R$ 900–1.800 | depois do T5 |
+| PTZ com zoom óptico (seção 3) | Amostrador de perto; câmera-repórter | R$ 1.200–1.800 | depois do T5 |
+| Câmera "inteligente" com processador embarcado (OAK-D PoE, RealSense) | Detecção e pose na própria câmera; manda esqueleto, não vídeo; profundidade 3D; alivia GPU e privacidade | US$ 250–450 + imposto | quando o T1 mostrar o gargalo de CPU |
+| Radar mmWave 60 GHz no soninho | Sono, agitação, respiração sem câmera | US$ 20–40 | com o soninho |
+| Câmera 360° no centro do teto | Sala inteira sem ponto cego, de perto; só para experimento (não é PoE) | R$ 1.500–3.000 | opcional |
+
+**Protocolo único, 2 semanas por candidato, uma sala.** A mesma janela criança × tempo pontuada a
+partir de cada fonte (a coluna `camera_id` em `dev_janelas` já existe para isso):
+(a) kappa e confiança das avaliadoras por fonte; (b) trocas de identidade por hora do rastreador
+com e sem a câmera nova; (c) pixels sobre a criança (distribuição); (d) carga no PC. Ganha quem
+melhora (a) ou (b) por real gasto. Compra em escala só depois.
+
+**Ordem que eu proporia:** 1) T1 com o que existe; 2) uma fixa de teto por sala e uma na cozinha
+(barato, ataca oclusão e refeição); 3) uma panorâmica ou 12 MP contra o 4K (pixels); 4) uma
+câmera inteligente para ver se o stack de borda dispensa GPU grande; 5) PTZ, se o T5 pedir;
+6) radar no soninho, independente do resto. "Mais simples" também é: menos câmeras, melhor
+colocadas (uma panorâmica no lugar de duas grande-angulares).
