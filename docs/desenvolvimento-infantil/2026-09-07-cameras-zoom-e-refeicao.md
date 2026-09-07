@@ -58,3 +58,40 @@ marcados "a verificar" são de memória e se confirmam numa tarde no PC de capta
   câmera e hora, até o terceiro dia de captação.
 - Carga humana revista: Sonia 7 h/dia nas câmeras. Corpus dourado e kappa deixam de ser gargalo.
 - Compra candidata nova, barata e independente do resto: câmera de cima na cozinha (1 ou 2).
+
+## 3. Ideia registrada (Cláudio, 07/09): câmera extra com zoom óptico em base móvel, que gira e procura uma criança
+
+**Quando avaliar:** depois que a captação fixa estiver rodando (T1) e o teste de pose (T5) disser
+se o recorte do 4K basta. Perguntar antes disso é chutar.
+
+**Ganhos possíveis**
+- Pixels na criança-alvo: 4 a 8 vezes mais que o recorte do quadro largo. Rosto, mãos, material e
+  postura passam a ser legíveis; é o que o T5 pode dizer que falta.
+- "Câmera-repórter" do Projeto B: a entrada da observadora manda a câmera achar a criança citada e
+  gravar o clipe de perto, sem ninguém tocar em nada.
+- Verificação sob demanda: o modelo, em dúvida, pede um olhar de perto e recebe.
+- Alguns sinais que hoje só um vestível daria (afeto pela face, por exemplo) viriam da imagem.
+
+**Custos e riscos**
+- Distração, que o Cláudio já apontou: motor e movimento visível chamam a atenção; criança que
+  nota "a câmera me olhando" muda o comportamento que se quer medir. Isso invalida a medida se não
+  for controlado.
+- Uma criança por vez: a câmera móvel é amostrador, não medidor contínuo de 23 crianças. A base
+  contínua continua sendo as câmeras fixas.
+- Deixa de ser referência: nada de rastreamento por ela; e "procurar a criança" só funciona se as
+  fixas (mais tag, quando houver) já disserem onde ela está. Sem isso a câmera vaga.
+
+**Como tirar a distração antes de decidir**
+- Dome (não se vê para onde a lente aponta), movimento lento e silencioso, no alto, sem LED.
+- Mover só em transições ou quando a criança-alvo já está engajada; taxa máxima de movimentos
+  (ex.: um a cada 5 min); parar e ficar.
+- Medir a distração de verdade: as câmeras fixas contam olhares das crianças para a câmera antes
+  e depois de instalar. Se o número sobe e não cai em duas semanas, a ideia morre.
+
+**Teste concreto, 2 semanas, uma sala, uma câmera (R$ 1.200 a 1.800, ou o TrackMix do pátio
+levado para dentro):** (a) kappa das avaliadoras em clipes de perto × recortes do 4K das mesmas
+janelas; (b) taxa de olhares para a câmera antes × depois; (c) cobertura: em quantas janelas a
+câmera achou e enquadrou a criança certa. Compra por sala só se (a) subir e (b) não subir.
+
+**Alternativa sem movimento:** uma segunda câmera fixa com lente mais fechada (tele) sobre a área
+de trabalho mais usada, ou uma fixa de 12 MP: mais pixels sem motor nem distração.
