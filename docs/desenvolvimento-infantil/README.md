@@ -30,7 +30,8 @@ caderno do projeto.
 | [`2026-09-06-bifurcacao-projetos-a-b.md`](2026-09-06-bifurcacao-projetos-a-b.md) | Nossa | **Decidido** — Projeto A e Projeto B em paralelo; protocolo de comparação de esforço × resultado |
 | [`2026-09-06-codebook-v1.md`](2026-09-06-codebook-v1.md) | Nossa | **Vigente** — codebook v1 (envolvimento, autonomia, persistência); vale para humanos e modelo; gravado em `obs_codebook` |
 | [`2026-09-06-decisoes-v0.md`](2026-09-06-decisoes-v0.md) | Nossa | **Vigente** — decisões v0 numa página (regra master, captação, stack, schema, compras) |
-| [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | **Aguardando respostas do Cláudio** (a escola é ele) — 15 perguntas; nenhuma bloqueia o trabalho |
+| [`2026-09-06-perguntas-escola.md`](2026-09-06-perguntas-escola.md) | Nossa | **Respondidas em 07/09** pelo Cláudio (bloco "Respostas" no fim); cada resposta já virou ação ou tarefa |
+| [`2026-09-07-cameras-zoom-e-refeicao.md`](2026-09-07-cameras-zoom-e-refeicao.md) | Nossa | Em análise — agente operando câmeras Reolink (zoom via API, não pelo app; só vale com zoom óptico) e refeição pela câmera (câmera de cima dedicada resolve; a da sala só dá "provável") |
 | [`sql/2026-09-06-ddl-v0.sql`](sql/2026-09-06-ddl-v0.sql) | Nossa | **Aplicada em 06/09** no projeto `ponto-escola-montessoriana` (aditiva, RLS ligado) |
 | [`sql/2026-09-06-trigger-janela-por-entrada.sql`](sql/2026-09-06-trigger-janela-por-entrada.sql) | Nossa | **Aplicada em 06/09** — janela automática (Projeto B) por entrada com sala válida; guardada, nunca aborta a página; backfill feito |
 | [`functions/pontuar-janelas/index.ts`](functions/pontuar-janelas/index.ts) | Nossa | **Publicada em 07/09** no Supabase — o modelo pontua, na nuvem e sem credencial local, toda janela de entrada com texto, usando o codebook vigente; grava como avaliador `modelo`, nunca toca nota humana |
@@ -69,6 +70,17 @@ diminutivos no prompt; a nota entrou em `obs_avaliacoes`. Saída estruturada fun
 custo da rodada ≈ US$ 0,14 (≈ 1,5 centavo por janela). Daqui em diante, cada entrada nova com
 sala válida vira janela (trigger) e recebe nota do modelo em até 25 min depois de transcrita.
 
+**Sliders na página de observação (07/09).** O fonte da página `observacao-escola-v2`, que só existia
+no PC, foi resgatado do ar e agora vive no repositório `SistemaEscola` (`observacao-escola/`). Cada
+FALA ou CORTE ganhou criança, envolvimento, autonomia, persistência (com "sem oportunidade"),
+contexto e confiança; salva sozinho pela RPC `observacao_avaliar`, que resolve a criança no banco
+(nome, primeiro nome, apelido, prefixo) e grava em `obs_avaliacoes` como avaliador humano, na mesma
+janela que o modelo pontua. A sala virou lista fechada (o campo livre com padrão "sala 1" gerou as 32
+entradas de agosto sem sala). **Falta publicar:** o projeto Vercel não está ligado ao git e o deploy
+por esta sessão foi barrado pela permissão; ligar o projeto ao repositório (Root Directory
+`observacao-escola`) resolve de vez. Respostas do Cláudio de 07/09 mudam a carga humana: **Sonia
+passa 7 h/dia nas câmeras**; corpus dourado e kappa deixam de ser gargalo.
+
 **Decisão (06/09): Projeto A e Projeto B em paralelo.** O **Projeto A** segue a revisão 2 (janela
 criança × tempo, ingestão contínua, áudio vestível, VLM só na amostra). O **Projeto B** mantém o
 passo a passo de 29/08 (clipe ancorado em entrada, recorte sob demanda do NVR, áudio da
@@ -90,17 +102,20 @@ executada. Pendências deliberadas: normalização de `especialista`, `sala 1` �
 
 Primeira semana (custo zero):
 
-- [ ] **Cláudio responde** as [perguntas em aberto](2026-09-06-perguntas-escola.md) (as respostas
-      entram no fim do arquivo); ler a [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
+- [x] **Perguntas respondidas** (07/09) — ver o fim de [perguntas](2026-09-06-perguntas-escola.md);
+      ler a [página de decisões](2026-09-06-decisoes-v0.md) com a equipe.
 - [x] **Pontuação pelo modelo na nuvem** (`pontuar-janelas` + cron), rodando desde 07/09.
       Pendente: chave de API própria do Projeto B (hoje usa a chave do bot; **uma chave por projeto**).
-- [ ] A página de observação (`observacao-escola-v2`) não está em nenhum repositório — o fonte
-      vive no PC do Cláudio, em `Documents/observacao-escola/index.html`. Colocar no `SistemaEscola`
-      para os sliders e as policies entrarem por commit.
-- [ ] **T0 — inventário técnico das câmeras** preenchendo `cameras` (modelo, streams, fps, PoE,
-      NVR, mic) e **teste de N main streams simultâneos do NVR** (risco crítico, não verificado).
-- [ ] Sliders na tela de observação gravando em `obs_avaliacoes` (a janela por entrada já é
-      criada por trigger); policies das páginas; RPC `now()` → `relogio_servidor` (T2).
+- [x] **Sliders na página de observação** gravando em `obs_avaliacoes` (RPC `observacao_avaliar`);
+      fonte no `SistemaEscola`. **Pendente: publicar** — ligar o projeto Vercel `observacao-escola-v2`
+      ao repositório com Root Directory `observacao-escola` (ou `vercel --prod` na pasta).
+- [ ] **T0 — inventário técnico das câmeras** preenchendo `cameras` (modelo exato: zoom óptico,
+      PTZ, API; streams, fps; qual câmera cobre o soninho) e **teste de N main streams simultâneos
+      do NVR** (risco crítico, não verificado). NVR fica no mezanino, ao lado do PC; tudo PoE.
+- [ ] RPC `now()` → `relogio_servidor` (T2); T1 entrega também o horário do pátio e das rotinas
+      descoberto pela ocupação por câmera e hora (até o 3º dia de captação).
+- [ ] Cotar 1–2 câmeras de cima para a cozinha (prato servido × devolvido, cardápio conferido
+      automático); até lá, Laís fotografa no almoço.
 - [ ] **T1 — go2rtc + Frigate no PC existente**, começando com 3 câmeras, sem mexer em fps/bitrate; `captacao_stats`.
 - [ ] **Cotar** discos, o piloto RFID (banda 902–928 MHz), o UWB (MaUWB_ESP32S3) e o AP dedicado; pedido só depois do T1, com aprovação.
 - [ ] Projeto B, semana 2: job de clipe a partir do **NVR** (não do Frigate) e meta de

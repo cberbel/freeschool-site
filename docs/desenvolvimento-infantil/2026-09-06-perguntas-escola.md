@@ -39,3 +39,35 @@ chegar. Respostas entram como bloco "Respostas" no fim deste arquivo, com data.
 **Sobre a cozinha**
 15. O fluxo de foto da refeição (prato servido / prato devolvido) nunca rodou. Quem pode tirar
     as duas fotos por refeição, começando na próxima semana?
+
+## Respostas (Cláudio, 07/09)
+
+1. Avaliadoras: hoje Sonia e Cláudio; **vai ter mais gente em breve**, em três níveis (sênior,
+   médio, júnior). → tabela `avaliadores` criada (nome, nível, horas/semana).
+2. Horas: **Sonia trabalha 7 h/dia nas câmeras**; Cláudio 10 a 20 min/dia. → carga humana muito
+   maior que a suposta na Revisão 2.1 (≈ 35 h/semana só da Sonia): corpus dourado e kappa deixam de
+   ser gargalo; o gargalo vira captação e a ferramenta de pontuação (sliders, feitos em 07/09).
+3. Sesta: **há uma sala do soninho com câmera**. → linha `soninho` em `salas_cameras`; qual câmera,
+   no inventário T0.
+4. Horário do pátio: **o sistema deve descobrir sozinho** (ocupação por câmera e hora) até o 3º dia
+   de captação. → entrega do T1, não pergunta.
+5. Avental/colete: varia; **vai ter uniforme**. → onde prender tag e marcador decide-se com o uniforme.
+6. NVR: **no mezanino, ao lado do computador, na sala do Cláudio**. → o PC de captação fica ali;
+   sem obra de rede.
+7. Câmeras: **todas PoE**.
+8. Câmera do pátio (TrackMix) pode ficar travada em ponto fixo, **como todas**.
+9. fps e bitrate: **pode mudar à vontade**.
+10. Câmeras fixas na parede, ninguém mexe; **giram e mudam de ângulo se for o caso** (cada mudança
+    registrada em `eventos_ambiente`).
+11. "sala 1" nas entradas de agosto **era só o valor padrão da página**, não uma sala. → as 32
+    entradas de 04/08 ficam como estão, sem janela (testes de microfone); as 9 de 24/08 eram
+    "sala 1a3" de verdade e continuam com janela. A página agora só aceita sala da lista.
+12. Áudios de teste: irrelevante; o modelo já os marca como não avaliáveis.
+13. Ponto de rede e tomada perto do NVR: **sim**.
+14. Carregar gravadores: **Bárbara, ou quem ela delegar**.
+15. Fotos da refeição: **por ora, Laís, no almoço**. Perguntas de volta (foto pelo zoom da câmera da
+    sala? conferir cardápio pela câmera, automático?) → nota técnica
+    [`2026-09-07-cameras-zoom-e-refeicao.md`](2026-09-07-cameras-zoom-e-refeicao.md).
+16. Max = Maximiliano (registrado em `aluno_apelidos`).
+
+Pergunta nova (07/09): **um agente pode operar as câmeras Reolink, dar zoom?** → mesma nota técnica.
