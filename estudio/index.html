@@ -134,6 +134,7 @@ main{max-width:680px;margin:0 auto;padding:14px}
     <button id="aba-imgs" onclick="mudarAba('imgs')">Imagens</button>
     <button id="aba-takes" onclick="mudarAba('takes')">Takes</button>
     <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
+    <button id="aba-desc" onclick="mudarAba('desc')">Descartados</button>
     <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
   </div>
   <div id="conteudo"><div class="vazio">Carregando…</div></div>
@@ -167,7 +168,7 @@ function mostrarApp(){
 }
 function mudarAba(a){
   abaAtual = a;
-  for(const x of ['fila','pauta','imgs','takes','hist','regras'])
+  for(const x of ['fila','pauta','imgs','takes','hist','desc','regras'])
     document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
   carregar();
 }
@@ -192,14 +193,20 @@ async function carregar(){
   if(abaAtual === 'pauta') return carregarPauta();
   if(abaAtual === 'imgs') return carregarImagens();
   if(abaAtual === 'takes') return carregarTakes();
-  const filtro = (abaAtual === 'fila') ? ['rascunho'] : ['aprovado','publicado','reprovado'];
-  const {data, error} = await db.from('pub_fila').select('*')
-        .in('status', filtro).order('quando');
+  const filtro = (abaAtual === 'fila')  ? ['rascunho']
+               : (abaAtual === 'desc')  ? ['reprovado']
+               :                          ['aprovado','publicado'];
+  // Descartados: o mais recente primeiro (é o que você mais quer recuperar)
+  let q = db.from('pub_fila').select('*').in('status', filtro);
+  q = (abaAtual === 'desc') ? q.order('quando', {ascending:false}) : q.order('quando');
+  const {data, error} = await q;
   if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
   if(!data.length){ alvo.innerHTML = '<div class="vazio">Nada por aqui. 🎉</div>'; return; }
 
-  alvo.innerHTML = (abaAtual==='fila')
-    ? '<div class="aviso">Só o que espera sua decisão. Aprovou → vai para o Histórico e publica sozinho no horário. A ponte com o robô roda a cada 10 min.</div>' : '';
+  alvo.innerHTML =
+      (abaAtual==='fila') ? '<div class="aviso">Só o que espera sua decisão. Aprovou → vai para o Histórico e publica sozinho no horário. A ponte com o robô roda a cada 10 min.</div>'
+    : (abaAtual==='desc') ? '<div class="aviso">Tudo que saiu da fila: o que você reprovou e o que o robô expirou sozinho (story que passou da hora). <b>Recuperar</b> devolve a peça para a Fila com data nova — nada volta com data vencida, senão publicaria na hora em que você aprovasse.</div>'
+    : '';
   for(const p of data){ alvo.appendChild(await cartao(p)); }
 }
 
@@ -211,7 +218,7 @@ async function cartao(p){
     <div class="topo">
       <div><div class="qdo">${fmtQuando(p.quando)}</div>
       <div class="tipo">${p.tipo}${p.permalink ? ` · <a href="${p.permalink}" target="_blank">ver post</a>`:''}</div></div>
-      <span class="chip ${p.status}">${p.status}</span>
+      <span class="chip ${p.status}">${p.status==='reprovado' && /^EXPIRAD/i.test(p.motivo||'') ? 'expirado pelo robô' : p.status}</span>
     </div>
     <div class="midias" data-m></div>
     <div class="leg" onclick="this.classList.toggle('aberta')">${(p.legenda||'').replace(/</g,'&lt;')}</div>
@@ -228,6 +235,10 @@ async function cartao(p){
     <div class="acoes">
       <button class="b-re" onclick="cancelarAprovacao('${p.id}')">↩ Cancelar aprovação</button>
       <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
+    </div>` : ''}
+    ${p.status==='reprovado' ? `
+    <div class="acoes">
+      <button class="b-ap" onclick="recuperar('${p.id}','${p.quando}','${p.tipo}')">↺ Recuperar para a Fila</button>
     </div>` : ''}
     <div class="coment">
       <input placeholder="Comentário para o Claude (educa o bot)…" data-c>
@@ -495,6 +506,31 @@ async function cancelarAprovacao(id){
   await db.from('pub_fila').update({status:'rascunho',
       motivo:'aprovação cancelada pelo Claudio — não auto-aprovar',
       atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
+  carregar();
+}
+async function recuperar(id, atual, tipo){
+  // Data NOVA e obrigatoria: card/reel com data vencida publica NA HORA em que
+  // for aprovado (so story tem prazo de validade no robo). Sugere amanha, no
+  // mesmo horario que a peca tinha.
+  const d = new Date(atual);
+  const s = new Date();
+  s.setDate(s.getDate() + 1);
+  s.setHours(d.getHours(), d.getMinutes(), 0, 0);
+  const p2 = n => String(n).padStart(2,'0');
+  const sugestao = `${s.getFullYear()}-${p2(s.getMonth()+1)}-${p2(s.getDate())} ${p2(s.getHours())}:${p2(s.getMinutes())}`;
+  const novo = prompt(
+    `Recuperar para a Fila.\n\nEsta peça (${tipo}) volta como rascunho e você aprova depois.\nEscolha a NOVA data — a antiga já passou:`,
+    sugestao);
+  if(!novo) return;
+  const dt = new Date(novo.replace(' ','T'));
+  if(isNaN(dt)){ alert('Formato inválido. Use AAAA-MM-DD HH:MM'); return; }
+  if(dt <= new Date()){ alert('A data precisa ser no futuro.'); return; }
+  const {error} = await db.from('pub_fila').update({
+      status:'rascunho', quando: dt.toISOString(),
+      motivo:null, parecer:null, midias:null, comentarios:null,
+      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error){ alert('Erro: ' + error.message); return; }
+  alert('Recuperado. A ponte devolve a pasta para a Fila em até 10 min.');
   carregar();
 }
 async function reprovar(id){
