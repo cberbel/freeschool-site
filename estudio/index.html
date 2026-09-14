@@ -214,6 +214,10 @@ async function cartao(p){
   const el = document.createElement('div');
   el.className = 'card';
   const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
+  // Reel que só tem previa.mp4 (sem video.mp4) NÃO pode ser aprovado: o robô
+  // não consegue publicar e fica em loop de erro a cada 15 min (13/09: 207 erros).
+  const semFinal = /reel|video/i.test(p.tipo||'') &&
+      !(p.midias||[]).some(m => /(^|\/)video\.mp4$/i.test(m.path||''));
   el.innerHTML = `
     <div class="topo">
       <div><div class="qdo">${fmtQuando(p.quando)}</div>
@@ -225,9 +229,10 @@ async function cartao(p){
     ${p.parecer ? `<div class="hist" style="border-left-color:${p.parecer.includes('REPROVAR') ? '#b3261e' : p.parecer.includes('ATENÇÃO') ? '#c77700' : '#1d6b3f'}">🧐 ${p.parecer.replace(/</g,'&lt;')}</div>` : ''}
     ${p.motivo ? `<div class="hist">Motivo: ${p.motivo}</div>` : ''}
     ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
+    ${semFinal ? `<div class="hist" style="border-left-color:#c77700">⏳ <b>PRÉVIA</b> — ainda sem vídeo final (só previa.mp4). Não dá para aprovar: a esteira precisa montar o vídeo com os takes finais. Pode comentar e reprovar.</div>` : ''}
     ${p.status==='rascunho' ? `
     <div class="acoes">
-      <button class="b-ap" onclick="aprovar('${p.id}')">✓ Aprovar</button>
+      ${semFinal ? '' : `<button class="b-ap" onclick="aprovar('${p.id}')">✓ Aprovar</button>`}
       <button class="b-re" onclick="reprovar('${p.id}')">✗ Reprovar</button>
       <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
     </div>` : ''}
