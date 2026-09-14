@@ -193,8 +193,10 @@ async function carregar(){
   if(abaAtual === 'pauta') return carregarPauta();
   if(abaAtual === 'imgs') return carregarImagens();
   if(abaAtual === 'takes') return carregarTakes();
-  const filtro = (abaAtual === 'fila')  ? ['rascunho']
-               : (abaAtual === 'desc')  ? ['reprovado']
+  // Tolerante a status fora do padrão (13/09: uma sessão do celular gravou
+  // "expirado" direto no banco e a peça sumiu de todas as abas).
+  const filtro = (abaAtual === 'fila')  ? ['rascunho','a corrigir']
+               : (abaAtual === 'desc')  ? ['reprovado','expirado','substituido','substituído','descartado']
                :                          ['aprovado','publicado'];
   // Descartados: o mais recente primeiro (é o que você mais quer recuperar)
   let q = db.from('pub_fila').select('*').in('status', filtro);
@@ -241,7 +243,7 @@ async function cartao(p){
       <button class="b-re" onclick="cancelarAprovacao('${p.id}')">↩ Cancelar aprovação</button>
       <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
     </div>` : ''}
-    ${p.status==='reprovado' ? `
+    ${['reprovado','expirado','substituido','substituído','descartado'].includes(p.status) ? `
     <div class="acoes">
       <button class="b-ap" onclick="recuperar('${p.id}','${p.quando}','${p.tipo}')">↺ Recuperar para a Fila</button>
     </div>` : ''}
