@@ -4,117 +4,97 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Estúdio — Escola Montessoriana</title>
+<title>Estúdio — Free School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Inter:wght@400;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--azul:#0d2440;--azul2:#1e40af;--dourado:#debb05;--fundo:#f4f6f9;--card:#fff;
-      --borda:#e2e8f0;--tinta:#1c2733;--tinta2:#5a6b7d;--ok:#1d6b3f;--erro:#b3261e}
+/* Estúdio da Free School — só peças da Free School (tabelas fs_*). O Estúdio da
+   Escola Montessoriana mora em sistema.escolamontessoriana.com.br/estudio.html.
+   Cores e tipo do sistema v2 da marca: papel, tinta, azul/amarelo/vermelho, Poppins + Inter. */
+:root{--tinta:#0D0D0F;--papel:#FFFFFF;--fundo:#F1F1F3;--azul:#0038E0;--amarelo:#F8E800;
+      --vermelho:#F80000;--cinza:#6E6E73;--linha:#DCDCE1;--ok:#1d6b3f;--erro:#b3261e}
 *{box-sizing:border-box;margin:0}
-body{font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--fundo);
-     color:var(--tinta);padding-bottom:80px}
-header{background:var(--azul);color:#fff;padding:14px 16px;display:flex;
+body{font:15px/1.5 'Inter',system-ui,sans-serif;background:var(--fundo);color:var(--tinta);padding-bottom:80px}
+header{background:var(--papel);border-bottom:1px solid var(--linha);padding:10px 16px;display:flex;
        justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
-header b{font-size:17px} header .d{color:var(--dourado)}
-header button{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;
-       border-radius:8px;padding:6px 10px;font-size:12px}
-main{max-width:680px;margin:0 auto;padding:14px}
+header button{background:none;border:1px solid var(--linha);color:var(--cinza);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600}
+.logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--tinta)}
+.stack{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sq{display:block;border-radius:2px}
+.sq-r{width:7px;height:7px;background:var(--vermelho)}
+.sq-y{width:13px;height:13px;background:var(--amarelo)}
+.sq-b{width:21px;height:21px;background:var(--azul)}
+.word{display:flex;flex-direction:column;line-height:.9;font-family:'Poppins',sans-serif}
+.word b{font-weight:700;font-size:17px;letter-spacing:-.02em}
+.word i{font-style:normal;font-weight:300;font-size:16px}
+.est{font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:var(--cinza);margin-left:12px;padding-left:12px;border-left:1px solid var(--linha)}
+main{max-width:720px;margin:0 auto;padding:14px}
 .abas{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.abas button{flex:1;min-width:0;padding:10px;border:1px solid var(--borda);background:#fff;
-     border-radius:10px;font-weight:700;color:var(--tinta2);font-size:14px}
-.abas button.on{background:var(--azul2);border-color:var(--azul2);color:#fff}
-.card{background:var(--card);border:1px solid var(--borda);border-radius:14px;
-      padding:14px;margin-bottom:14px}
-.topo{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-.qdo{font-weight:800;font-size:15px}
-.chip{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;text-transform:uppercase}
-.chip.rascunho{background:#fff4d6;color:#8a5a00}
+.abas button{flex:1;min-width:0;padding:10px;border:1px solid var(--linha);background:#fff;
+     border-radius:10px;font-weight:700;color:var(--cinza);font-size:14px;font-family:inherit}
+.abas button.on{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.card{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:14px;margin-bottom:14px}
+.topo{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
+.tit{font-family:'Poppins',sans-serif;font-weight:700;font-size:17px;line-height:1.2}
+.tipo{font-size:12px;color:var(--cinza);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.chip{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;text-transform:uppercase;white-space:nowrap}
+.chip.rascunho{background:#fff7b0;color:#6b5a00}
 .chip.aprovado{background:#e0f2e9;color:var(--ok)}
-.chip.publicado{background:#e3e9ff;color:var(--azul2)}
-.chip.reprovado{background:#fde5e3;color:var(--erro)}
-.tipo{font-size:12px;color:var(--tinta2);text-transform:uppercase;letter-spacing:1px}
-.midias{display:flex;gap:8px;overflow-x:auto;margin:10px 0;scroll-snap-type:x mandatory}
-.midias img,.midias video{height:280px;border-radius:10px;scroll-snap-align:start;
-     flex-shrink:0;background:#dde3ea}
-.leg{font-size:13px;color:var(--tinta2);white-space:pre-wrap;max-height:74px;
-     overflow:hidden;position:relative;cursor:pointer}
+.chip.publicado{background:#e3e9ff;color:var(--azul)}
+.chip.reprovado,.chip.descartado{background:#fde5e3;color:var(--erro)}
+.chip.a.corrigir{background:#ffe9d6;color:#8a4b00}
+.lingua{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:var(--azul);color:#fff;margin-left:6px;vertical-align:middle}
+.midias{display:flex;gap:8px;overflow-x:auto;margin:10px 0;scroll-snap-type:x mandatory;padding-bottom:6px}
+.midias img,.midias video{height:340px;border-radius:8px;scroll-snap-align:start;flex-shrink:0;background:#e6e6ea;cursor:zoom-in}
+.contagem{font-size:12px;color:var(--cinza);margin-top:-4px}
+.leg{font-size:13px;color:#3F3F46;white-space:pre-wrap;max-height:74px;overflow:hidden;cursor:pointer;margin-top:6px}
 .leg.aberta{max-height:none}
 .acoes{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.acoes button{flex:1;min-width:100px;padding:11px 8px;border-radius:10px;border:none;
-      font-weight:800;font-size:14px}
+.acoes button{flex:1;min-width:100px;padding:11px 8px;border-radius:10px;border:none;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer}
 .b-ap{background:var(--ok);color:#fff}
 .b-re{background:#fff;border:1.5px solid var(--erro)!important;color:var(--erro)}
-.b-h{background:#fff;border:1.5px solid var(--borda)!important;color:var(--tinta2)}
+.b-h{background:#fff;border:1.5px solid var(--linha)!important;color:var(--cinza)}
 .coment{margin-top:10px;display:flex;gap:8px}
-@media(max-width:430px){
-  .abas{gap:5px}
-  .abas button{padding:8px 3px;font-size:11.5px;letter-spacing:-.3px;flex:1 1 30%}
-}
-.imgfiltros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.imgfiltros button{padding:7px 12px;border:1px solid var(--borda);background:#fff;
-  border-radius:999px;font-size:12.5px;font-weight:700;color:var(--tinta2);cursor:pointer}
-.imgfiltros button.on{background:var(--azul2);border-color:var(--azul2);color:#fff}
-.gimg{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
-.gimg .it{background:var(--card);border:1px solid var(--borda);border-radius:12px;
-  overflow:hidden;display:flex;flex-direction:column}
+.coment input{flex:1;padding:10px;border:1px solid var(--linha);border-radius:10px;font-size:14px;font-family:inherit}
+.coment button{background:var(--azul);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700;font-family:inherit;cursor:pointer}
+.hist{font-size:12px;color:var(--cinza);margin-top:8px;border-left:3px solid var(--amarelo);padding-left:8px;white-space:pre-wrap}
+.aviso{background:#fffbe0;border:1px solid #efe58a;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#5c4d00;margin-bottom:12px}
+.vazio{color:var(--cinza);text-align:center;padding:30px 10px;font-size:14px}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filtros button{padding:7px 12px;border:1px solid var(--linha);background:#fff;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--cinza);cursor:pointer;font-family:inherit}
+.filtros button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+.gimg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.gimg .it{background:var(--papel);border:1px solid var(--linha);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .gimg .it.decidida{opacity:.6}
-.gimg .it img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;
-  background:#eef1f5;cursor:zoom-in}
+.gimg .it img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#eef1f5;cursor:zoom-in}
 .gimg .txt{padding:8px 10px 6px;display:flex;flex-direction:column;gap:5px;flex:1}
 .gimg h4{font-size:12.5px;line-height:1.3;font-weight:700}
-.gimg .jus{font-size:11px;color:var(--tinta2);line-height:1.35}
+.gimg .jus{font-size:11px;color:var(--cinza);line-height:1.35;max-height:44px;overflow:hidden;cursor:pointer}
+.gimg .jus.aberta{max-height:none}
 .gimg .bts{display:flex;gap:6px;padding:0 10px 10px}
-.gimg .bts button{flex:1;padding:9px 4px;border-radius:8px;border:none;
-  font-size:13px;font-weight:800;cursor:pointer}
-.gimg .num{font-size:10.5px;color:var(--tinta2);font-variant-numeric:tabular-nums}
-.orig{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
-  padding:2px 7px;border-radius:999px;align-self:flex-start}
-.o-aspiracional{background:#f3e2e6;color:#a34e63}
-.o-site{background:#e5ede2;color:#4a6b46}
-.o-rosto-teste{background:#fde5e3;color:var(--erro)}
-.o-take{background:#e3e9ff;color:var(--azul2)}
-.o-reel{background:#e0f2e9;color:var(--ok)}
-.tk-grupo{font-size:14px;font-weight:800;color:var(--azul);margin:16px 0 8px}
-.tk-grupo:first-child{margin-top:0}
-.gimg.tk-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
-.tk-card{background:var(--card);border:1px solid var(--borda);border-radius:12px;
-  overflow:hidden;display:flex;flex-direction:column}
-.tk-card.decidida{opacity:.6}
-.tk-card video{width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#000}
-.tk-links{display:flex;gap:10px;padding:0 10px 8px;font-size:12px}
-.tk-links a,.tk-links button{color:var(--azul2);text-decoration:none;font-weight:700;
-  background:none;border:none;cursor:pointer;padding:0;font-size:12px}
-.tk-card .coment{flex-direction:column;gap:6px;padding:0 10px 10px}
-.tk-card .coment button{padding:8px}
-.coment input{flex:1;padding:10px;border:1px solid var(--borda);border-radius:10px;font-size:14px}
-.coment button{background:var(--azul2);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700}
-.hist{font-size:12px;color:var(--tinta2);margin-top:8px;border-left:3px solid var(--dourado);
-      padding-left:8px;white-space:pre-wrap}
-#login{max-width:360px;margin:80px auto;background:#fff;padding:26px;border-radius:16px;
-       border:1px solid var(--borda)}
-#login h1{font-size:20px;color:var(--azul);margin-bottom:4px}
-#login p{font-size:13px;color:var(--tinta2);margin-bottom:16px}
-#login input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--borda);
-       border-radius:10px;font-size:15px}
-#login button{width:100%;padding:13px;background:var(--azul2);color:#fff;border:none;
-       border-radius:10px;font-weight:800;font-size:15px}
+.gimg .bts button{flex:1;padding:9px 4px;border-radius:8px;border:none;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+#login{max-width:380px;margin:80px auto;background:#fff;padding:26px;border-radius:16px;border:1px solid var(--linha)}
+#login h1{font-family:'Poppins',sans-serif;font-size:20px;margin:14px 0 4px}
+#login p{font-size:13px;color:var(--cinza);margin-bottom:16px}
+#login input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--linha);border-radius:10px;font-size:15px;font-family:inherit}
+#login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
 #msg{color:var(--erro);font-size:13px;margin-top:8px;min-height:18px}
-.regras textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--borda);
-       border-radius:10px;font-size:14px;margin-bottom:8px}
-.regras .add{width:100%;padding:12px;background:var(--dourado);color:var(--azul);
-       border:none;border-radius:10px;font-weight:800;font-size:15px}
-.regra-item{background:#fff;border:1px solid var(--borda);border-radius:10px;
-       padding:10px 12px;margin-top:10px;font-size:13px}
-.regra-item .st{font-size:11px;font-weight:800;color:var(--tinta2)}
-.vazio{color:var(--tinta2);text-align:center;padding:30px 10px;font-size:14px}
-.aviso{background:#fff8e6;border:1px solid #f0dfae;border-radius:10px;padding:10px 12px;
-       font-size:12px;color:#7a5b00;margin-bottom:12px}
+.regras textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--linha);border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit}
+.regras .add{width:100%;padding:12px;background:var(--amarelo);color:var(--tinta);border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
+.regra-item{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13px}
+.regra-item .st{font-size:11px;font-weight:800;color:var(--cinza)}
+#lupa{position:fixed;inset:0;background:rgba(13,13,15,.92);display:none;align-items:center;justify-content:center;z-index:20;cursor:zoom-out}
+#lupa img{max-width:96vw;max-height:94vh;border-radius:6px}
+@media(max-width:430px){.abas{gap:5px}.abas button{padding:8px 3px;font-size:12px}.midias img{height:300px}}
 </style>
 </head>
 <body>
 <div id="app-login">
   <div id="login">
-    <h1>Estúdio <span style="color:var(--dourado)">·</span> Escola Montessoriana</h1>
-    <p>Fila de publicação, aprovação e regras.</p>
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <h1>Estúdio</h1>
+    <p>Peças da Free School para aprovação. Mesmo login do Estúdio da escola.</p>
     <input id="em" type="email" placeholder="E-mail" autocomplete="username">
     <input id="se" type="password" placeholder="Senha" autocomplete="current-password">
     <button onclick="entrar()">Entrar</button>
@@ -124,29 +104,34 @@ main{max-width:680px;margin:0 auto;padding:14px}
 
 <div id="app" style="display:none">
 <header>
-  <b>Estúdio <span class="d">·</span> Montessoriana</b>
+  <span style="display:flex;align-items:center">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <span class="est">Estúdio</span>
+  </span>
   <button onclick="sair()">Sair</button>
 </header>
 <main>
   <div class="abas">
     <button id="aba-fila" class="on" onclick="mudarAba('fila')">Fila</button>
-    <button id="aba-pauta" onclick="mudarAba('pauta')">Pauta</button>
     <button id="aba-imgs" onclick="mudarAba('imgs')">Imagens</button>
-    <button id="aba-takes" onclick="mudarAba('takes')">Takes</button>
     <button id="aba-hist" onclick="mudarAba('hist')">Histórico</button>
-    <button id="aba-desc" onclick="mudarAba('desc')">Descartados</button>
     <button id="aba-regras" onclick="mudarAba('regras')">Regras</button>
   </div>
   <div id="conteudo"><div class="vazio">Carregando…</div></div>
 </main>
 </div>
+<div id="lupa" onclick="this.style.display='none'"><img alt=""></div>
 
 <script>
 const SB_URL = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co';
 const SB_KEY = 'sb_publishable_bg4n-MXnoYVWomRN90WTOg_HOdq3_9G';
+const BUCKET = 'fila-previews';          // mídias da Free School ficam em fila-previews/freeschool/...
 const db = supabase.createClient(SB_URL, SB_KEY);
 let abaAtual = 'fila';
+let histFiltro = 'todas';
+let imgStatus = 'proposta';
 const urlCache = {};
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 async function init(){
   const {data:{session}} = await db.auth.getSession();
@@ -168,88 +153,89 @@ function mostrarApp(){
 }
 function mudarAba(a){
   abaAtual = a;
-  for(const x of ['fila','pauta','imgs','takes','hist','desc','regras'])
+  for(const x of ['fila','imgs','hist','regras'])
     document.getElementById('aba-'+x).className = (x===a) ? 'on' : '';
   carregar();
 }
-
 async function urlAssinada(path){
+  if(!path) return '';
+  if(path.startsWith('http')) return path;
   if(urlCache[path]) return urlCache[path];
-  const {data} = await db.storage.from('fila-previews').createSignedUrl(path, 3600);
+  const {data} = await db.storage.from(BUCKET).createSignedUrl(path, 3600);
   urlCache[path] = data ? data.signedUrl : '';
   return urlCache[path];
 }
-
-function fmtQuando(iso){
+function lupa(u){ const l = document.getElementById('lupa'); l.querySelector('img').src = u; l.style.display = 'flex'; }
+function fmtData(iso){
+  if(!iso) return '';
   const d = new Date(iso);
-  const dias = ['dom','seg','ter','qua','qui','sex','sáb'];
-  return `${dias[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+  const p2 = n => String(n).padStart(2,'0');
+  return `${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}h${p2(d.getMinutes())}`;
 }
 
+// ---------------------------------------------------------------- Fila / Histórico
 async function carregar(){
   const alvo = document.getElementById('conteudo');
   alvo.innerHTML = '<div class="vazio">Carregando…</div>';
   if(abaAtual === 'regras') return carregarRegras();
-  if(abaAtual === 'pauta') return carregarPauta();
   if(abaAtual === 'imgs') return carregarImagens();
-  if(abaAtual === 'takes') return carregarTakes();
-  // Tolerante a status fora do padrão (13/09: uma sessão do celular gravou
-  // "expirado" direto no banco e a peça sumiu de todas as abas).
-  const filtro = (abaAtual === 'fila')  ? ['rascunho','a corrigir']
-               : (abaAtual === 'desc')  ? ['reprovado','expirado','substituido','substituído','descartado']
-               :                          ['aprovado','publicado'];
-  // Descartados: o mais recente primeiro (é o que você mais quer recuperar)
-  let q = db.from('pub_fila').select('*').in('status', filtro);
-  q = (abaAtual === 'desc') ? q.order('quando', {ascending:false}) : q.order('quando');
+  const naFila = ['rascunho','a corrigir'];
+  let q = db.from('fs_fila').select('*');
+  q = (abaAtual === 'fila') ? q.in('status', naFila).order('criado_em')
+                            : q.not('status', 'in', '("rascunho","a corrigir")').order('atualizado_em', {ascending:false});
   const {data, error} = await q;
-  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
-  if(!data.length){ alvo.innerHTML = '<div class="vazio">Nada por aqui. 🎉</div>'; return; }
-
-  alvo.innerHTML =
-      (abaAtual==='fila') ? '<div class="aviso">Só o que espera sua decisão. Aprovou → vai para o Histórico e publica sozinho no horário. A ponte com o robô roda a cada 10 min.</div>'
-    : (abaAtual==='desc') ? '<div class="aviso">Tudo que saiu da fila: o que você reprovou e o que o robô expirou sozinho (story que passou da hora). <b>Recuperar</b> devolve a peça para a Fila com data nova — nada volta com data vencida, senão publicaria na hora em que você aprovasse.</div>'
+  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${esc(error.message)}</div>`; return; }
+  let lista = data || [];
+  alvo.innerHTML = (abaAtual === 'fila')
+    ? '<div class="aviso">Só o que espera sua decisão. <b>Aprovar</b> libera a peça para publicar; a publicação da Free School ainda é manual (não há robô ligado ao Instagram da Free School). Comentário e motivo de reprovação voltam para o Claude corrigir.</div>'
     : '';
-  for(const p of data){ alvo.appendChild(await cartao(p)); }
+  if(abaAtual === 'hist'){
+    const cont = {};
+    for(const p of lista){ cont[p.status] = (cont[p.status]||0)+1; }
+    const bt = (v, rot) => `<button data-v="${v}" class="${histFiltro===v?'on':''}">${rot}</button>`;
+    alvo.innerHTML += '<div class="filtros" id="f-hist">' + bt('todas', 'Todas (' + lista.length + ')') +
+      Object.keys(cont).map(s => bt(s, s + ' (' + cont[s] + ')')).join('') + '</div>';
+    document.querySelectorAll('#f-hist button').forEach(b => b.onclick = () => { histFiltro = b.dataset.v; carregar(); });
+    if(histFiltro !== 'todas') lista = lista.filter(p => p.status === histFiltro);
+  }
+  if(!lista.length){ alvo.innerHTML += '<div class="vazio">Nada por aqui.</div>'; return; }
+  for(const p of lista){ alvo.appendChild(await cartao(p)); }
 }
 
 async function cartao(p){
   const el = document.createElement('div');
   el.className = 'card';
-  const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
-  // Reel que só tem previa.mp4 (sem video.mp4) NÃO pode ser aprovado: o robô
-  // não consegue publicar e fica em loop de erro a cada 15 min (13/09: 207 erros).
-  const semFinal = /reel|video/i.test(p.tipo||'') &&
-      !(p.midias||[]).some(m => /(^|\/)video\.mp4$/i.test(m.path||''));
+  const coms = (p.comentarios||[]).map(c => `[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
+  const n = (p.midias||[]).length;
   el.innerHTML = `
     <div class="topo">
-      <div><div class="qdo">${fmtQuando(p.quando)}</div>
-      <div class="tipo">${p.tipo}${p.permalink ? ` · <a href="${p.permalink}" target="_blank">ver post</a>`:''}</div></div>
-      <span class="chip ${p.status}">${p.status==='reprovado' && /^EXPIRAD/i.test(p.motivo||'') ? 'expirado pelo robô' : p.status}</span>
+      <div><div class="tit">${esc(p.titulo || p.id)}<span class="lingua">${esc((p.lingua||'pt').toUpperCase())}</span></div>
+      <div class="tipo">${esc(p.tipo)}${n ? ` · ${n} lâminas` : ''}${p.quando ? ` · ${fmtData(p.quando)}` : ''}${p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank">ver post</a>` : ''}</div></div>
+      <span class="chip ${esc(p.status)}">${esc(p.status)}</span>
     </div>
     <div class="midias" data-m></div>
-    <div class="leg" onclick="this.classList.toggle('aberta')">${(p.legenda||'').replace(/</g,'&lt;')}</div>
-    ${p.parecer ? `<div class="hist" style="border-left-color:${p.parecer.includes('REPROVAR') ? '#b3261e' : p.parecer.includes('ATENÇÃO') ? '#c77700' : '#1d6b3f'}">🧐 ${p.parecer.replace(/</g,'&lt;')}</div>` : ''}
-    ${p.motivo ? `<div class="hist">Motivo: ${p.motivo}</div>` : ''}
-    ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
-    ${semFinal ? `<div class="hist" style="border-left-color:#c77700">⏳ <b>PRÉVIA</b> — ainda sem vídeo final (só previa.mp4). Não dá para aprovar: a esteira precisa montar o vídeo com os takes finais. Pode comentar e reprovar.</div>` : ''}
-    ${p.status==='rascunho' ? `
+    ${n > 1 ? '<div class="contagem">← arraste para ver as lâminas · toque para ampliar</div>' : ''}
+    <div class="leg" onclick="this.classList.toggle('aberta')">${esc(p.legenda)}</div>
+    ${p.parecer ? `<div class="hist">🧐 ${esc(p.parecer)}</div>` : ''}
+    ${p.motivo ? `<div class="hist" style="border-left-color:var(--vermelho)">Motivo: ${esc(p.motivo)}</div>` : ''}
+    ${coms ? `<div class="hist">${esc(coms)}</div>` : ''}
+    ${['rascunho','a corrigir'].includes(p.status) ? `
     <div class="acoes">
-      ${semFinal ? '' : `<button class="b-ap" onclick="aprovar('${p.id}')">✓ Aprovar</button>`}
-      <button class="b-re" onclick="reprovar('${p.id}')">✗ Reprovar</button>
-      <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
+      <button class="b-ap" onclick="decidir('${esc(p.id)}','aprovado')">✓ Aprovar</button>
+      <button class="b-re" onclick="reprovar('${esc(p.id)}')">✗ Reprovar</button>
     </div>` : ''}
-    ${p.status==='aprovado' && !p.permalink ? `
+    ${p.status === 'aprovado' ? `
     <div class="acoes">
-      <button class="b-re" onclick="cancelarAprovacao('${p.id}')">↩ Cancelar aprovação</button>
-      <button class="b-h" onclick="mudarHorario('${p.id}','${p.quando}')">🕒 Horário</button>
+      <button class="b-h" onclick="decidir('${esc(p.id)}','publicado')">📣 Marcar como publicado</button>
+      <button class="b-re" onclick="decidir('${esc(p.id)}','rascunho')">↩ Voltar para a Fila</button>
     </div>` : ''}
-    ${['reprovado','expirado','substituido','substituído','descartado'].includes(p.status) ? `
+    ${['reprovado','descartado'].includes(p.status) ? `
     <div class="acoes">
-      <button class="b-ap" onclick="recuperar('${p.id}','${p.quando}','${p.tipo}')">↺ Recuperar para a Fila</button>
+      <button class="b-h" onclick="decidir('${esc(p.id)}','rascunho')">↺ Recuperar para a Fila</button>
     </div>` : ''}
     <div class="coment">
-      <input placeholder="Comentário para o Claude (educa o bot)…" data-c>
-      <button onclick="comentar('${p.id}', this)">Enviar</button>
+      <input placeholder="Comentário para o Claude…" data-c>
+      <button onclick="comentar('${esc(p.id)}', this)">Enviar</button>
     </div>`;
   const cont = el.querySelector('[data-m]');
   for(const m of (p.midias||[])){
@@ -257,86 +243,74 @@ async function cartao(p){
     if(!u) continue;
     if((m.mime||'').startsWith('video')){
       const v = document.createElement('video');
-      v.src = u; v.controls = true; v.preload='metadata'; cont.appendChild(v);
+      v.src = u; v.controls = true; v.preload = 'metadata'; cont.appendChild(v);
     } else {
       const i = document.createElement('img');
-      i.src = u; i.loading='lazy'; cont.appendChild(i);
+      i.src = u; i.loading = 'lazy'; i.onclick = () => lupa(u); cont.appendChild(i);
     }
   }
   return el;
 }
 
-
-// ---------------------------------------------------------------- Imagens
-// Banco de stills do Higgsfield (hf_imagens). Ele decide aqui: o que passa
-// vira base de reel e ensina o estilo das proximas ondas.
-let imgStatus = 'proposta';
-let imgOrigem = 'todas';
-let tkStatus = 'todas';
-let tkTipo = 'todos';
-let tkDados = [];
-
-async function urlImg(u, mini){
-  if(!u) return '';
-  if(u.startsWith('http')) return (mini && u.endsWith('.png')) ? u.slice(0,-4) + '_min.webp' : u;
-  return await urlAssinada(u);   // caminho no bucket
+async function decidir(id, status){
+  const campos = {status, atualizado_por:'estudio', atualizado_em:new Date().toISOString()};
+  if(status === 'rascunho') campos.motivo = null;
+  const {error} = await db.from('fs_fila').update(campos).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  carregar();
+}
+async function reprovar(id){
+  const motivo = prompt('Motivo da reprovação (é o que o Claude vai corrigir):');
+  if(motivo === null) return;
+  const {error} = await db.from('fs_fila').update({status:'reprovado', motivo,
+      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  carregar();
+}
+async function comentar(id, btn){
+  const input = btn.parentElement.querySelector('[data-c]');
+  const texto = input.value.trim();
+  if(!texto) return;
+  const {data} = await db.from('fs_fila').select('comentarios').eq('id', id).single();
+  const coms = (data && data.comentarios) || [];
+  coms.push({texto, em: new Date().toISOString(), autor:'claudio'});
+  const {error} = await db.from('fs_fila').update({comentarios: coms,
+      atualizado_em:new Date().toISOString()}).eq('id', id);
+  if(error){ alert('Não deu para salvar: ' + error.message); return; }
+  input.value = '';
+  carregar();
 }
 
+// ---------------------------------------------------------------- Imagens
 async function carregarImagens(){
   const alvo = document.getElementById('conteudo');
-  const {data, error} = await db.from('hf_imagens').select('*').order('criado_em');
-  if(error){ alvo.innerHTML = '<div class="vazio">Erro: ' + error.message + '</div>'; return; }
-
+  const {data, error} = await db.from('fs_imagens').select('*').order('criado_em');
+  if(error){ alvo.innerHTML = '<div class="vazio">Erro: ' + esc(error.message) + '</div>'; return; }
   const cS = {proposta:0, aprovada:0, rejeitada:0};
-  const cO = {aspiracional:0, site:0, 'rosto-teste':0};
-  for(const r of data){ cS[r.status] = (cS[r.status]||0)+1; cO[r.origem] = (cO[r.origem]||0)+1; }
-
-  const lista = data.filter(r =>
-    (imgStatus === 'todas' || r.status === imgStatus) &&
-    (imgOrigem === 'todas' || r.origem === imgOrigem));
-
-  const bt = (v, atual, rot) =>
-    '<button data-v="' + v + '" class="' + (atual === v ? 'on' : '') + '">' + rot + '</button>';
-
+  for(const r of data){ cS[r.status] = (cS[r.status]||0)+1; }
+  const lista = data.filter(r => imgStatus === 'todas' || r.status === imgStatus);
+  const bt = (v, rot) => `<button data-v="${v}" class="${imgStatus===v?'on':''}">${rot}</button>`;
   alvo.innerHTML =
-    '<div class="aviso">Banco de imagens do Higgsfield. Aprove o que serve — o aprovado vira base de reel e ensina o estilo das próximas ondas; o reprovado com motivo evita que eu repita o erro. <b>' +
-      (cS.proposta||0) + '</b> esperando sua decisão.</div>' +
-    '<div class="imgfiltros" id="f-st">' +
-      bt('proposta', imgStatus, 'Para decidir (' + (cS.proposta||0) + ')') +
-      bt('aprovada', imgStatus, 'Aprovadas (' + (cS.aprovada||0) + ')') +
-      bt('rejeitada', imgStatus, 'Reprovadas (' + (cS.rejeitada||0) + ')') +
-      bt('todas', imgStatus, 'Todas (' + data.length + ')') +
-    '</div>' +
-    '<div class="imgfiltros" id="f-or">' +
-      bt('todas', imgOrigem, 'Toda origem') +
-      bt('aspiracional', imgOrigem, 'Geradas (' + (cO.aspiracional||0) + ')') +
-      bt('site', imgOrigem, 'Fotos do site (' + (cO.site||0) + ')') +
-      bt('rosto-teste', imgOrigem, 'Teste rostos (' + (cO['rosto-teste']||0) + ')') +
-    '</div>' +
-    (lista.length ? '<div class="gimg" id="grade"></div>'
-                  : '<div class="vazio">Nada com esse filtro. 🎉</div>');
-
-  document.querySelectorAll('#f-st button').forEach(b =>
-    b.onclick = () => { imgStatus = b.dataset.v; carregarImagens(); });
-  document.querySelectorAll('#f-or button').forEach(b =>
-    b.onclick = () => { imgOrigem = b.dataset.v; carregarImagens(); });
-
+    '<div class="aviso">Imagens geradas para as peças da Free School (com o prompt usado). Aprovar ensina o estilo das próximas; reprovar com motivo evita repetir o erro. <b>' + (cS.proposta||0) + '</b> esperando decisão.</div>' +
+    '<div class="filtros" id="f-st">' +
+      bt('proposta', 'Para decidir (' + (cS.proposta||0) + ')') +
+      bt('aprovada', 'Aprovadas (' + (cS.aprovada||0) + ')') +
+      bt('rejeitada', 'Reprovadas (' + (cS.rejeitada||0) + ')') +
+      bt('todas', 'Todas (' + data.length + ')') + '</div>' +
+    (lista.length ? '<div class="gimg" id="grade"></div>' : '<div class="vazio">Nada com esse filtro.</div>');
+  document.querySelectorAll('#f-st button').forEach(b => b.onclick = () => { imgStatus = b.dataset.v; carregarImagens(); });
   const grade = document.getElementById('grade');
   if(!grade) return;
-  let n = 0;
   for(const r of lista){
-    n++;
     const el = document.createElement('div');
     el.className = 'it' + (r.status === 'proposta' ? '' : ' decidida');
-    const rot = r.origem === 'site' ? 'foto real'
-              : r.origem === 'rosto-teste' ? 'teste rosto' : 'gerada';
     el.innerHTML =
-      '<img loading="lazy" alt="' + (r.titulo||'') + '">' +
+      '<img loading="lazy" alt="' + esc(r.titulo) + '">' +
       '<div class="txt">' +
-        '<span class="orig o-' + r.origem + '">' + rot + '</span>' +
-        '<h4>' + (r.titulo||'sem título').replace(/</g,'&lt;') + '</h4>' +
-        (r.justificativa ? '<div class="jus">' + r.justificativa.replace(/</g,'&lt;') + '</div>' : '') +
-        (r.motivo ? '<div class="jus"><b>Motivo:</b> ' + r.motivo.replace(/</g,'&lt;') + '</div>' : '') +
+        '<h4>' + esc(r.titulo || 'sem título') + '</h4>' +
+        (r.peca ? '<div class="jus aberta">peça: ' + esc(r.peca) + '</div>' : '') +
+        (r.prompt ? '<div class="jus" onclick="this.classList.toggle(\'aberta\')"><b>prompt:</b> ' + esc(r.prompt) + '</div>' : '') +
+        (r.motivo ? '<div class="jus aberta"><b>Motivo:</b> ' + esc(r.motivo) + '</div>' : '') +
       '</div>' +
       '<div class="bts">' +
         (r.status === 'proposta'
@@ -344,343 +318,36 @@ async function carregarImagens(){
           : '<button class="b-h" data-volta>↩ voltar p/ decidir</button>') +
       '</div>';
     const im = el.querySelector('img');
-    urlImg(r.url, true).then(u => { if(u) im.src = u; });
-    im.onclick = async () => { const u = await urlImg(r.url, false); if(u) window.open(u, '_blank'); };
-    const ok = el.querySelector('[data-ok]'), no = el.querySelector('[data-no]'),
-          vo = el.querySelector('[data-volta]');
+    urlAssinada(r.url).then(u => { if(u){ im.src = u; im.onclick = () => lupa(u); } });
+    const ok = el.querySelector('[data-ok]'), no = el.querySelector('[data-no]'), vo = el.querySelector('[data-volta]');
     if(ok) ok.onclick = () => imgDecidir(r.id, 'aprovada');
     if(no) no.onclick = () => imgDecidir(r.id, 'rejeitada');
     if(vo) vo.onclick = () => imgDecidir(r.id, 'proposta');
     grade.appendChild(el);
   }
 }
-
 async function imgDecidir(id, status){
   let motivo;
   if(status === 'rejeitada'){
-    motivo = prompt('O que não serviu? (isso evita que eu repita o erro nas próximas ondas)');
+    motivo = prompt('O que não serviu? (evita repetir o erro na próxima)');
     if(motivo === null) return;
   }
   const campos = {status, atualizado_em: new Date().toISOString()};
   if(status === 'rejeitada') campos.motivo = motivo;
   if(status === 'proposta') campos.motivo = null;
-  const {error} = await db.from('hf_imagens').update(campos).eq('id', id);
+  const {error} = await db.from('fs_imagens').update(campos).eq('id', id);
   if(error){ alert('Não deu para salvar: ' + error.message); return; }
   carregarImagens();
 }
 
-// ---------------------------------------------------------------- Takes
-// Vídeos do Higgsfield (hf_takes): 'take' = clipe bruto, 'reel' = vídeo
-// montado com legenda. Agrupados por tema (grupo). Aprovar/reprovar aqui
-// ensina o bot como as próximas ondas de vídeo devem sair.
-async function carregarTakes(){
-  const alvo = document.getElementById('conteudo');
-  const {data, error} = await db.from('hf_takes').select('*').order('grupo').order('criado_em');
-  if(error){ alvo.innerHTML = '<div class="vazio">Erro: ' + error.message + '</div>'; return; }
-  tkDados = data || [];
-
-  const cS = {proposta:0, aprovada:0, rejeitada:0};
-  const cT = {take:0, reel:0};
-  for(const r of tkDados){ cS[r.status] = (cS[r.status]||0)+1; cT[r.tipo] = (cT[r.tipo]||0)+1; }
-
-  const lista = tkDados.filter(r =>
-    (tkStatus === 'todas' || r.status === tkStatus) &&
-    (tkTipo === 'todos' || r.tipo === tkTipo));
-
-  const bt = (v, atual, rot) =>
-    '<button data-v="' + v + '" class="' + (atual === v ? 'on' : '') + '">' + rot + '</button>';
-
-  alvo.innerHTML =
-    '<div class="aviso">Takes = clipes brutos do Higgsfield; Reels = vídeos montados com legenda. Aprove o que serve. <b>' +
-      (cS.proposta||0) + '</b> esperando sua decisão.</div>' +
-    '<div class="imgfiltros" id="f-tst">' +
-      bt('proposta', tkStatus, 'Para decidir (' + (cS.proposta||0) + ')') +
-      bt('aprovada', tkStatus, 'Aprovados (' + (cS.aprovada||0) + ')') +
-      bt('rejeitada', tkStatus, 'Reprovados (' + (cS.rejeitada||0) + ')') +
-      bt('todas', tkStatus, 'Todos (' + tkDados.length + ')') +
-    '</div>' +
-    '<div class="imgfiltros" id="f-ttp">' +
-      bt('todos', tkTipo, 'Todos os tipos') +
-      bt('take', tkTipo, 'Takes (' + (cT.take||0) + ')') +
-      bt('reel', tkTipo, 'Reels (' + (cT.reel||0) + ')') +
-    '</div>' +
-    (lista.length ? '<div id="tk-grupos"></div>'
-                  : '<div class="vazio">Nada com esse filtro. 🎉</div>');
-
-  document.querySelectorAll('#f-tst button').forEach(b =>
-    b.onclick = () => { tkStatus = b.dataset.v; carregarTakes(); });
-  document.querySelectorAll('#f-ttp button').forEach(b =>
-    b.onclick = () => { tkTipo = b.dataset.v; carregarTakes(); });
-
-  const cont = document.getElementById('tk-grupos');
-  if(!cont) return;
-
-  const grupos = new Map();
-  for(const r of lista){
-    const g = r.grupo || '(sem grupo)';
-    if(!grupos.has(g)) grupos.set(g, []);
-    grupos.get(g).push(r);
-  }
-
-  for(const [g, itens] of grupos){
-    const h = document.createElement('h3');
-    h.className = 'tk-grupo';
-    h.textContent = g + ' (' + itens.length + ')';
-    cont.appendChild(h);
-    const grade = document.createElement('div');
-    grade.className = 'gimg tk-grid';
-    cont.appendChild(grade);
-    for(const r of itens){ grade.appendChild(tkCartao(r)); }
-  }
-}
-
-function tkCartao(r){
-  const el = document.createElement('div');
-  el.className = 'tk-card' + (r.status === 'proposta' ? '' : ' decidida');
-  const coms = (r.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
-  const rotTipo = r.tipo === 'reel' ? 'reel' : 'take';
-  el.innerHTML =
-    '<video controls preload="metadata" playsinline' +
-      (r.capa ? ' poster="' + r.capa + '"' : '') +
-      ' src="' + r.url + '"></video>' +
-    '<div class="txt">' +
-      '<span class="orig o-' + rotTipo + '">' + rotTipo + ' · ' + (r.duracao||0) + 's · rodada ' + (r.rodada||0) + '</span>' +
-      '<h4>' + (r.titulo||'sem título').replace(/</g,'&lt;') + '</h4>' +
-      (r.motivo ? '<div class="jus"><b>Motivo:</b> ' + r.motivo.replace(/</g,'&lt;') + '</div>' : '') +
-      (coms ? '<div class="jus">' + coms.replace(/</g,'&lt;') + '</div>' : '') +
-    '</div>' +
-    '<div class="tk-links">' +
-      '<a href="' + r.url + '" download target="_blank">⬇ baixar</a>' +
-      '<button data-copy>🔗 copiar link</button>' +
-    '</div>' +
-    '<div class="bts">' +
-      (r.status === 'proposta'
-        ? '<button class="b-ap" data-ok>✓ Aprovar</button><button class="b-re" data-no>✗ Reprovar</button>'
-        : '<button class="b-h" data-volta>↩ voltar p/ decidir</button>') +
-    '</div>' +
-    '<div class="coment">' +
-      '<input placeholder="Comentário para o Claude…" data-c>' +
-      '<button data-send>Enviar</button>' +
-    '</div>';
-  const ok = el.querySelector('[data-ok]'), no = el.querySelector('[data-no]'),
-        vo = el.querySelector('[data-volta]'), cp = el.querySelector('[data-copy]'),
-        sd = el.querySelector('[data-send]');
-  if(ok) ok.onclick = () => takeDecidir(r.id, 'aprovada');
-  if(no) no.onclick = () => takeDecidir(r.id, 'rejeitada');
-  if(vo) vo.onclick = () => takeDecidir(r.id, 'proposta');
-  cp.onclick = () => {
-    navigator.clipboard.writeText(r.url);
-    const rot = cp.textContent;
-    cp.textContent = 'copiado';
-    setTimeout(() => { cp.textContent = rot; }, 1500);
-  };
-  sd.onclick = () => takeComentar(r.id, el.querySelector('[data-c]'));
-  return el;
-}
-
-async function takeDecidir(id, status){
-  let motivo;
-  if(status === 'rejeitada'){
-    motivo = prompt('O que não serviu? (isso evita que eu repita o erro nas próximas ondas)');
-    if(motivo === null) return;
-  }
-  const campos = {status, atualizado_em: new Date().toISOString()};
-  if(status === 'rejeitada') campos.motivo = motivo;
-  if(status === 'proposta') campos.motivo = null;
-  const {error} = await db.from('hf_takes').update(campos).eq('id', id);
-  if(error){ alert('Não deu para salvar: ' + error.message); return; }
-  carregarTakes();
-}
-
-async function takeComentar(id, input){
-  const texto = input.value.trim();
-  if(!texto) return;
-  const r = tkDados.find(x => x.id === id);
-  const coms = (r && r.comentarios) || [];
-  coms.push({em: new Date().toISOString(), autor:'claudio', texto});
-  const {error} = await db.from('hf_takes').update({comentarios: coms,
-      atualizado_em: new Date().toISOString()}).eq('id', id);
-  if(error){ alert('Não deu para salvar: ' + error.message); return; }
-  carregarTakes();
-}
-
-async function aprovar(id){
-  await db.from('pub_fila').update({status:'aprovado', atualizado_por:'estudio',
-      atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function cancelarAprovacao(id){
-  await db.from('pub_fila').update({status:'rascunho',
-      motivo:'aprovação cancelada pelo Claudio — não auto-aprovar',
-      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function recuperar(id, atual, tipo){
-  // Data NOVA e obrigatoria: card/reel com data vencida publica NA HORA em que
-  // for aprovado (so story tem prazo de validade no robo). Sugere amanha, no
-  // mesmo horario que a peca tinha.
-  const d = new Date(atual);
-  const s = new Date();
-  s.setDate(s.getDate() + 1);
-  s.setHours(d.getHours(), d.getMinutes(), 0, 0);
-  const p2 = n => String(n).padStart(2,'0');
-  const sugestao = `${s.getFullYear()}-${p2(s.getMonth()+1)}-${p2(s.getDate())} ${p2(s.getHours())}:${p2(s.getMinutes())}`;
-  const novo = prompt(
-    `Recuperar para a Fila.\n\nEsta peça (${tipo}) volta como rascunho e você aprova depois.\nEscolha a NOVA data — a antiga já passou:`,
-    sugestao);
-  if(!novo) return;
-  const dt = new Date(novo.replace(' ','T'));
-  if(isNaN(dt)){ alert('Formato inválido. Use AAAA-MM-DD HH:MM'); return; }
-  if(dt <= new Date()){ alert('A data precisa ser no futuro.'); return; }
-  const {error} = await db.from('pub_fila').update({
-      status:'rascunho', quando: dt.toISOString(),
-      motivo:null, parecer:null, midias:null, comentarios:null,
-      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
-  if(error){ alert('Erro: ' + error.message); return; }
-  alert('Recuperado. A ponte devolve a pasta para a Fila em até 10 min.');
-  carregar();
-}
-async function reprovar(id){
-  const motivo = prompt('Motivo da reprovação (vira aprendizado do bot):');
-  if(motivo === null) return;
-  await db.from('pub_fila').update({status:'reprovado', motivo,
-      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function mudarHorario(id, atual){
-  const d = new Date(atual);
-  const sugestao = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  const novo = prompt('Novo horário (AAAA-MM-DD HH:MM):', sugestao);
-  if(!novo) return;
-  const dt = new Date(novo.replace(' ','T'));
-  if(isNaN(dt)){ alert('Formato inválido'); return; }
-  await db.from('pub_fila').update({quando: dt.toISOString(),
-      atualizado_por:'estudio', atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function comentar(id, btn){
-  const input = btn.parentElement.querySelector('[data-c]');
-  const texto = input.value.trim();
-  if(!texto) return;
-  const {data} = await db.from('pub_fila').select('comentarios').eq('id', id).single();
-  const coms = (data && data.comentarios) || [];
-  coms.push({texto, em: new Date().toISOString()});
-  await db.from('pub_fila').update({comentarios: coms}).eq('id', id);
-  input.value = '';
-  carregar();
-}
-
-// ---------- PAUTA (aprovação de intenção + modo de publicação) ----------
-const MODOS = {
-  manual: 'Manual — você aprova peça a peça na Fila (como hoje).',
-  pauta:  'Pauta — você aprova só a pauta da semana; a peça publica sozinha quando as DUAS revisões (mecânica + visual) dão OK.',
-  auto:   'Auto — publica sozinha com as duas revisões OK, sem pauta. Você só veta exceções.'
-};
-async function carregarPauta(){
-  const alvo = document.getElementById('conteudo');
-  const [{data:cfg}, {data, error}] = await Promise.all([
-    db.from('pub_config').select('valor').eq('chave','modo_publicacao').single(),
-    db.from('pub_pauta').select('*').order('data').order('slot')
-  ]);
-  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
-  const modo = (cfg && cfg.valor) || 'manual';
-  let html = `
-    <div class="aviso"><b>Modo de publicação:</b><br>` +
-    Object.keys(MODOS).map(m =>
-      `<label style="display:block;margin:6px 0;cursor:pointer">
-         <input type="radio" name="modo" value="${m}" ${m===modo?'checked':''}
-                onchange="mudarModo('${m}')"> <b>${m}</b> — ${MODOS[m]}</label>`).join('') +
-    `</div>
-    <div class="aviso">A pauta é a intenção da semana: aprove/edite ANTES de a peça ser
-    produzida. Peça só nasce de pauta aprovada (no modo pauta).</div>`;
-  const propostas = (data||[]).filter(p=>p.status==='proposta');
-  const nApr = (data||[]).filter(p=>p.status==='aprovada').length;
-  const nRej = (data||[]).filter(p=>p.status==='rejeitada').length;
-  if(nApr || nRej) html += `<div class="aviso">${nApr} aprovada(s) → na esteira de produção · ${nRej} rejeitada(s) → aprendizado da próxima pauta</div>`;
-  if(propostas.length > 1) html += `<button class="add" onclick="pautaAprovarTudo()">✓ Aprovar as ${propostas.length} propostas</button>`;
-  alvo.innerHTML = html;
-  if(!propostas.length){ alvo.innerHTML += '<div class="vazio">Nenhuma proposta esperando você. 🎉</div>'; return; }
-  for(const p of propostas){
-    const el = document.createElement('div');
-    el.className = 'card';
-    const coms = (p.comentarios||[]).map(c=>`[${(c.em||'').slice(5,16)}] ${c.texto}`).join('\n');
-    el.innerHTML = `
-      <div class="topo">
-        <div><div class="qdo">${p.data} · ${p.slot==='card-1130'?'card 11h30':'reel 18h30'}</div>
-        <div class="tipo">${p.pilar||''} · ${p.formato||''}</div></div>
-        <span class="chip ${p.status==='aprovada'?'aprovado':p.status==='rejeitada'?'reprovado':'rascunho'}">${p.status}</span>
-      </div>
-      <div class="midias" data-m></div>
-      <div class="leg aberta"><b>${(p.gancho||'').replace(/</g,'&lt;')}</b><br>
-        ${(p.tema||'').replace(/</g,'&lt;')}
-        ${p.foto ? `<br>📷 ${p.foto.replace(/</g,'&lt;')}` : ''}
-        ${p.fonte ? `<br>🔬 ${p.fonte.replace(/</g,'&lt;')}` : ''}</div>
-      ${p.justificativa ? `<div class="hist">💡 ${p.justificativa.replace(/</g,'&lt;')}</div>` : ''}
-      ${p.motivo ? `<div class="hist">Motivo: ${p.motivo.replace(/</g,'&lt;')}</div>` : ''}
-      ${coms ? `<div class="hist">${coms.replace(/</g,'&lt;')}</div>` : ''}
-      ${p.status==='proposta' ? `
-      <div class="acoes">
-        <button class="b-ap" onclick="pautaStatus('${p.id}','aprovada')">✓ Aprovar</button>
-        <button class="b-re" onclick="pautaRejeitar('${p.id}')">✗ Rejeitar</button>
-      </div>` : ''}
-      <div class="coment">
-        <input placeholder="Comentário / ajuste do tema (educa o bot)…" data-c>
-        <button onclick="pautaComentar('${p.id}', this)">Enviar</button>
-      </div>`;
-    alvo.appendChild(el);
-    if(p.foto_bucket){
-      const u = await urlAssinada(p.foto_bucket);
-      if(u){ const i = document.createElement('img'); i.src = u; i.loading = 'lazy';
-             el.querySelector('[data-m]').appendChild(i); }
-    }
-  }
-}
-async function mudarModo(m){
-  if(!confirm(`Mudar o modo de publicação para "${m}"?\n\n${MODOS[m]}`)){ carregar(); return; }
-  const {error} = await db.from('pub_config').update({valor:m,
-      atualizado_em:new Date().toISOString()}).eq('chave','modo_publicacao');
-  if(error) alert('Erro: '+error.message);
-  carregar();
-}
-async function pautaStatus(id, st){
-  await db.from('pub_pauta').update({status:st,
-      atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function pautaRejeitar(id){
-  const motivo = prompt('Por que rejeitar? (vira aprendizado da próxima pauta)');
-  if(motivo === null) return;
-  await db.from('pub_pauta').update({status:'rejeitada', motivo,
-      atualizado_em:new Date().toISOString()}).eq('id', id);
-  carregar();
-}
-async function pautaAprovarTudo(){
-  await db.from('pub_pauta').update({status:'aprovada',
-      atualizado_em:new Date().toISOString()}).eq('status','proposta');
-  carregar();
-}
-async function pautaComentar(id, btn){
-  const input = btn.parentElement.querySelector('[data-c]');
-  const texto = input.value.trim();
-  if(!texto) return;
-  const {data} = await db.from('pub_pauta').select('comentarios').eq('id', id).single();
-  const coms = (data && data.comentarios) || [];
-  coms.push({texto, em: new Date().toISOString()});
-  await db.from('pub_pauta').update({comentarios: coms}).eq('id', id);
-  input.value = '';
-  carregar();
-}
-
+// ---------------------------------------------------------------- Regras
 async function carregarRegras(){
   const alvo = document.getElementById('conteudo');
-  const {data, error} = await db.from('pub_regras').select('*')
-        .order('criado_em', {ascending:false});
-  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${error.message}</div>`; return; }
+  const {data, error} = await db.from('fs_regras').select('*').order('criado_em', {ascending:false});
+  if(error){ alvo.innerHTML = `<div class="vazio">Erro: ${esc(error.message)}</div>`; return; }
   alvo.innerHTML = `
     <div class="regras">
-      <div class="aviso">O que você escrever aqui vira regra oficial: o Claude incorpora
-      no REGRAS.md e toda peça futura obedece. Ex.: "nunca usar foto sem criança",
-      "sábado o post é sempre de atividade externa".</div>
+      <div class="aviso">Regra da Free School: o que você escrever aqui o Claude incorpora e toda peça futura obedece. Ex.: "nunca fundo preto", "sempre em inglês e português".</div>
       <textarea id="nova-regra" placeholder="Escreva a nova regra ou correção…"></textarea>
       <button class="add" onclick="addRegra()">Adicionar regra</button>
       <div id="lista-regras"></div>
@@ -689,16 +356,15 @@ async function carregarRegras(){
   for(const r of (data||[])){
     const d = document.createElement('div');
     d.className = 'regra-item';
-    d.innerHTML = `<div class="st">${r.status === 'incorporada' ? '✅ incorporada ao REGRAS.md' : '⏳ aguardando o Claude incorporar'} · ${(r.criado_em||'').slice(0,16).replace('T',' ')}</div>
-                   <div>${(r.texto||'').replace(/</g,'&lt;')}</div>`;
+    d.innerHTML = `<div class="st">${r.status === 'incorporada' ? '✅ incorporada' : '⏳ aguardando o Claude incorporar'} · ${esc((r.criado_em||'').slice(0,16).replace('T',' '))}</div><div>${esc(r.texto)}</div>`;
     lista.appendChild(d);
   }
 }
 async function addRegra(){
   const t = document.getElementById('nova-regra').value.trim();
   if(!t) return;
-  const {error} = await db.from('pub_regras').insert({texto: t});
-  if(error){ alert('Erro: '+error.message); return; }
+  const {error} = await db.from('fs_regras').insert({texto: t});
+  if(error){ alert('Erro: ' + error.message); return; }
   carregarRegras();
 }
 
