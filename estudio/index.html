@@ -78,6 +78,8 @@ main{max-width:720px;margin:0 auto;padding:14px}
 #login h1{font-family:'Poppins',sans-serif;font-size:20px;margin:14px 0 4px}
 #login p{font-size:13px;color:var(--cinza);margin-bottom:16px}
 #login input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--linha);border-radius:10px;font-size:15px;font-family:inherit}
+label.ver{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--cinza);margin:0 0 14px;cursor:pointer}
+#login label.ver input,#nova label.ver input{width:18px;height:18px;margin:0;padding:0}
 #login a#esqueci{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--azul);font-weight:700}
 #nova{max-width:380px;margin:80px auto;background:#fff;padding:26px;border-radius:16px;border:1px solid var(--linha)}
 #nova h1{font-family:'Poppins',sans-serif;font-size:20px;margin:14px 0 4px}
@@ -102,6 +104,7 @@ main{max-width:720px;margin:0 auto;padding:14px}
     <p>Peças da Free School para aprovação. Mesmo login do Estúdio da escola.</p>
     <input id="em" type="email" placeholder="E-mail" autocomplete="username">
     <input id="se" type="password" placeholder="Senha" autocomplete="current-password">
+    <label class="ver"><input type="checkbox" onchange="verSenha(this,'se')"> Mostrar senha</label>
     <button onclick="entrar()">Entrar</button>
     <a href="#" id="esqueci" onclick="esqueci();return false">Esqueci a senha</a>
     <div id="msg"></div>
@@ -112,6 +115,7 @@ main{max-width:720px;margin:0 auto;padding:14px}
     <p>Escolha a nova senha. Ela vale também para o Estúdio da escola.</p>
     <input id="ns1" type="password" placeholder="Nova senha" autocomplete="new-password">
     <input id="ns2" type="password" placeholder="Repita a nova senha" autocomplete="new-password">
+    <label class="ver"><input type="checkbox" onchange="verSenha(this,'ns1','ns2')"> Mostrar senha</label>
     <button onclick="salvarSenha()">Salvar e entrar</button>
     <div id="msg2"></div>
   </div>
@@ -159,6 +163,9 @@ async function entrar(){
     password: document.getElementById('se').value});
   if(error){ document.getElementById('msg').textContent = 'Login inválido: ' + error.message; return; }
   mostrarApp();
+}
+function verSenha(cx, ...ids){
+  for(const id of ids) document.getElementById(id).type = cx.checked ? 'text' : 'password';
 }
 async function esqueci(){
   const m = document.getElementById('msg');
