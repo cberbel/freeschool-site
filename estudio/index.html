@@ -78,8 +78,13 @@ main{max-width:720px;margin:0 auto;padding:14px}
 #login h1{font-family:'Poppins',sans-serif;font-size:20px;margin:14px 0 4px}
 #login p{font-size:13px;color:var(--cinza);margin-bottom:16px}
 #login input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--linha);border-radius:10px;font-size:15px;font-family:inherit}
-#login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
-#msg{color:var(--erro);font-size:13px;margin-top:8px;min-height:18px}
+#login a#esqueci{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--azul);font-weight:700}
+#nova{max-width:380px;margin:80px auto;background:#fff;padding:26px;border-radius:16px;border:1px solid var(--linha)}
+#nova h1{font-family:'Poppins',sans-serif;font-size:20px;margin:14px 0 4px}
+#nova p{font-size:13px;color:var(--cinza);margin-bottom:16px}
+#nova input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--linha);border-radius:10px;font-size:15px;font-family:inherit}
+#nova button,#login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
+#msg,#msg2{color:var(--erro);font-size:13px;margin-top:8px;min-height:18px}
 .regras textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--linha);border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit}
 .regras .add{width:100%;padding:12px;background:var(--amarelo);color:var(--tinta);border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
 .regra-item{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13px}
@@ -98,7 +103,17 @@ main{max-width:720px;margin:0 auto;padding:14px}
     <input id="em" type="email" placeholder="E-mail" autocomplete="username">
     <input id="se" type="password" placeholder="Senha" autocomplete="current-password">
     <button onclick="entrar()">Entrar</button>
+    <a href="#" id="esqueci" onclick="esqueci();return false">Esqueci a senha</a>
     <div id="msg"></div>
+  </div>
+  <div id="nova" style="display:none">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <h1>Nova senha</h1>
+    <p>Escolha a nova senha. Ela vale também para o Estúdio da escola.</p>
+    <input id="ns1" type="password" placeholder="Nova senha" autocomplete="new-password">
+    <input id="ns2" type="password" placeholder="Repita a nova senha" autocomplete="new-password">
+    <button onclick="salvarSenha()">Salvar e entrar</button>
+    <div id="msg2"></div>
   </div>
 </div>
 
@@ -143,6 +158,33 @@ async function entrar(){
     email: document.getElementById('em').value.trim(),
     password: document.getElementById('se').value});
   if(error){ document.getElementById('msg').textContent = 'Login inválido: ' + error.message; return; }
+  mostrarApp();
+}
+async function esqueci(){
+  const m = document.getElementById('msg');
+  const email = document.getElementById('em').value.trim();
+  if(!email || !email.includes('@')){ m.textContent = 'Escreva seu e-mail no campo acima e toque de novo.'; return; }
+  const {error} = await db.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname});
+  m.textContent = error ? 'Não conseguimos enviar agora: ' + error.message
+                        : 'Pronto! Mandamos um link para ' + email + '. Abra o e-mail e toque no link para criar a nova senha.';
+}
+// volta do link do e-mail: o Supabase avisa com o evento PASSWORD_RECOVERY
+db.auth.onAuthStateChange((evento) => {
+  if(evento === 'PASSWORD_RECOVERY'){
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('app-login').style.display = 'block';
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('nova').style.display = 'block';
+  }
+});
+async function salvarSenha(){
+  const m = document.getElementById('msg2');
+  const a = document.getElementById('ns1').value, b = document.getElementById('ns2').value;
+  if(a.length < 6){ m.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; return; }
+  if(a !== b){ m.textContent = 'As duas senhas não estão iguais.'; return; }
+  const {error} = await db.auth.updateUser({password: a});
+  if(error){ m.textContent = 'Não deu para salvar: ' + error.message; return; }
+  history.replaceState(null, '', location.pathname);
   mostrarApp();
 }
 async function sair(){ await db.auth.signOut(); location.reload(); }
