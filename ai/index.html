@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel AI — Free School</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Inter:wght@400;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ai.freeschool.com.br — o cockpit do Claudio: cadastros, resultados e analise geral do masterfile.
+   O que a equipe faz (aprovar fotos, registrar materiais) mora no sistema da escola (consultas.).
+   Mesmo Supabase do ponto; quem entra e a tabela ai_acesso (por enquanto, so o dono). */
+:root{--tinta:#0D0D0F;--papel:#FFFFFF;--fundo:#F1F1F3;--azul:#0038E0;--amarelo:#F8E800;
+      --vermelho:#F80000;--cinza:#6E6E73;--linha:#DCDCE1;--ok:#1d6b3f;--erro:#b3261e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tinta:#F2F2F4;--papel:#17171A;--fundo:#0E0E10;--cinza:#A0A0A8;--linha:#2C2C31;--ok:#5fc48a;--erro:#ff8a80}}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 'Inter',system-ui,sans-serif;background:var(--fundo);color:var(--tinta);padding-bottom:60px}
+header{background:var(--papel);border-bottom:1px solid var(--linha);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header button{background:none;border:1px solid var(--linha);color:var(--cinza);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--tinta)}
+.stack{display:flex;flex-direction:column;align-items:center;gap:2px}.sq{display:block;border-radius:2px}
+.sq-r{width:7px;height:7px;background:var(--vermelho)}.sq-y{width:13px;height:13px;background:var(--amarelo)}.sq-b{width:21px;height:21px;background:var(--azul)}
+.word{display:flex;flex-direction:column;line-height:.9;font-family:'Poppins',sans-serif}.word b{font-weight:700;font-size:15px}.word i{font-style:normal;font-weight:300;font-size:15px}
+.est{font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:var(--cinza);margin-left:12px;padding-left:12px;border-left:1px solid var(--linha)}
+main{max-width:1080px;margin:0 auto;padding:18px 16px}
+h1{font:700 22px/1.2 'Poppins',sans-serif;margin:4px 0 4px}
+.lead{color:var(--cinza);margin-bottom:18px;max-width:70ch}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card h2{font:700 16px/1.25 'Poppins',sans-serif;display:flex;gap:8px;align-items:center}
+.num{font:700 30px/1 'Poppins',sans-serif}.num small{font:600 13px 'Inter',sans-serif;color:var(--cinza);margin-left:6px}
+.tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--fundo);color:var(--cinza);margin-left:auto;white-space:nowrap}
+.tag.vivo{background:#e3f6ea;color:var(--ok)}.tag.obra{background:#fff8c2;color:#6b5e00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.vivo{background:#16321f}:root:not([data-theme="light"]) .tag.obra{background:#3a3500;color:#f2e66b}}
+.barra{height:8px;background:var(--fundo);border-radius:99px;overflow:hidden;display:flex}
+.barra i{display:block;height:100%}
+.leg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--cinza)}.leg span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;background:var(--c)}
+.lista{font-size:13.5px;display:flex;flex-direction:column;gap:6px}
+.lista div{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--linha);padding-top:6px}
+.mut{color:var(--cinza);font-size:13px}
+a.btn{display:inline-block;text-align:center;background:var(--tinta);color:var(--papel);text-decoration:none;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+.passos{font-size:13.5px;padding-left:18px;color:var(--cinza)}.passos li{margin:3px 0}.passos b{color:var(--tinta)}
+/* login */
+#app-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.caixa{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:24px;width:100%;max-width:380px}
+.caixa h1{margin:16px 0 4px}.caixa p{color:var(--cinza);font-size:14px;margin-bottom:14px}
+.caixa input{width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--linha);border-radius:10px;font-size:15px;font-family:inherit;background:var(--papel);color:var(--tinta)}
+.campo-senha{position:relative}.campo-senha button.olho{position:absolute;right:6px;top:6px;width:auto;padding:7px 12px;background:var(--papel);color:var(--azul);border:1px solid var(--azul);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.caixa button.principal{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
+.caixa a{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--azul);font-weight:700}
+.msg{margin-top:10px;font-size:13.5px;color:var(--erro)}
+</style>
+</head>
+<body>
+<div id="app-login">
+  <div class="caixa" id="login">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <h1>Painel AI</h1>
+    <p>Resultados e análise do dia a dia de cada criança. Acesso restrito.</p>
+    <input id="em" type="email" placeholder="E-mail" autocomplete="username">
+    <div class="campo-senha"><input id="se" type="password" placeholder="Senha" autocomplete="current-password"><button type="button" class="olho" onclick="verSenha(this,'se')">Mostrar</button></div>
+    <button class="principal" onclick="entrar()">Entrar</button>
+    <a href="#" onclick="esqueci();return false">Esqueci a senha</a>
+    <div class="msg" id="msg"></div>
+  </div>
+  <div class="caixa" id="nova" style="display:none">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <h1>Nova senha</h1>
+    <p>Ela vale também para o sistema da escola e para o Estúdio (mesma conta).</p>
+    <div class="campo-senha"><input id="ns1" type="password" placeholder="Nova senha" autocomplete="new-password"><button type="button" class="olho" onclick="verSenha(this,'ns1','ns2')">Mostrar</button></div>
+    <input id="ns2" type="password" placeholder="Repita a nova senha" autocomplete="new-password">
+    <button class="principal" onclick="salvarSenha()">Salvar e entrar</button>
+    <div class="msg" id="msg2"></div>
+  </div>
+  <div class="caixa" id="sem" style="display:none">
+    <h1>Sem acesso</h1>
+    <p>Esta conta existe, mas não está na lista do Painel AI.</p>
+    <button class="principal" onclick="sair()">Sair</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+<header>
+  <span style="display:flex;align-items:center">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <span class="est">Painel AI</span>
+  </span>
+  <button onclick="sair()">Sair</button>
+</header>
+<main>
+  <h1>Masterfile</h1>
+  <p class="lead">Tudo o que se registra de cada criança, dia a dia — e o que a rede aprende com isso ao longo dos anos.
+  Aqui ficam os seus cadastros, os resultados para conferir e a análise geral. O que a equipe faz mora no sistema da escola.</p>
+  <div class="grade" id="grade"></div>
+</main>
+</div>
+
+<script>
+const SB_URL = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co';
+const SB_KEY = 'sb_publishable_bg4n-MXnoYVWomRN90WTOg_HOdq3_9G';
+const db = supabase.createClient(SB_URL, SB_KEY);
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const $ = id => document.getElementById(id);
+
+async function init(){ const {data:{session}} = await db.auth.getSession(); if(session) mostrarApp(); }
+async function entrar(){
+  $('msg').textContent = '';
+  const {error} = await db.auth.signInWithPassword({email: $('em').value.trim(), password: $('se').value});
+  if(error){ $('msg').textContent = /Invalid login/i.test(error.message) ? 'E-mail ou senha não confere.' : 'Não deu para entrar: ' + error.message; return; }
+  mostrarApp();
+}
+function verSenha(bt, ...ids){ const m = bt.textContent === 'Mostrar'; for(const id of ids) $(id).type = m ? 'text' : 'password'; bt.textContent = m ? 'Ocultar' : 'Mostrar'; }
+async function esqueci(){
+  const email = $('em').value.trim();
+  if(!email.includes('@')){ $('msg').textContent = 'Escreva seu e-mail no campo acima e toque de novo.'; return; }
+  const {error} = await db.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname});
+  $('msg').style.color = error ? '' : 'var(--ok)';
+  $('msg').textContent = error ? 'Não conseguimos enviar agora: ' + error.message : 'Mandamos um link para ' + email + '.';
+}
+db.auth.onAuthStateChange(ev => { if(ev === 'PASSWORD_RECOVERY'){ $('app').style.display='none'; $('app-login').style.display='flex'; $('login').style.display='none'; $('nova').style.display='block'; } });
+async function salvarSenha(){
+  const a = $('ns1').value, b = $('ns2').value;
+  if(a.length < 6) return $('msg2').textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+  if(a !== b) return $('msg2').textContent = 'As duas senhas não estão iguais.';
+  const {error} = await db.auth.updateUser({password: a});
+  if(error) return $('msg2').textContent = 'Não deu para salvar: ' + error.message;
+  history.replaceState(null, '', location.pathname); mostrarApp();
+}
+async function sair(){ await db.auth.signOut(); location.reload(); }
+
+async function mostrarApp(){
+  const {data: papel} = await db.rpc('ai_papel');
+  if(papel !== 'dono'){ $('login').style.display='none'; $('sem').style.display='block'; return; }
+  $('app-login').style.display = 'none'; $('app').style.display = 'block';
+  montar();
+}
+
+const ATIVIDADES = [
+  {id:'freq', t:'Frequência diária', tag:'em obra', passos:['Identificação local nas fotos e câmeras da entrada', 'Lista do dia para confirmar', 'Série por criança no masterfile']},
+  {id:'mat', t:'1 · Materiais', tag:'em obra', passos:['Cadastro de crianças e materiais', 'Registro da professora no sistema da escola: pegou/guardou, continuou trabalho de colega, tempo, objetivo, repetições', 'Detector de materiais pelo vídeo (treino com o acervo)']},
+  {id:'fotos', t:'2 · Fotos às famílias', tag:'no ar'},
+  {id:'refeicao', t:'3 · Refeições', tag:'em obra', passos:['Foto dos pratos nos horários fixos (Reolink: cozinha e sala; Intelbras: copa)', 'O que tem no prato', 'Quantidade estimada pelo volume']},
+  {id:'mov', t:'4 · Movimento', tag:'em obra', passos:['Mapa de calor e linha do percurso na sala', 'Compacto: 4 h em 5–6 min, com marca de “parado trabalhando x min”']},
+];
+
+async function montar(){
+  $('grade').innerHTML = ATIVIDADES.map(a => `<section class="card" id="c-${a.id}"><h2>${esc(a.t)}<span class="tag ${a.tag==='no ar'?'vivo':'obra'}">${a.tag}</span></h2>
+    ${a.passos ? `<ol class="passos">${a.passos.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>` : '<div class="mut">Carregando…</div>'}</section>`).join('');
+  cardFotos();
+}
+
+async function cardFotos(){
+  const el = $('c-fotos');
+  const {data: lotes, error} = await db.from('ai_lotes').select('id,tipo,dia').order('dia',{ascending:false}).limit(6);
+  if(error){ el.insertAdjacentHTML('beforeend', `<div class="msg">${esc(error.message)}</div>`); return; }
+  el.querySelector('.mut')?.remove();
+  if(!lotes.length){ el.insertAdjacentHTML('beforeend','<div class="mut">Nenhum lote ainda.</div>'); return; }
+  const {data: fams} = await db.from('ai_lote_familias').select('lote_id,status,turma,crianca,comentario').in('lote_id', lotes.map(l=>l.id));
+  const ult = lotes[0], doUlt = fams.filter(f => f.lote_id === ult.id);
+  const c = s => doUlt.filter(f => f.status === s).length, tot = doUlt.length || 1;
+  const nome = l => (l.tipo === 'quinta' ? 'TBT de quinta ' : 'Semana · domingo ') + new Date(l.dia+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const cores = {aprovado:'#1d6b3f', reprovado:'#F80000', pendente:'#DCDCE1', enviado:'#0038E0'};
+  const turmas = [1,2,3].map(t => { const ft = doUlt.filter(f=>f.turma===t); return `<div><span>Agrupada ${t}</span><span>${ft.filter(f=>f.status!=='pendente').length} de ${ft.length} decididas</span></div>`; }).join('');
+  const pedidos = doUlt.filter(f => f.status==='reprovado' && f.comentario).slice(0,4)
+    .map(f => `<div><span>${esc(f.crianca.split(' ')[0])}</span><span class="mut" style="text-align:right">${esc(f.comentario)}</span></div>`).join('');
+  el.insertAdjacentHTML('beforeend', `
+    <div class="num">${c('aprovado')+c('enviado')}<small>de ${doUlt.length} famílias aprovadas · ${esc(nome(ult))}</small></div>
+    <div class="barra">${['enviado','aprovado','reprovado','pendente'].map(s=>`<i style="width:${100*c(s)/tot}%;background:${cores[s]}"></i>`).join('')}</div>
+    <div class="leg"><span style="--c:${cores.aprovado}">aprovadas ${c('aprovado')}</span><span style="--c:${cores.reprovado}">pediram mudança ${c('reprovado')}</span><span style="--c:${cores.pendente}">esperando ${c('pendente')}</span></div>
+    <div class="lista">${turmas}</div>
+    ${pedidos ? `<div class="lista"><b style="font-size:13px">Pedidos de mudança</b>${pedidos}</div>` : ''}
+    <div class="mut">Lotes recentes: ${lotes.map(l => esc(nome(l))).join(' · ')}</div>
+    <a class="btn" href="https://consultas.escolamontessoriana.com.br" target="_blank" rel="noopener">Abrir a aprovação (sistema da escola)</a>`);
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "ai.freeschool.com.br" }], "destination": "/ai/index.html" }
+  ]
+}
