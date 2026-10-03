@@ -1,6 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
-    { "src": "/", "has": [{ "type": "host", "value": "ai.freeschool.com.br" }], "dest": "/ai/index.html" }
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "ai.freeschool.com.br"
+        }
+      ],
+      "dest": "/ai/index.html"
+    },
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "theobebe.freeschool.com.br"
+        }
+      ],
+      "dest": "/theobebe/index.html"
+    }
   ]
 }
