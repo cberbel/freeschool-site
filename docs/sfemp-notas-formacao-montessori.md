@@ -67,3 +67,7 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
     - Estrutura: **variável por variável**, o que se observa em cada uma.
     - **Abertura do módulo pelo big picture**: pincelada sobre todas as formas possíveis de observar e quais a gente vai de fato usar.
     - **A IA como uma das formas de observação**: mostrar como ela funciona, discutir o que ela está vendo → **loop** entre observação humana e da IA.
+
+## Notas paralelas
+
+- **Observação dos alunos como dado de treino para a IA**: a turma inteira observando e descrevendo o que vê gera anotações que alimentam os modelos de IA — com peso maior para os **observadores mais experientes**.
