@@ -53,3 +53,17 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
 21. **Workshop de fim de semana como produto pago** (vendido para pessoas de fora) resolve o problema da equipe não querer trabalhar no sábado:
     - Para os de fora é um curso; para o nosso funcionário é treinamento **+ um extra ("graxa")** por estar lá ajudando/ensinando.
     - Funcionário aprende, ganha mais e vai satisfeito ("o cara aí sorrindo").
+22. Escopo atual: **formação da nossa equipe** (quem já trabalha e quem entra para trabalhar).
+23. **Módulo 1 — "o basicão"** (recapitulação):
+    - Material Montessori básico
+    - Trilha de aprofundamento
+    - Pílulas de conteúdo diário
+    - Práticas diárias para performar
+24. **Módulo 2 — Observação** (da prática diária):
+    - Ponto de partida: **o que a IA está observando** (ver `docs/dicionario-variaveis.md`).
+    - Levantar ~10 coisas que se pode observar e/ou diferentes maneiras de observar.
+    - Perguntas do módulo: observar **o quê**? observar **como**? Um aluno de cada vez?
+    - Exemplos: **tempo de concentração** (mapa de concentração do aluno e da turma), **interação com o material**, **movimentação**, **observar as professoras**.
+    - Estrutura: **variável por variável**, o que se observa em cada uma.
+    - **Abertura do módulo pelo big picture**: pincelada sobre todas as formas possíveis de observar e quais a gente vai de fato usar.
+    - **A IA como uma das formas de observação**: mostrar como ela funciona, discutir o que ela está vendo → **loop** entre observação humana e da IA.
