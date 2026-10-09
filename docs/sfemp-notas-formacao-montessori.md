@@ -50,3 +50,6 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
     - Incluir o filme **"Let the Child Be the Guide"** (favorito). Bom *big picture*, importante, mas talvez não o mais efetivo — há outras coisas.
 19. **Premissa de realidade (ponto A): ninguém vai ler as obras.** Ler a obra é o mais importante, mas o default é que os alunos não leem — certo ou errado, é dado da realidade e o design parte daí. Por isso as pílulas.
 20. **Acesso físico ao material** (manusear, sentir o material) é necessidade → resolver nos **workshops de fim de semana**.
+21. **Workshop de fim de semana como produto pago** (vendido para pessoas de fora) resolve o problema da equipe não querer trabalhar no sábado:
+    - Para os de fora é um curso; para o nosso funcionário é treinamento **+ um extra ("graxa")** por estar lá ajudando/ensinando.
+    - Funcionário aprende, ganha mais e vai satisfeito ("o cara aí sorrindo").
