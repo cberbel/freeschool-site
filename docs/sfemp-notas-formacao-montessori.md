@@ -19,4 +19,5 @@ Caderno de ideias. Só registro; feedback vem depois, quando o usuário pedir.
 
 ## Novas ideias
 
-_(vou adicionando aqui)_
+5. Modelo: curso "top" gravado + abrir a(s) escola(s) nos fins de semana para os alunos praticarem com o material (trabalho prático presencial).
+6. "E dá um pouco de…" — _(frase interrompida; completar)_
