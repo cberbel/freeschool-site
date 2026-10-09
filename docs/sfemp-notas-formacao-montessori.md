@@ -22,3 +22,5 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
 5. Modelo: curso "top" gravado + abrir a(s) escola(s) nos fins de semana para os alunos praticarem com o material (trabalho prático presencial).
 6. Grátis é só isso (o curso). Prática nos fins de semana: grátis ou paga — decisão de estratégia, a discutir. O resto é cobrado.
 7. Produto pago: **observação online da sala de aula ao vivo/gravada, comentada por uma especialista**. No nosso caso a Sony; pode haver várias outras especialistas comentando.
+8. Formato do online: majoritariamente **"melhores momentos"** (cortes editados, mais eficiente); de vez em quando uma **live**, dentro do mesmo produto.
+9. **Produto principal ("produto chefe"): observação longa presencial, in loco**, na sala real. Dá uma dimensão a mais do que as câmeras.
