@@ -44,3 +44,5 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
     - Coordenadora mais experiente / formadora de professores → professor → assistente → assistente júnior → estagiário.
     - Variante: o assistente forma tanto o júnior quanto o estagiário.
     - Máxima: **"cego guiando cego, os dois vão pro brejo"** — quem forma precisa de fato saber.
+17. Retomada da ordem: primeiro **princípios básicos**, depois **pílulas diárias de conteúdo + práticas diárias** para **formar hábito**.
+    - Racional: Montessori é muito rico, **é um estilo de vida** — se aprende por hábito, não só por curso. (Na transcrição saiu "história"; entendido como Montessori.)
