@@ -20,4 +20,5 @@ Caderno de ideias. Só registro; feedback vem depois, quando o usuário pedir.
 ## Novas ideias
 
 5. Modelo: curso "top" gravado + abrir a(s) escola(s) nos fins de semana para os alunos praticarem com o material (trabalho prático presencial).
-6. "E dá um pouco de…" — _(frase interrompida; completar)_
+6. Grátis é só isso (o curso; _confirmar se a prática nos fins de semana também é grátis_). O resto é cobrado.
+7. Produto pago: **observação online da sala de aula ao vivo/gravada, comentada por uma especialista**. No nosso caso a Sony (nome conforme a fala; confirmar grafia); pode haver várias outras especialistas comentando.
