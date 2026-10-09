@@ -32,3 +32,15 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
 11. Etapas/tópicos seguintes das trilhas, ex.: **apresentação de material específico**.
     - Fonte: **apostilas da Thalita**; levantar o que mais existe sobre o tema.
 12. Enfoque próprio: **entender os materiais** — lista de materiais + explicação do objetivo de cada um.
+13. Além dos princípios gerais, **cada princípio pode ser aprofundado** individualmente (sub-trilhas).
+14. **Limite de profundidade**: em alguns pontos é melhor *não* ter trilha — "isso já está bom, avança para a próxima etapa".
+15. **Sequência de formação da pessoa:**
+    1. Teoria
+    2. Prática online supervisionada
+    3. Observação online
+    4. Observação in loco
+    5. Prática com as crianças
+16. **Hierarquia de conhecimento / liderança técnica** em tudo: cada nível sempre forma o nível de baixo.
+    - Coordenadora mais experiente / formadora de professores → professor → assistente → assistente júnior → estagiário.
+    - Variante: o assistente forma tanto o júnior quanto o estagiário.
+    - Máxima: **"cego guiando cego, os dois vão pro brejo"** — quem forma precisa de fato saber.
