@@ -29,3 +29,6 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
     - **Pílulas de conteúdo Montessori no dia a dia**: cada pílula = conteúdo + exercício para fixar o conceito. Começa já com a nossa própria equipe.
     - **Resumão inicial.**
     - **Trilhas de materiais de aprofundamento** organizadas por **etapa da jornada da pessoa** (não só por tópico). Ex.: descobriu Montessori → etapa 1: princípios → quer aprofundar princípios → materiais A, B, C, D, E, F…
+11. Etapas/tópicos seguintes das trilhas, ex.: **apresentação de material específico**.
+    - Fonte: **apostilas da Thalita**; levantar o que mais existe sobre o tema.
+12. Enfoque próprio: **entender os materiais** — lista de materiais + explicação do objetivo de cada um.
