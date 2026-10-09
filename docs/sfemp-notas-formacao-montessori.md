@@ -24,3 +24,8 @@ Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedi
 7. Produto pago: **observação online da sala de aula ao vivo/gravada, comentada por uma especialista**. No nosso caso a Sony; pode haver várias outras especialistas comentando.
 8. Formato do online: majoritariamente **"melhores momentos"** (cortes editados, mais eficiente); de vez em quando uma **live**, dentro do mesmo produto.
 9. **Produto principal ("produto chefe"): observação longa presencial, in loco**, na sala real. Dá uma dimensão a mais do que as câmeras.
+10. Estrutura em **camadas** de conteúdo:
+    - **Curso completo gravado.**
+    - **Pílulas de conteúdo Montessori no dia a dia**: cada pílula = conteúdo + exercício para fixar o conceito. Começa já com a nossa própria equipe.
+    - **Resumão inicial.**
+    - **Trilhas de materiais de aprofundamento** organizadas por **etapa da jornada da pessoa** (não só por tópico). Ex.: descobriu Montessori → etapa 1: princípios → quer aprofundar princípios → materiais A, B, C, D, E, F…
