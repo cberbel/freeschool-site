@@ -1,6 +1,6 @@
 # SFEMP — Notas: formação Montessori gravada e gratuita
 
-Caderno de ideias. Só registro; feedback vem depois, quando o usuário pedir.
+Caderno de ideias. Só registro, sem perguntas nem feedback até o usuário pedir.
 
 ## Ideias do usuário
 
@@ -20,5 +20,5 @@ Caderno de ideias. Só registro; feedback vem depois, quando o usuário pedir.
 ## Novas ideias
 
 5. Modelo: curso "top" gravado + abrir a(s) escola(s) nos fins de semana para os alunos praticarem com o material (trabalho prático presencial).
-6. Grátis é só isso (o curso; _confirmar se a prática nos fins de semana também é grátis_). O resto é cobrado.
-7. Produto pago: **observação online da sala de aula ao vivo/gravada, comentada por uma especialista**. No nosso caso a Sony (nome conforme a fala; confirmar grafia); pode haver várias outras especialistas comentando.
+6. Grátis é só isso (o curso). Prática nos fins de semana: grátis ou paga — decisão de estratégia, a discutir. O resto é cobrado.
+7. Produto pago: **observação online da sala de aula ao vivo/gravada, comentada por uma especialista**. No nosso caso a Sony; pode haver várias outras especialistas comentando.
