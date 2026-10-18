@@ -150,6 +150,10 @@ async function montar(){
   $('grade').innerHTML = ATIVIDADES.map(a => `<section class="card" id="c-${a.id}"><h2>${esc(a.t)}<span class="tag ${a.tag==='no ar'?'vivo':'obra'}">${a.tag}</span></h2>
     ${a.passos ? `<ol class="passos">${a.passos.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>` : '<div class="mut">Carregando…</div>'}</section>`).join('');
   cardFotos();
+  // catalogo das observacoes gravadas (Sonia): pagina propria
+  $('grade').insertAdjacentHTML('afterbegin', `<section class="card"><h2>Observações da Sonia<span class="tag vivo">no ar</span></h2>
+    <div class="mut">Tudo o que a Sonia grava nas salas e nas orientações às professoras, organizado por tópico, professora, criança ou data, com o áudio de cada fala.</div>
+    <a class="btn" href="/ai/observacoes.html">Abrir o catálogo</a></section>`);
 }
 
 async function cardFotos(){

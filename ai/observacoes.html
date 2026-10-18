@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Observações — Painel AI</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Inter:wght@400;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* Catalogo das observacoes gravadas (Sonia e quem mais gravar), so para o dono.
+   Dados: rpc ai_observacoes_catalogo (topicos da lista fixa observacao_topicos,
+   professoras e criancas casadas com o cadastro pelo indexador). Audio pelo
+   observacao-player com o login de quem esta aqui. */
+:root{--tinta:#0D0D0F;--papel:#FFFFFF;--fundo:#F1F1F3;--azul:#0038E0;--azul-claro:#E6ECFD;--amarelo:#F8E800;
+      --vermelho:#F80000;--cinza:#6E6E73;--linha:#DCDCE1;--ok:#1d6b3f;--erro:#b3261e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tinta:#F2F2F4;--papel:#17171A;--fundo:#0E0E10;--cinza:#A0A0A8;--linha:#2C2C31;--ok:#5fc48a;--erro:#ff8a80;--azul-claro:#1B2440}}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 'Inter',system-ui,sans-serif;background:var(--fundo);color:var(--tinta);padding-bottom:60px}
+header{background:var(--papel);border-bottom:1px solid var(--linha);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;gap:10px}
+header a.volta{color:var(--cinza);text-decoration:none;font-size:13px;font-weight:600}
+header button{background:none;border:1px solid var(--linha);color:var(--cinza);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--tinta)}
+.stack{display:flex;flex-direction:column;align-items:center;gap:2px}.sq{display:block;border-radius:2px}
+.sq-r{width:7px;height:7px;background:var(--vermelho)}.sq-y{width:13px;height:13px;background:var(--amarelo)}.sq-b{width:21px;height:21px;background:var(--azul)}
+.word{display:flex;flex-direction:column;line-height:.9;font-family:'Poppins',sans-serif}.word b{font-weight:700;font-size:15px}.word i{font-style:normal;font-weight:300;font-size:15px}
+main{max-width:980px;margin:0 auto;padding:18px 16px}
+h1{font:700 22px/1.2 'Poppins',sans-serif;margin:4px 0 4px}
+.lead{color:var(--cinza);margin-bottom:14px}
+.barra{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.seg{display:inline-flex;background:var(--papel);border:1px solid var(--linha);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:none;padding:8px 12px;font:600 13px 'Inter',sans-serif;color:var(--cinza);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--tinta);color:var(--papel)}
+input[type=search],select{padding:8px 10px;border:1px solid var(--linha);border-radius:10px;background:var(--papel);color:var(--tinta);font:inherit;font-size:14px}
+input[type=search]{flex:1;min-width:180px}
+.indice{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 16px}
+.chip{border:1px solid var(--linha);background:var(--papel);color:var(--tinta);border-radius:99px;padding:5px 11px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip b{font-weight:700;margin-left:4px;color:var(--cinza)}
+.chip[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:#fff}.chip[aria-pressed="true"] b{color:#fff}
+.grupo{margin:18px 0 6px}
+.grupo h2{font:700 17px/1.25 'Poppins',sans-serif;display:flex;gap:8px;align-items:baseline}
+.grupo h2 small{font:600 13px 'Inter',sans-serif;color:var(--cinza)}
+.item{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:12px 14px;margin:8px 0}
+.topo{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--cinza)}
+.tipo{font-weight:700;border-radius:6px;padding:1px 7px;background:var(--fundo);color:var(--tinta)}
+.tipo.ori{background:var(--azul-claro);color:var(--azul)}
+.resumo{font-weight:600;margin:6px 0 4px}
+.acoes{margin:4px 0 6px;padding-left:18px;font-size:14px}
+.etq{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.etq span{font-size:12px;border-radius:99px;padding:2px 8px;background:var(--fundo);color:var(--tinta)}
+.etq span.t{background:var(--azul-claro);color:var(--azul)}
+.etq span.p::before{content:'👩‍🏫 '}.etq span.c::before{content:'👶 '}
+details{margin-top:8px;font-size:14px}details summary{cursor:pointer;color:var(--cinza);font-size:13px}
+details p{white-space:pre-wrap;margin-top:6px;line-height:1.55}
+.ouvir{border:1px solid var(--linha);background:var(--papel);color:var(--tinta);border-radius:8px;padding:4px 10px;font-size:12.5px;font-weight:600;cursor:pointer;margin-left:auto}
+audio{width:100%;margin-top:8px}
+.mut{color:var(--cinza);font-size:13px}
+.msg{color:var(--erro);margin:10px 0}
+</style>
+</head>
+<body>
+<header>
+  <span style="display:flex;align-items:center;gap:12px">
+    <span class="logo"><span class="stack"><span class="sq sq-r"></span><span class="sq sq-y"></span><span class="sq sq-b"></span></span><span class="word"><b>free</b><i>school</i></span></span>
+    <a class="volta" href="/">← Painel AI</a>
+  </span>
+  <button onclick="sair()">Sair</button>
+</header>
+<main>
+  <h1>Observações</h1>
+  <p class="lead" id="lead">Carregando…</p>
+  <div class="barra">
+    <span class="seg" id="agrupar">
+      <button data-g="topico" aria-pressed="true">Tópicos</button>
+      <button data-g="professora" aria-pressed="false">Professoras</button>
+      <button data-g="crianca" aria-pressed="false">Crianças</button>
+      <button data-g="data" aria-pressed="false">Data</button>
+    </span>
+    <select id="tipo" aria-label="Tipo de registro">
+      <option value="">Orientações e observações</option>
+      <option value="orientacao">Só orientações a professoras</option>
+      <option value="fala">Só observações de sala</option>
+    </select>
+    <select id="quem" aria-label="Quem gravou"></select>
+    <input type="search" id="busca" placeholder="Buscar no texto, resumo ou nome" aria-label="Buscar">
+    <label class="mut" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="ruido"> mostrar testes e trechos sem conteúdo <span id="nRuido"></span></label>
+  </div>
+  <div class="indice" id="indice"></div>
+  <div id="lista"></div>
+</main>
+<script>
+const SB_URL = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co';
+const SB_KEY = 'sb_publishable_bg4n-MXnoYVWomRN90WTOg_HOdq3_9G';
+const db = supabase.createClient(SB_URL, SB_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const curto = n => String(n || '').split(/\s+/).slice(0, 2).join(' ');
+
+let ITENS = [], TOPICOS = {}, ORDEM_TOP = {}, agrupar = 'topico', aberto = null;
+
+async function sair(){ await db.auth.signOut(); location.replace('https://ai.freeschool.com.br/'); }
+
+async function init(){
+  const {data:{session}} = await db.auth.getSession();
+  if(!session){ location.replace('https://ai.freeschool.com.br/'); return; }
+  const {data, error} = await db.rpc('ai_observacoes_catalogo');
+  if(error || data?.erro){ $('lead').innerHTML = `<span class="msg">${esc(data?.erro || error.message)}</span>`; return; }
+  (data.topicos || []).forEach((t, i) => { TOPICOS[t.id] = t.rotulo; ORDEM_TOP[t.id] = i; });
+  ITENS = (data.itens || []).map(preparar);
+  const quem = [...new Set(ITENS.map(i => i.quem))];
+  $('quem').innerHTML = `<option value="">Todos que gravaram</option>` +
+    quem.map(q => `<option value="${esc(q)}" ${norm(q) === 'sonia' ? 'selected' : ''}>${esc(q)}</option>`).join('');
+  document.querySelectorAll('#agrupar button').forEach(b => b.onclick = () => {
+    agrupar = b.dataset.g; aberto = null;
+    document.querySelectorAll('#agrupar button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    desenhar();
+  });
+  ['tipo', 'quem', 'ruido'].forEach(id => $(id).onchange = () => { aberto = null; desenhar(); });
+  $('busca').oninput = () => desenhar();
+  desenhar();
+}
+
+// o que cada fala carrega para os agrupamentos
+function preparar(i){
+  const pessoas = Array.isArray(i.pessoas) ? i.pessoas : [];
+  const prof = new Set();
+  if(i.tipo === 'orientacao' && i.orientada) prof.add(i.orientada);
+  pessoas.filter(p => p.tipo === 'professora' && p.nome_completo && p.funcionario_id).forEach(p => prof.add(p.nome_completo));
+  const cri = new Set(pessoas.filter(p => p.tipo === 'aluno' && p.nome_completo && p.aluno_id).map(p => p.nome_completo));
+  const d = new Date(i.quando);
+  return {...i, professoras: [...prof], criancas: [...cri], data: d,
+    dia: d.toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo', weekday: 'short', day: '2-digit', month: '2-digit'}),
+    hora: d.toLocaleTimeString('pt-BR', {timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit'}),
+    busca: norm([i.texto, i.resumo, i.assunto, (i.acoes || []).join(' '), (i.materiais || []).join(' '),
+      [...prof].join(' '), [...cri].join(' '), i.sala].join(' '))};
+}
+
+function chaves(i){
+  if(agrupar === 'topico') return (i.topicos && i.topicos.length) ? i.topicos : ['__sem'];
+  if(agrupar === 'professora') return i.professoras.length ? i.professoras : ['__sem'];
+  if(agrupar === 'crianca') return i.criancas.length ? i.criancas : ['__sem'];
+  return [i.data.toLocaleDateString('sv-SE', {timeZone: 'America/Sao_Paulo'})];
+}
+function rotulo(k){
+  if(k === '__sem') return {topico: 'Ainda sem tópico', professora: 'Sem professora citada', crianca: 'Sem criança citada'}[agrupar];
+  if(agrupar === 'topico') return TOPICOS[k] || k;
+  if(agrupar === 'data'){ const d = new Date(k + 'T12:00:00'); return d.toLocaleDateString('pt-BR', {weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric'}); }
+  return k;
+}
+
+function desenhar(){
+  const tipo = $('tipo').value, quem = $('quem').value, q = norm($('busca').value.trim());
+  // teste de microfone e trecho sem conteudo ficam fora, a menos que se peca
+  const ruido = i => (i.topicos || [])[0] === 'sem_conteudo';
+  const base = ITENS.filter(i => (!tipo || i.tipo === tipo) && (!quem || i.quem === quem) && (!q || i.busca.includes(q)));
+  const nRuido = base.filter(ruido).length;
+  $('nRuido').textContent = nRuido ? `(${nRuido})` : '';
+  const vis = $('ruido').checked ? base : base.filter(i => !ruido(i));
+  const nOri = vis.filter(i => i.tipo === 'orientacao').length;
+  const datas = vis.map(i => i.data).sort((a, b) => a - b);
+  const dm = d => d.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+  $('lead').textContent = vis.length
+    ? `${vis.length} ${vis.length === 1 ? 'fala gravada' : 'falas gravadas'} de ${dm(datas[0])} a ${dm(datas[datas.length - 1])} · ` +
+      `${nOri} ${nOri === 1 ? 'orientação' : 'orientações'} a professoras · ` +
+      `${vis.length - nOri} ${vis.length - nOri === 1 ? 'observação' : 'observações'} de sala`
+    : 'Nada com esse filtro.';
+
+  const grupos = new Map();
+  vis.forEach(i => chaves(i).forEach(k => { if(!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(i); }));
+  let ordem = [...grupos.keys()];
+  if(agrupar === 'data') ordem.sort().reverse();
+  else ordem.sort((a, b) => (a === '__sem') - (b === '__sem') || grupos.get(b).length - grupos.get(a).length ||
+    (agrupar === 'topico' ? (ORDEM_TOP[a] ?? 99) - (ORDEM_TOP[b] ?? 99) : a.localeCompare(b)));
+  if(aberto && !grupos.has(aberto)) aberto = null;
+
+  $('indice').innerHTML = ordem.map(k => `<button class="chip" data-k="${esc(k)}" aria-pressed="${aberto === k}">${esc(agrupar === 'data' ? new Date(k + 'T12:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}) : rotulo(k))}<b>${grupos.get(k).length}</b></button>`).join('');
+  $('indice').querySelectorAll('.chip').forEach(c => c.onclick = () => { aberto = aberto === c.dataset.k ? null : c.dataset.k; desenhar(); });
+
+  const mostrar = aberto ? [aberto] : ordem;
+  $('lista').innerHTML = mostrar.map(k => `<section class="grupo"><h2>${esc(rotulo(k))}<small>${grupos.get(k).length} ${grupos.get(k).length === 1 ? 'fala' : 'falas'}</small></h2>
+    ${grupos.get(k).slice().sort((a, b) => b.data - a.data).map(cartao).join('')}</section>`).join('')
+    || '<p class="mut">Nada para mostrar.</p>';
+  $('lista').querySelectorAll('[data-ouvir]').forEach(b => b.onclick = () => ouvir(b));
+}
+
+function cartao(i){
+  const ori = i.tipo === 'orientacao';
+  const acoes = (i.acoes || []).filter(Boolean);
+  return `<article class="item">
+    <div class="topo"><span class="tipo ${ori ? 'ori' : ''}">${ori ? 'Orientação → ' + esc(curto(i.orientada) || '?') : 'Observação de sala'}</span>
+      <span>${esc(i.dia)} · ${esc(i.hora)}</span>${i.sala ? `<span>${esc(i.sala)}</span>` : ''}${i.quem && norm(i.quem) !== 'sonia' ? `<span>gravado por ${esc(i.quem)}</span>` : ''}
+      ${i.tem_audio ? `<button class="ouvir" data-ouvir="${esc(i.id)}">▶ ouvir</button>` : ''}</div>
+    <div class="resumo">${esc(i.resumo || i.assunto || '(ainda sem resumo)')}</div>
+    ${acoes.length ? `<ul class="acoes">${acoes.map(a => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}
+    <div class="etq">${(i.topicos || []).map(t => `<span class="t">${esc(TOPICOS[t] || t)}</span>`).join('')}
+      ${i.professoras.map(p => `<span class="p">${esc(curto(p))}</span>`).join('')}
+      ${i.criancas.map(c => `<span class="c">${esc(curto(c))}</span>`).join('')}</div>
+    <details><summary>Transcrição</summary><p>${esc(i.texto)}</p></details>
+    <div data-player="${esc(i.id)}"></div>
+  </article>`;
+}
+
+async function ouvir(b){
+  const alvo = document.querySelector(`[data-player="${b.dataset.ouvir}"]`);
+  b.disabled = true; b.textContent = 'carregando…';
+  try {
+    const {data:{session}} = await db.auth.getSession();
+    const r = await fetch(`${SB_URL}/functions/v1/observacao-player?id=${encodeURIComponent(b.dataset.ouvir)}`,
+      {headers: {Authorization: 'Bearer ' + session.access_token, apikey: SB_KEY}});
+    const j = await r.json();
+    if(!r.ok || !j.url) throw new Error(j.erro || 'sem áudio');
+    alvo.innerHTML = `<audio controls autoplay src="${esc(j.url)}"></audio>`;
+    b.textContent = '▶ ouvir';
+  } catch(e){ b.textContent = 'não tocou'; alvo.innerHTML = `<p class="mut">${esc(e.message)}</p>`; }
+  b.disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>
