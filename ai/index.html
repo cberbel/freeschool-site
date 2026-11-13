@@ -144,12 +144,39 @@ const ATIVIDADES = [
   {id:'fotos', t:'2 · Fotos às famílias', tag:'no ar'},
   {id:'refeicao', t:'3 · Refeições', tag:'em obra', passos:['Foto dos pratos nos horários fixos (Reolink: cozinha e sala; Intelbras: copa)', 'O que tem no prato', 'Quantidade estimada pelo volume']},
   {id:'mov', t:'4 · Movimento', tag:'em obra', passos:['Mapa de calor e linha do percurso na sala', 'Compacto: 4 h em 5–6 min, com marca de “parado trabalhando x min”']},
+  {id:'ling', t:'5 · Diário de linguagem', tag:'piloto'},
 ];
 
 async function montar(){
   $('grade').innerHTML = ATIVIDADES.map(a => `<section class="card" id="c-${a.id}"><h2>${esc(a.t)}<span class="tag ${a.tag==='no ar'?'vivo':'obra'}">${a.tag}</span></h2>
     ${a.passos ? `<ol class="passos">${a.passos.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>` : '<div class="mut">Carregando…</div>'}</section>`).join('');
   cardFotos();
+  cardLinguagem();
+}
+
+// Diario de linguagem: o PC processa o audio do gravador a noite e sobe para o schema `linguagem`
+async function cardLinguagem(){
+  const el = $('c-ling'), L = db.schema('linguagem');
+  el.querySelector('.mut')?.remove();
+  const {data: gs, error} = await L.from('gravacoes').select('aluno_id,data').order('data',{ascending:false});
+  if(error){ el.insertAdjacentHTML('beforeend', `<div class="msg">${esc(error.message)}</div>`); return; }
+  const link = `<a class="btn" href="/ai/linguagem/">Abrir o diário</a>`;
+  if(!gs.length){
+    el.insertAdjacentHTML('beforeend', `<div class="mut">Medir sem testar: o gravador na criança grava o dia; à noite o PC tira o que ela ouviu (dirigido a ela ou ao redor) e o que ela disse. Aqui você confirma as palavras dela ouvindo o trecho.</div>
+      <div class="mut">Nenhuma gravação ainda: espera o gravador.</div>${link}`); return;
+  }
+  const dias = new Set(gs.map(g => g.data)).size;
+  const [{count: faladas}, {count: decididas}, {data: voc}] = await Promise.all([
+    L.from('palavras_faladas').select('id', {count:'exact', head:true}),
+    L.from('confirmacoes').select('id', {count:'exact', head:true}),
+    L.from('vocabulario_confirmado').select('aluno_id,palavra')]);
+  const vocab = new Set((voc||[]).map(v => v.aluno_id + v.palavra)).size;
+  el.insertAdjacentHTML('beforeend', `
+    <div class="num">${vocab}<small>palavras confirmadas</small></div>
+    <div class="lista"><div><span>Dias gravados</span><span>${dias}</span></div>
+      <div><span>Último dia</span><span>${new Date(gs[0].data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span></div>
+      <div><span>Ocorrências para ouvir / decisões</span><span>${faladas ?? '–'} / ${decididas ?? '–'}</span></div></div>
+    ${link}`);
 }
 
 async function cardFotos(){

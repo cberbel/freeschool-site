@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Diário de linguagem — Painel AI</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Inter:wght@400;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* Diario de linguagem (masterfile 4.2, "medir sem testar"): confirmar as palavras que a crianca disse no dia,
+   ouvindo o trecho de audio, e ver o que ela ouviu e o nascimento de cada palavra.
+   Dados: schema `linguagem` do Supabase do ponto, que o PC sobe toda noite (Documents\diario-linguagem).
+   O navegador so LE e INSERE confirmacao; nada se edita nem apaga (a correcao humana fica ao lado). */
+:root{--tinta:#0D0D0F;--papel:#FFFFFF;--fundo:#F1F1F3;--azul:#0038E0;--amarelo:#F8E800;--vermelho:#F80000;
+      --cinza:#6E6E73;--linha:#DCDCE1;--ok:#1d6b3f;--erro:#b3261e;--realce:#fff4a8;--suave:#e8ecfb}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tinta:#F2F2F4;--papel:#17171A;--fundo:#0E0E10;--cinza:#A0A0A8;--linha:#2C2C31;--ok:#5fc48a;--erro:#ff8a80;--realce:#4a4300;--suave:#1d2440}}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.45 'Inter',system-ui,sans-serif;background:var(--fundo);color:var(--tinta);padding-bottom:70px}
+header{background:var(--papel);border-bottom:1px solid var(--linha);padding:10px 16px;position:sticky;top:0;z-index:5}
+.topo{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.voltar{color:var(--cinza);text-decoration:none;font-weight:600;font-size:13px;white-space:nowrap}
+h1{font:700 17px/1.2 'Poppins',sans-serif}
+.linha{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+select,button,input{font:inherit;color:inherit}
+select{border:1px solid var(--linha);border-radius:8px;padding:6px 8px;background:var(--papel);max-width:100%}
+.abas{display:flex;gap:4px;margin-left:auto}
+.abas button{background:none;border:1px solid var(--linha);border-radius:99px;padding:4px 12px;cursor:pointer;font-weight:600;font-size:13px;color:var(--cinza)}
+.abas button.on{background:var(--tinta);color:var(--papel);border-color:var(--tinta)}
+.barra{height:6px;background:var(--fundo);border-radius:3px;margin-top:10px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--azul);transition:width .3s}
+.prog{font-size:12.5px;color:var(--cinza);margin-top:4px}
+main{max-width:640px;margin:0 auto;padding:14px 16px}
+.card{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:14px;margin:0 0 12px}
+.card.feito{opacity:.6;padding:10px 14px}
+.cab{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.palavra{font:700 26px/1.1 'Poppins',sans-serif}
+.tag{font-size:11.5px;border-radius:99px;padding:2px 8px;background:var(--suave);color:var(--azul);font-weight:700}
+.tag.nova{background:var(--realce);color:inherit}
+.tag.fraca{background:var(--fundo);color:var(--cinza)}
+.n{color:var(--cinza);font-size:13px;margin-left:auto}
+.frase{color:var(--cinza);margin:8px 0 10px}
+.frase b{color:var(--tinta);background:var(--realce);border-radius:4px;padding:0 3px;font-weight:700}
+.ouvir{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.play{border:1px solid var(--azul);background:var(--papel);color:var(--azul);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:700}
+.play.tocando{background:var(--azul);color:#fff}
+.play:disabled{opacity:.4;cursor:default}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acoes button{border:0;border-radius:10px;padding:12px 8px;font-weight:700;cursor:pointer;background:var(--fundo)}
+.acoes .sim{background:var(--ok);color:#fff}
+.acoes .nao{color:var(--erro)}
+.res{display:flex;align-items:center;gap:10px}
+.res .palavra{font-size:19px}.res .d{font-weight:700}
+.res .mudar{margin-left:auto;background:none;border:0;color:var(--azul);cursor:pointer;text-decoration:underline}
+.vazio{text-align:center;color:var(--cinza);padding:40px 8px}
+.grade{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kpi{background:var(--papel);border:1px solid var(--linha);border-radius:12px;padding:10px 12px}
+.kpi b{display:block;font:700 24px/1.1 'Poppins',sans-serif}.kpi span{color:var(--cinza);font-size:12.5px}
+.tabela{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--papel);border-radius:12px;overflow:hidden;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--linha)}
+th{color:var(--cinza);font-weight:600;font-size:12px}
+h2{font:700 15px/1.3 'Poppins',sans-serif;margin:18px 0 8px}
+.nota{color:var(--cinza);font-size:12.5px;margin-top:8px}
+.atalhos{color:var(--cinza);font-size:12px;text-align:center;margin-top:8px}
+.msg{color:var(--erro);font-size:13.5px}
+@media (max-width:420px){.palavra{font-size:23px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topo"><h1 id="titulo">Diário de linguagem</h1><a class="voltar" href="/">← Painel</a></div>
+  <div class="linha">
+    <select id="aluno" aria-label="Criança"></select>
+    <select id="dia" aria-label="Dia"></select>
+    <div class="abas"><button id="abaC" class="on">Confirmar</button><button id="abaR">Dia</button></div>
+  </div>
+  <div class="barra"><i id="barra"></i></div>
+  <div class="prog" id="prog"></div>
+</header>
+<main id="main"><p class="vazio">Carregando…</p></main>
+<audio id="aud" preload="none"></audio>
+<script>
+const SB_URL = 'https://rmpnqrvsmxhnrwlgqmdp.supabase.co';
+const SB_KEY = 'sb_publishable_bg4n-MXnoYVWomRN90WTOg_HOdq3_9G';
+const db = supabase.createClient(SB_URL, SB_KEY);
+const L = db.schema('linguagem');
+const $ = s => document.querySelector(s);
+const aud = $('#aud');
+const TZ = 'America/Sao_Paulo';
+const ROT = {disse:'✓ disse', nao_disse:'✗ não disse', outra_pessoa:'outra pessoa', corrigida:'era outra palavra', inaudivel:'não dá para ouvir'};
+let USER = null, ALUNO = null, NOME = 'a criança', lista = [], aba = 'C', confs = [];
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hora = iso => new Date(iso).toLocaleTimeString('pt-BR', {timeZone: TZ, hour:'2-digit', minute:'2-digit'});
+const diaHora = iso => new Date(iso).toLocaleString('pt-BR', {timeZone: TZ, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+const diaLocal = iso => new Date(iso).toLocaleDateString('sv-SE', {timeZone: TZ});   // AAAA-MM-DD
+function destacar(frase, forma){
+  const f = esc(frase || ''), w = esc(forma || '');
+  const i = w ? f.toLowerCase().indexOf(w.toLowerCase()) : -1;
+  return i < 0 ? f : f.slice(0,i) + '<b>' + f.slice(i, i+w.length) + '</b>' + f.slice(i+w.length);
+}
+function erro(e){ $('#main').innerHTML = `<p class="vazio msg">${esc(e.message || e)}</p>`; }
+
+async function iniciar(){
+  const {data:{session}} = await db.auth.getSession();
+  if(!session){ location.href = '/'; return; }            // o login e o do painel
+  USER = session.user;
+  const {data: papel} = await db.rpc('ai_papel');
+  if(papel !== 'dono'){ $('#main').innerHTML = '<p class="vazio">Esta conta não tem acesso ao diário.</p>'; return; }
+  const {data: gs, error} = await L.from('gravacoes').select('aluno_id');
+  if(error) return erro(error);
+  const ids = [...new Set(gs.map(g => g.aluno_id))];
+  if(!ids.length){ $('#main').innerHTML = '<p class="vazio">Nenhuma gravação subiu ainda. Quando o gravador chegar, a rodada da noite processa no PC e sobe para cá.</p>'; $('#aluno').style.display='none'; $('#dia').style.display='none'; return; }
+  const {data: als} = await db.from('alunos').select('id,nome').in('id', ids);
+  const nomes = Object.fromEntries((als || []).map(a => [a.id, a.nome]));
+  const pedido = new URLSearchParams(location.search).get('aluno');
+  $('#aluno').innerHTML = ids.map(id => `<option value="${id}">${esc(nomes[id] || id.slice(0,8))}</option>`).join('');
+  if(pedido && ids.includes(pedido)) $('#aluno').value = pedido;
+  if(ids.length < 2) $('#aluno').style.display = 'none';
+  $('#aluno').onchange = () => trocarAluno(nomes);
+  $('#dia').onchange = carregar;
+  trocarAluno(nomes);
+}
+
+async function trocarAluno(nomes){
+  ALUNO = $('#aluno').value; NOME = (nomes[ALUNO] || 'a criança').split(' ')[0];
+  $('#titulo').textContent = 'Diário de linguagem · ' + NOME;
+  const {data: gs, error} = await L.from('gravacoes').select('data').eq('aluno_id', ALUNO).order('data', {ascending:false});
+  if(error) return erro(error);
+  const dias = [...new Set(gs.map(g => g.data))];
+  $('#dia').innerHTML = dias.map(d => `<option value="${d}">${d.split('-').reverse().join('/')}</option>`).join('');
+  carregar();
+}
+
+// confirmacoes do aluno, com a palavra e a hora de cada uma: valem para qualquer versao do pipeline
+async function lerConfs(){
+  const {data, error} = await L.from('confirmacoes')
+    .select('id,decisao,palavra_corrigida,decidido_em,palavras_faladas(palavra,em)').eq('aluno_id', ALUNO).order('id');
+  if(error) throw error;
+  confs = data.map(c => ({...c, palavra: c.palavras_faladas?.palavra, t: +new Date(c.palavras_faladas?.em)}));
+}
+function decisaoDe(palavra, em){          // a ultima decisao sobre a mesma palavra a +-1,5 s
+  const t = +new Date(em); let d = null;
+  for(const c of confs) if(c.palavra === palavra && Math.abs(c.t - t) < 1500) d = c;
+  return d;
+}
+
+async function carregar(){
+  if(aba === 'R') return resumo();
+  $('#main').innerHTML = '<p class="vazio">Carregando…</p>';
+  try{
+    const dia = $('#dia').value;
+    const {data: gs} = await L.from('gravacoes').select('id').eq('aluno_id', ALUNO).eq('data', dia);
+    const {data: vig, error: e1} = await L.from('processamentos_vigentes').select('id').in('gravacao_id', gs.map(g => g.id));
+    if(e1) throw e1;
+    const {data: pf, error: e2} = await L.from('palavras_faladas')
+      .select('id,palavra,forma,em,confirmada_asr,suspeita,frase,recorte_path,lingua')
+      .in('processamento_id', vig.map(v => v.id)).order('em');
+    if(e2) throw e2;
+    await lerConfs();
+    const {data: voc} = await L.from('vocabulario_confirmado').select('palavra,em').eq('aluno_id', ALUNO);
+    const antes = new Set((voc || []).filter(v => diaLocal(v.em) < dia).map(v => v.palavra));
+    const grupos = {};
+    for(const r of pf){
+      const g = grupos[r.palavra] ||= {palavra:r.palavra, forma:r.forma, n:0, asr:false, nova:!antes.has(r.palavra), inst:[], lingua:r.lingua};
+      const d = decisaoDe(r.palavra, r.em);
+      g.n++; g.asr = g.asr || r.confirmada_asr;
+      g.inst.push({id:r.id, em:r.em, frase:r.frase, forma:r.forma, asr:r.confirmada_asr, recorte:r.recorte_path,
+                   suspeita:r.suspeita, decisao:d?.decisao || null, corrigida:d?.palavra_corrigida || null});
+    }
+    lista = Object.values(grupos).map(g => {
+      g.inst.sort((a,b) => (a.decisao===null)-(b.decisao===null) || (!a.asr)-(!b.asr) || a.suspeita-b.suspeita);
+      g.suspeita = g.inst.every(i => i.suspeita);
+      g.decisao = g.inst.find(i => i.decisao)?.decisao || null;
+      g.inst = g.inst.slice(0, 4);
+      return g;
+    }).sort((a,b) => (a.decisao!==null)-(b.decisao!==null) || (!a.nova)-(!b.nova) || (!a.asr)-(!b.asr) || b.n-a.n);
+    desenhar();
+  }catch(e){ erro(e); }
+}
+
+function progresso(){
+  const feitas = lista.filter(g => g.decisao).length;
+  $('#barra').style.width = lista.length ? (100*feitas/lista.length) + '%' : '0';
+  $('#prog').textContent = aba === 'C' && lista.length ? `${feitas} de ${lista.length} palavras conferidas` : '';
+}
+
+function desenhar(){
+  progresso();
+  if(!lista.length){ $('#main').innerHTML = `<p class="vazio">Nenhuma palavra de ${esc(NOME)} neste dia.</p>`; return; }
+  $('#main').innerHTML = lista.map(cartao).join('') +
+    '<p class="atalhos">No computador: espaço ouve · 1 disse · 2 não disse · 3 outra pessoa · 4 outra palavra</p>';
+}
+
+function cartao(g, k){
+  const i0 = g.inst[0];
+  if(g.decisao){
+    const d = g.inst.find(i => i.decisao) || i0;
+    return `<div class="card feito" id="c${k}"><div class="res"><span class="palavra">${esc(g.forma)}</span>
+      <span class="d">${ROT[g.decisao]}${d.corrigida ? ' → ' + esc(d.corrigida) : ''}</span>
+      <button class="mudar" onclick="mudar(${k})">mudar</button></div></div>`;
+  }
+  const tags = (g.nova ? '<span class="tag nova">nova</span>' : '<span class="tag">já conhecida</span>') +
+    (g.asr ? '' : '<span class="tag fraca" title="só o Whisper ouviu; o Parakeet não confirmou">só um modelo ouviu</span>') +
+    (g.suspeita ? '<span class="tag fraca" title="repetição que pode ser eco do reconhecedor; criança também repete">repetida</span>' : '') +
+    (g.lingua && g.lingua !== 'pt' ? `<span class="tag">${esc(g.lingua)}</span>` : '');
+  const ouvir = g.inst.map((i, j) => `<button class="play" data-k="${k}" data-j="${j}" onclick="tocar(this)" ${i.recorte ? '' : 'disabled title="sem recorte"'}>▶ ${hora(i.em)}</button>`).join('');
+  return `<div class="card" id="c${k}">
+    <div class="cab"><span class="palavra">${esc(g.forma)}</span>${tags}<span class="n">${g.n}× no dia</span></div>
+    <div class="frase">“${destacar(i0.frase, i0.forma)}”</div>
+    <div class="ouvir">${ouvir}</div>
+    <div class="acoes">
+      <button class="sim" onclick="decidir(${k},'disse')">✓ Disse</button>
+      <button class="nao" onclick="decidir(${k},'nao_disse')">✗ Não disse</button>
+      <button onclick="decidir(${k},'outra_pessoa')">Foi outra pessoa</button>
+      <button onclick="corrigir(${k})">✎ Era outra palavra</button>
+    </div></div>`;
+}
+
+const urls = {};
+async function tocar(b){
+  const g = lista[+b.dataset.k], i = g.inst[+b.dataset.j];
+  document.querySelectorAll('.play.tocando').forEach(x => x.classList.remove('tocando'));
+  if(!urls[i.recorte]){
+    const {data, error} = await db.storage.from('linguagem-recortes').createSignedUrl(i.recorte, 3600);
+    if(error){ alert('Não achei o áudio: ' + error.message); return; }
+    urls[i.recorte] = data.signedUrl;
+  }
+  aud.src = urls[i.recorte]; aud.play(); b.classList.add('tocando');
+  aud.onended = () => b.classList.remove('tocando');
+  g._j = +b.dataset.j;
+}
+
+async function decidir(k, decisao, corrigida){
+  const g = lista[k], i = g.inst[g._j || 0];
+  const {error} = await L.from('confirmacoes').insert({palavra_falada_id: i.id, aluno_id: ALUNO, decisao,
+    palavra_corrigida: corrigida || null, decidido_por: USER.id, papel: 'dono'});
+  if(error){ alert('Não gravou: ' + error.message); return; }
+  i.decisao = decisao; i.corrigida = corrigida || null; g.decisao = decisao;
+  $('#c'+k).outerHTML = cartao(g, k);
+  progresso();
+  const prox = lista.findIndex(x => !x.decisao);
+  if(prox >= 0) $('#c'+prox).scrollIntoView({behavior:'smooth', block:'center'});
+}
+function corrigir(k){
+  const p = prompt('O que ' + NOME + ' disse de fato?', lista[k].forma);
+  if(p && p.trim()) decidir(k, 'corrigida', p.trim().toLowerCase());
+}
+// "mudar" so reabre o cartao: a nova decisao entra AO LADO da antiga (vale a mais recente)
+function mudar(k){ const g = lista[k]; g.decisao = null; g.inst.forEach(i => i.decisao = null); $('#c'+k).outerHTML = cartao(g, k); progresso(); }
+
+document.addEventListener('keydown', e => {
+  if(aba !== 'C' || /INPUT|SELECT/.test(e.target.tagName)) return;
+  const k = lista.findIndex(g => !g.decisao); if(k < 0) return;
+  if(e.key === ' '){ e.preventDefault(); const b = document.querySelector(`#c${k} .play:not([disabled])`); b && tocar(b); }
+  if(e.key === '1') decidir(k, 'disse');
+  if(e.key === '2') decidir(k, 'nao_disse');
+  if(e.key === '3') decidir(k, 'outra_pessoa');
+  if(e.key === '4') corrigir(k);
+});
+
+async function resumo(){
+  progresso();
+  $('#main').innerHTML = '<p class="vazio">Carregando…</p>';
+  const dia = $('#dia').value;
+  const [{data: md, error}, {data: nasc}, {data: voc}] = await Promise.all([
+    L.from('medidas_do_dia').select('*').eq('aluno_id', ALUNO).eq('data', dia),
+    L.from('nascimentos').select('*').eq('aluno_id', ALUNO).order('nasceu_em', {ascending:false}).limit(60),
+    L.from('vocabulario_confirmado').select('palavra').eq('aluno_id', ALUNO)]);
+  if(error) return erro(error);
+  const m = md[0] || {}, vocab = new Set((voc || []).map(v => v.palavra)).size;
+  const kpi = (v, t) => `<div class="kpi"><b>${v ?? '–'}</b><span>${t}</span></div>`;
+  const f = x => x == null ? '–' : (Math.round(x*10)/10).toLocaleString('pt-BR');
+  $('#main').innerHTML = `
+    <h2>O que ${esc(NOME)} ouviu</h2>
+    <div class="grade">${kpi(m.palavras_adulto, 'palavras de adulto')}${kpi(m.palavras_dirigidas, 'dirigidas a ela')}
+      ${kpi(m.palavras_ao_redor, 'ouvidas ao redor')}${kpi(m.palavras_outras_criancas, 'de outras crianças')}
+      ${kpi(m.tipos_ouvidos, 'palavras diferentes')}${kpi(m.tipos_dirigidos, 'diferentes, dirigidas')}</div>
+    <h2>O que ela falou e conversou</h2>
+    <div class="grade">${kpi(m.vocalizacoes_alvo, 'vocalizações')}${kpi(m.turnos, 'turnos de conversa')}
+      ${kpi(m.conversas, 'conversas')}${kpi(m.palavras_faladas_asr, 'palavras (2 modelos)')}
+      ${kpi(m.candidatas_novas, 'candidatas novas')}${kpi(vocab, 'vocabulário confirmado')}</div>
+    <p class="nota">${m.gravacoes || 0} gravação(ões) · ${esc(m.locais || '')} · ${f(m.horas_gravadas)} h gravadas · ${f(m.min_fala_total)} min de fala · ${esc(m.versao_pipeline || '')}.
+      As contagens de palavras usam só o que os dois reconhecedores ouviram.</p>
+    <h2>Nascimento das palavras</h2>
+    ${nasc && nasc.length ? `<div class="tabela"><table><tr><th>palavra</th><th>nasceu</th><th>ouviu antes</th><th>dirigidas</th><th>ao redor</th></tr>
+      ${nasc.map(n => `<tr><td><b>${esc(n.palavra)}</b>${n.censurada ? ' <span class="tag fraca" title="menos de 14 dias de gravação antes: ela pode já saber a palavra">início</span>' : ''}</td>
+      <td>${diaHora(n.nasceu_em)}</td><td>${n.ouvidas_antes}</td><td>${n.dirigidas_antes}</td><td>${n.ao_redor_antes}</td></tr>`).join('')}</table></div>`
+      : '<p class="nota">Ainda nenhuma palavra confirmada.</p>'}`;
+}
+
+$('#abaC').onclick = () => { aba = 'C'; $('#abaC').classList.add('on'); $('#abaR').classList.remove('on'); carregar(); };
+$('#abaR').onclick = () => { aba = 'R'; $('#abaR').classList.add('on'); $('#abaC').classList.remove('on'); resumo(); };
+iniciar();
+</script>
+</body>
+</html>
